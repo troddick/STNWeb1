@@ -669,7 +669,7 @@
                     <span class="required">First Name</span>
                 </td>
                 <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
-                    <input type="text" id="depStaffFName" class="stnTextInput ui-shadow-inset required" style="width: 55%" name="DeplContact.FNAME" data-mini="true" value="@Model.DeplContact.FNAME" />
+                    <input type="text" id="depStaffFName" class="stnTextInput ui-shadow-inset required" style="width: 55%" name="DeplContact.FNAME" data-mini="true" value="@(Model.DeplContact != null ? Model.DeplContact.FNAME : "")" />
                 </td>
             </tr>
             <tr>
@@ -677,7 +677,7 @@
                     <span class="required">Last Name</span>
                 </td>
                 <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
-                    <input type="text" id="depStaffLName" class="required stnTextInput ui-shadow-inset" style="width: 55%" name="DeplContact.LNAME" data-mini="true" value="@Model.DeplContact.LNAME" />
+                    <input type="text" id="depStaffLName" class="required stnTextInput ui-shadow-inset" style="width: 55%" name="DeplContact.LNAME" data-mini="true" value="@(Model.DeplContact != null ? Model.DeplContact.LNAME : "")" />
                 </td>
             </tr>
             <tr>
@@ -685,7 +685,7 @@
                     <span class="required">Email</span>
                 </td>
                 <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
-                    <input type="text" id="depStaffEmail" class="required stnTextInput ui-shadow-inset" style="width: 55%" name="DeplContact.EMAIL" data-mini="true" value="@Model.DeplContact.EMAIL" />
+                    <input type="text" id="depStaffEmail" class="required stnTextInput ui-shadow-inset" style="width: 55%" name="DeplContact.EMAIL" data-mini="true" value="@(Model.DeplContact != null ? Model.DeplContact.EMAIL : "")" />
                 </td>
             </tr>
             <tr>
@@ -693,7 +693,7 @@
                     <span class="required">Phone</span>
                 </td>
                 <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
-                    <input type="text" id="RdepStaffPhone" class="required stnTextInput ui-shadow-inset" style="width: 55%" name="DeplContact.PHONE" data-mini="true" value="@Model.DeplContact.PHONE" />
+                    <input type="text" id="RdepStaffPhone" class="required stnTextInput ui-shadow-inset" style="width: 55%" name="DeplContact.PHONE" data-mini="true" value="@(Model.DeplContact != null ? Model.DeplContact.PHONE : "")" />
                 </td>
             </tr>
             <tr>
@@ -701,7 +701,7 @@
                     <span>Alternate Phone</span>
                 </td>
                 <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
-                    <input type="text" id="RdepStaffAltPhone" class="stnTextInput ui-shadow-inset" style="width: 55%" name="DeplContact.ALT_PHONE" data-mini="true" value="@Model.DeplContact.ALT_PHONE" />
+                    <input type="text" id="RdepStaffAltPhone" class="stnTextInput ui-shadow-inset" style="width: 55%" name="DeplContact.ALT_PHONE" data-mini="true" value="@(Model.DeplContact != null ? Model.DeplContact.ALT_PHONE : "")" />
                 </td>
             </tr>
             <tr>

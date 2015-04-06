@@ -1,0 +1,36 @@
+﻿@* 10.10.12 - JB - Created *@
+
+@*
+/* Authors:
+ *      Jonathan Baier (jbaier@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display a list of all HWMs
+ */
+ *@
+
+@using STNServices.Resources;
+
+@model HWMList
+
+@{
+    ViewBag.Title = "High Water Marks Listing";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+     <h2>HWM Listing</h2>
+
+        <div>
+                <ul>
+                @foreach (var aHWM in Model.HWMs as List<SimpleHWM>)
+                {
+                   
+                    <li>
+                        @Html.ActionLink(aHWM.HWM_LOCATIONDESCRIPTION + "(" + aHWM.ELEV_FT + ")" , "Details", "HWMs", new { id = aHWM.HWM_ID }, null)                                                        
+                    </li>                                              
+                }                    
+                </ul>
+                                    
+		</div>

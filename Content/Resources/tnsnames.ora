@@ -1,0 +1,93 @@
+BLIVERDS =
+  (DESCRIPTION =
+    (ADDRESS=(PROTOCOL=TCP)(HOST=blive-epa.ck2zppz9pgsw.us-east-1.rds.amazonaws.com)(PORT=3306))
+    (LOAD_BALANCE = yes)
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SID=BLIVE)
+      (FAILOVER_MODE =
+        (TYPE = SELECT)
+        (METHOD = BASIC)
+        (RETRIES = 10)
+        (DELAY = 5)
+      )
+    )
+  )
+
+FRRDS =
+  (DESCRIPTION =
+    (ADDRESS=(PROTOCOL=TCP)(HOST=floodresponse.ck2zppz9pgsw.us-east-1.rds.amazonaws.com)(PORT=3306))
+    (LOAD_BALANCE = yes)
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SID=FLOODRES)
+      (FAILOVER_MODE =
+        (TYPE = SELECT)
+        (METHOD = BASIC)
+        (RETRIES = 10)
+        (DELAY = 5)
+      )
+    )
+  )
+
+BLIVEEPA11 =
+  (DESCRIPTION =
+    (ADDRESS=(PROTOCOL=TCP)(HOST=130.11.167.12)(PORT=1521))
+    (LOAD_BALANCE = yes)
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SID=EPAPROD)
+      (FAILOVER_MODE =
+        (TYPE = SELECT)
+        (METHOD = BASIC)
+        (RETRIES = 10)
+        (DELAY = 5)
+      )
+    )
+  )
+LAMPRDS =
+  (DESCRIPTION =
+    (ADDRESS=(PROTOCOL=TCP)(HOST=lamp.ck2zppz9pgsw.us-east-1.rds.amazonaws.com)(PORT=3306))
+    (LOAD_BALANCE = yes)
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SID=LAMP)
+      (FAILOVER_MODE =
+        (TYPE = SELECT)
+        (METHOD = BASIC)
+        (RETRIES = 10)
+        (DELAY = 5)
+      )
+    )
+  )
+
+STNRDS =
+  (DESCRIPTION =
+    (ADDRESS=(PROTOCOL=TCP)(HOST=stn.ck2zppz9pgsw.us-east-1.rds.amazonaws.com)(PORT=3306))
+    (LOAD_BALANCE = yes)
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SID=STN)
+      (FAILOVER_MODE =
+        (TYPE = SELECT)
+        (METHOD = BASIC)
+        (RETRIES = 10)
+        (DELAY = 5)
+      )
+    )
+  )
+BLTRDS =
+  (DESCRIPTION =
+    (ADDRESS=(PROTOCOL=TCP)(HOST=blt.ck2zppz9pgsw.us-east-1.rds.amazonaws.com)(PORT=3306))
+    (LOAD_BALANCE = yes)
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SID=BLT)
+      (FAILOVER_MODE =
+        (TYPE = SELECT)
+        (METHOD = BASIC)
+        (RETRIES = 10)
+        (DELAY = 5)
+      )
+    )
+  )

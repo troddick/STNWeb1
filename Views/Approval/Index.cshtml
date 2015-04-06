@@ -1,0 +1,131 @@
+﻿@* 
+11.28.12 - TR - changed label to html label
+10.19.12 - JB - Created from old web app
+*@
+
+@*
+/* Authors:
+ *      Jonathan Baier (jbaier@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display dashboard listing
+ */
+ *@
+
+@using STNServices;
+@using STNServices.Handlers;
+@using STNWeb.Assets.Resources;
+
+@{
+    ViewBag.Title = "Pending Approval";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+    
+<script src="@Url.Content("~/Assets/Scripts/jquery.unobtrusive-ajax.min.js")" type="text/javascript"></script>
+
+<div id="dataTitle">
+    <div class="title">Pending Approval</div>
+</div>
+<br clear="all" />
+        
+<hr class="headerUnderline" />
+
+<div>Choose what you want to approve. Search by one or more parameters.</div>
+            
+<div class="ApproveFilters" data-role="fieldcontain">
+                        
+    @using (Ajax.BeginForm("FilteredApprovals", "Approval", new AjaxOptions() { UpdateTargetId = "FilteredUpdate", HttpMethod = "POST" }))
+    {
+        <div class="ApprovalDrop">
+            <select id="EventSelect" class="stnSelectInput" name="EVENT_ID" data-native-menu="false" data-mini="true">
+                   <option value="0">Events</option>
+                   @foreach (EVENT aET in ViewData["EventList"] as List<EVENT>)
+                {
+                    <option value='@aET.EVENT_ID'>@aET.EVENT_NAME</option> 
+                }
+            </select>
+        </div>
+                            
+        <div class="ApprovalDrop">
+            <select id="StateSelect" class="stnSelectInput" name="STATE_NAME" data-native-menu="false" data-mini="true">
+                <option value="0">States</option>
+		        @foreach (STATES st in ViewData["StateList"] as List<STATES>)
+                {
+                    <option value='@st.STATE_ABBREV'>@st.STATE_NAME</option> 
+                }
+            </select>
+        </div>
+                            
+        <div class="ApprovalDrop">
+            <select id="MemberSelect" class="stnSelectInput" name="MEMBER_ID" data-native-menu="false" data-mini="true">
+			    <option value="0">Members</option>
+                @foreach (MEMBER me in ViewData["MemberList"] as List<MEMBER>)
+                {
+                    <option value='@me.MEMBER_ID'>@(me.LNAME), @(me.FNAME)</option> 
+                }
+            </select>
+        </div>       
+    }
+
+    <input type="button" onclick="QueryThese();" class="STNButton" value="Search" />
+@*    <input type="button" onclick="GetAll();" class="STNButton" value="Show All" />*@
+    <br />	
+                        
+</div>
+               
+<div id="FilteredUpdate"> @* Div that will be updated with filtered values *@
+
+    <div class="fiftyPercColumn"> 
+        <div class="subSection">
+            <div class="subSectionHeader"><span class="bold">@Html.Label(globalStrings.HWM_Label)</span></div>
+            <div class="subSectionContent">
+                
+                
+            </div>
+        </div>
+    </div>
+        
+    <div class="fiftyPercColumn"> 
+        <div class="subSection">
+            <div class="subSectionHeader"><span class="bold">@Html.Label(FileStrings.InstrumentDF_Label)</span></div>
+            <div class="subSectionContent">                
+               
+            </div> 
+        </div> 
+    </div> 
+
+</div>
+
+<br clear="all" />
+
+<script type="text/javascript">
+    function QueryThese() {
+        if ($("#EventSelect").val() != 0 || $("#StateSelect").val() != 0 || $("#MemberSelect").val() != 0) {
+            $("#loading").fadeIn();
+            $("#form0").submit();
+        }
+        else {
+            alert("Please choose at least one query first");            
+        }
+    }
+
+    function GetAll() {
+        $("#loading").fadeIn();
+        $("#EventSelect").val(0);
+        $("#StateSelect").val(0);
+        $("#MemberSelect").val(0);
+        $.ajax ({
+            url: '@Url.Action("ShowAllApproval", "Approval")',
+            type: 'GET',
+            success: function (response) {
+                $("#FilteredUpdate").html(response);
+            }
+        });
+        $("loading").fadeOut();
+    }
+
+    function loading(){
+        $("#loading").fadeIn();
+    }
+</script>

@@ -1,0 +1,493 @@
+﻿@* Comments:
+11.30.12 - TR - Created Partia View
+
+*@
+
+@*
+/* Authors:
+*      Tonia Roddick (troddick@usgs.gov)
+* Copyright:
+*      2012 USGS - WiM
+* Purpose:
+*      Edit a Objective Point (Partial View)
+*/
+*@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model STNServices.OBJECTIVE_POINT
+
+
+@using (Ajax.BeginForm("ObjPointEdit", "ObjPoints", new { id = Model.OBJECTIVE_POINT_ID }, new AjaxOptions() { HttpMethod = "POST", UpdateTargetId = "content", LoadingElementId = "loading" }, new { @id = "ObjPtEditForm" }))
+{
+    <input type="hidden" name="OBJECTIVE_POINT_ID" value="@Model.OBJECTIVE_POINT_ID" />
+    <input type="hidden" name="SITE_ID" value="@Model.SITE_ID" />
+    
+    <div class="fiftyPercColumn">
+        
+        <div data-role="fieldcontain">
+            <span class="bold ui-label-a">@Html.Label(ObjPointsStrings.OPType_Label)</span>
+            <select id="opTypeDD" name="OP_TYPE_ID" class="stnTextInput ui-shadow-inset selectmargin" data-native-menu="false" data-mini="true">
+				<option value="0">Choose an Objective Point Type</option>
+                @foreach (OBJECTIVE_POINT_TYPE anOPT in ViewData["OPTypes"] as List<OBJECTIVE_POINT_TYPE>)
+                {
+                        <option @( (anOPT.OBJECTIVE_POINT_TYPE_ID == Model.OP_TYPE_ID) ? "selected" : "") value='@anOPT.OBJECTIVE_POINT_TYPE_ID'>@anOPT.OP_TYPE</option> 
+                }
+            </select><br />	
+        </div>
+
+        <div data-role="fieldcontain">
+            <span class="required bold ui-label-a">@Html.Label(ObjPointsStrings.Name_Label)</span>
+            <input type="text" class="required margin stnTextInput ui-shadow-inset" name="NAME" data-mini="true" value="@Model.NAME" />
+        </div>
+
+        <div data-role="fieldcontain">
+            <span class="required bold ui-label-a">@Html.Label(ObjPointsStrings.Description_Label)</span>
+            <textarea rows="4" class="required margin stnTextInput ui-shadow-inset" cols="30" name="DESCRIPTION" data-mini="true">@Model.DESCRIPTION</textarea>
+        </div>
+        
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="bold ui-label-a">@Html.Label(ObjPointsStrings.OPControlIdentifier_Label)</div>
+                <div class="ui-block-b"><input type="button" value="Add New Identifier" onclick="AddNewIdentifierRow();" /></div>                
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="bold ui-label-a">&nbsp;</div>
+                    <div class="ui-block-b">
+                    @if (ViewData.ContainsKey("ControlIDs"))
+                    {
+                        int i = 0;
+                        string controlIDs = string.Empty;
+                    
+                        <table id="controlTable" style="display:inline-block; width:100%;">
+                            <thead>
+                                <tr>
+                                    <th style="width:52%;text-align:left;">Identifier</th>
+                                    <th style="width:38%">Type</th>
+                                    <th>Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (OP_CONTROL_IDENTIFIER opc in ViewData["ControlIDs"] as List<OP_CONTROL_IDENTIFIER>)
+                                {
+                                    <tr id="tr@(i + 1)">
+                                        <td>
+                                            <input type="hidden" class="stnTextInput ui-shadow-inset" name="OPIdentifiers[@(i)].OP_CONTROL_IDENTIFIER_ID" value="@opc.OP_CONTROL_IDENTIFIER_ID" />
+                                            <input type="text" style="width:92%" class="stnTextInput ui-shadow-inset" name="OPIdentifiers[@(i)].IDENTIFIER" value="@opc.IDENTIFIER" />
+                                        </td>
+                                        @if (opc.IDENTIFIER_TYPE == "PID")
+                                        {
+                                            <td style="text-align:center">
+                                                <input type="radio" name="OPIdentifiers[@(i)].IDENTIFIER_TYPE" checked="checked" value="@opc.IDENTIFIER_TYPE" />PID
+                                                &nbsp;
+                                                <input type="radio" name="OPIdentifiers[@(i)].IDENTIFIER_TYPE" value="@opc.IDENTIFIER_TYPE" />Other
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td style="text-align:center">
+                                                <input type="radio" name="OPIdentifiers[@(i)].IDENTIFIER_TYPE" value="@opc.IDENTIFIER_TYPE" />PID
+                                                &nbsp;
+                                                <input type="radio" name="OPIdentifiers[@(i)].IDENTIFIER_TYPE" checked="checked" value="@opc.IDENTIFIER_TYPE" />Other
+                                            </td>
+                                        }
+                                        <td style="text-align:center"><a onclick="RemoveIdentifier('tr@(i + 1)', '@(opc.OP_CONTROL_IDENTIFIER_ID)');"><img src="@Url.Content("~/Assets/Images/Close.fw.png")"/></a></td>
+                                    </tr>
+                                        i++;
+                                        if (string.IsNullOrEmpty(controlIDs))
+                                        {
+                                            controlIDs = opc.OP_CONTROL_IDENTIFIER_ID.ToString();
+                                        }
+                                        else
+                                        {
+                                            controlIDs += "," + opc.OP_CONTROL_IDENTIFIER_ID;
+                                        }
+
+                                }
+                            </tbody>
+                        </table>
+                        
+                        <input type="hidden" name="IdentifiersIds" value="@controlIDs" />
+                        <input type="hidden" id="ControlsToRemove" name="IdentifiersToRemove"/>
+                    }
+                    else
+                    {
+                    
+                        <div id="OPControlTableDiv" class="hidden" style="width:100%">
+                            <table id="controlTable">
+                                <thead>
+                                    <tr>
+                                        <td>Identifier</td><td style="text-align:center">Type</td><td>Remove</td>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <br clear="all" />
+        <div data-role="fieldcontain" style="margin-top:5px">
+            <span class="ui-label-a">&nbsp;</span>
+            <span>
+                <input type="radio" name="IntervalUnit" id="dd_radio" checked="checked" value="DecDeg" />Dec Deg
+                <input type="radio" name="IntervalUnit" id="dms_radio" value="DMS" />DMS
+            </span>
+        </div>
+
+        <div data-role="fieldcontain">
+            <span class="bold ui-label-a">@Html.Label(SiteStrings.Latitude_Label)</span>
+            <div id="Lat_dd"><input type="text" class="stnTextInput margin ui-shadow-inset" id="latitude" name="LATITUDE_DD" data-mini="true" onkeypress="return isNumberKey(event)" value="@Model.LATITUDE_DD" /></div>
+            <div class="hidden" id="Lat_dmc">
+                <input type="text" style="width:9%" class="stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" id="Latdec" name="LATITUDE_D" data-mini="true" />&nbsp;°&nbsp;&nbsp;
+                <input  type="text" style="width:9%" class="stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" id="Latmin" name="LATITUDE_M" data-mini="true" />&nbsp;′&nbsp;&nbsp;
+                <input  type="text" style="width:20%" class="stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" id="Latsec" name="LATITUDE_S" data-mini="true" />&nbsp;″
+            </div>
+        </div>
+
+        <div data-role="fieldcontain">
+            <span class="bold ui-label-a">@Html.Label(SiteStrings.Longitude_Label)</span>
+            <div id="Long_dd"><input type="text" class="stnTextInput margin ui-shadow-inset" id="longitude" name="LONGITUDE_DD" data-mini="true" value="@Model.LONGITUDE_DD" /></div>
+             <div class="hidden"  id="Long_dmc">
+                <input type="text" style="width:9%" class="stnTextInput ui-shadow-inset" id="Longdec" name="LONGITUDE_D" data-mini="true" />&nbsp;°&nbsp;&nbsp;
+                <input  type="text" style="width:9%" class="stnTextInput ui-shadow-inset" id="Longmin" onkeypress="return isNumberKey(event)" name="LONGITUDE_M" data-mini="true" />&nbsp;′&nbsp;&nbsp;
+                <input  type="text" style="width:20%" class="stnTextInput ui-shadow-inset" id="Longsec" onkeypress="return isNumberKey(event)" name="LONGITUDE_S" data-mini="true" />&nbsp;″
+            </div>
+        </div>
+
+        <div data-role="fieldcontain">
+            <span class="bold ui-label-a">@Html.Label(SiteStrings.HDatum_Label)</span>
+            <select id="hdatumDD" name="HDATUM_ID" class="stnTextInput ui-shadow-inset selectmargin" data-native-menu="false" data-mini="true">
+				<option value="">Choose a Horizontal Datum</option>
+                @foreach (HORIZONTAL_DATUMS hDatum in ViewData["HorizontalDatum"] as List<HORIZONTAL_DATUMS>)
+                {
+                    <option @( (hDatum.DATUM_ID == Model.HDATUM_ID) ? "selected" : "") value='@hDatum.DATUM_ID'>@hDatum.DATUM_NAME</option> 
+                }
+            </select><br />	
+        </div>
+
+        <div data-role="fieldcontain">
+            <span class="bold ui-label-a">@Html.Label(HWMStrings.HCollectMethod_Label)</span>
+            <select id="gpsTypeDD" class="stnTextInput ui-shadow-inset selectmargin" name="HCOLLECT_METHOD_ID" data-native-menu="false" data-mini="true">
+			    <option value="">Choose a Horizontal Collection Method</option>
+                @foreach (HORIZONTAL_COLLECT_METHODS hcm in ViewData["hColMethodList"] as List<HORIZONTAL_COLLECT_METHODS>)
+                {
+                    <option @(hcm.HCOLLECT_METHOD_ID == Model.HCOLLECT_METHOD_ID ? "selected" : "") value='@hcm.HCOLLECT_METHOD_ID'>@hcm.HCOLLECT_METHOD</option> 
+                }
+            </select><br />	
+        </div>
+        
+        <div data-role="fieldcontain" style="margin-top:5px">
+            <span class="ui-label-a">&nbsp;</span>
+            <span>
+                <input type="radio" name="ElevationUnit" id="ft_radio" checked="checked" value="ft" />ft
+                <input type="radio" name="ElevationUnit" id="mtr_radio" value="meter" />meter
+            </span>
+        </div>
+
+        <div data-role="fieldcontain">
+            <span class="bold ui-label-a">@Html.Label(ObjPointsStrings.Elevation_Label)</span>
+            <input type="text" class="stnTextInput margin ui-shadow-inset" name="ELEV_FT" data-mini="true" onkeypress="return isNegNumberKey(event)" value="@Model.ELEV_FT" />
+        </div>
+
+        <div data-role="fieldcontain">
+            <span class="bold ui-label-a">@Html.Label(globalStrings.VDatum_Label)</span>
+            <select id="groupPlaceholder" name="VDATUM_ID" class="stnTextInput ui-shadow-inset selectmargin" data-native-menu="false" data-mini="true">
+				<option value="0">Choose a Vertical Datum</option>
+                @foreach (STNServices.VERTICAL_DATUMS aDatum in ViewData["VerticalDatum"] as List<VERTICAL_DATUMS>)
+                {
+                        <option @( (aDatum.DATUM_ID == Model.VDATUM_ID) ? "selected" : "") value='@aDatum.DATUM_ID'>@aDatum.DATUM_NAME</option> 
+                }
+            </select><br />	
+        </div>
+        
+        <div data-role="fieldcontain">
+            <span class="bold ui-label-a">@Html.Label(HWMStrings.VCollectMethod_Label)</span>
+            <select id="VcollectMethodDD" name="VCOLLECT_METHOD_ID" class="stnTextInput ui-shadow-inset selectmargin" data-native-menu="false" data-mini="true">
+				<option value="0">Choose a Vertical Collection Method</option>
+                @foreach (VERTICAL_COLLECT_METHODS aVCM in ViewData["VcollectMethodList"] as List<VERTICAL_COLLECT_METHODS>)
+                {
+                        <option @( (aVCM.VCOLLECT_METHOD_ID == Model.VCOLLECT_METHOD_ID) ? "selected" : "") value='@aVCM.VCOLLECT_METHOD_ID'>@aVCM.VCOLLECT_METHOD</option> 
+                }
+            </select><br />	
+        </div>
+
+        <div data-role="fieldcontain" style="margin-top:5px">
+            <span class="ui-label-a">&nbsp;</span>
+            <span>
+                <input type="radio" name="UncertainUnit" id="ft2_radio" checked="checked" value="ft" />+/- ft
+                <input type="radio" name="UncertainUnit" id="cm_radio" value="cm" />+/- cm
+            </span>
+        </div>
+
+        <div data-role="fieldcontain">
+            <span class="bold ui-label-a">@Html.Label(ObjPointsStrings.Uncertainty_Label)</span>
+            @if (Model.UNQUANTIFIED == "1")
+            {
+                <input type="text" class="stnTextInput margin ui-shadow-inset" name="UNCERTAINTY" id="uncertainty" disabled="disabled" style="width:66px;background-color:gainsboro;" data-mini="true" onkeypress="return isNegNumberKey(event)" value="@Model.UNCERTAINTY" />
+                <span style="margin-left:22px;margin-right:9px;text-decoration:underline;">OR</span>
+                <input type="checkbox" name="UNQUANTIFIED" value="1" id="checkUnquantified" checked="checked" /><span>Unquantified</span>
+            }
+            else
+            {
+                <input type="text" class="stnTextInput margin ui-shadow-inset" name="UNCERTAINTY" id="uncertainty" style="width:66px" data-mini="true" onkeypress="return isNegNumberKey(event)" value="@Model.UNCERTAINTY" />
+                <span style="margin-left:22px;margin-right:9px;text-decoration:underline;">OR</span>
+                <input type="checkbox" name="UNQUANTIFIED" id="checkUnquantified" value="1" /><span>Unquantified</span>
+            }
+        </div>
+
+        <div data-role="fieldcontain">
+            <span class="bold ui-label-a">@Html.Label(ObjPointsStrings.Quality_label)</span>
+            <select id="qualityDD" name="OP_QUALITY_ID" class="stnTextInput ui-shadow-inset selectmargin" data-native-menu="false" data-mini="true">
+				<option value="0">Choose a Quality</option>
+                @foreach (OP_QUALITY aQ in ViewData["Qualities"] as List<OP_QUALITY>)
+                {
+                        <option @( (aQ.OP_QUALITY_ID == Model.OP_QUALITY_ID) ? "selected" : "") value='@aQ.OP_QUALITY_ID'>@aQ.QUALITY</option> 
+                }
+            </select><br />	
+        </div>
+
+        <div data-role="fieldcontain">
+            <span class="bold ui-label-a">@Html.Label(ObjPointsStrings.ElevationNotes_Label)</span>
+            <textarea rows="4" cols="30" name="OP_NOTES" class="stnTextInput margin ui-shadow-inset" data-mini="true">@Model.OP_NOTES</textarea>
+        </div>
+            
+        <div data-role="fieldcontain">
+            <span class="required bold ui-label-a">@Html.Label(ObjPointsStrings.DateEstablished_Label)</span>
+            <input type="text" name="DATE_ESTABLISHED" class="stnTextInput required datepicker margin ui-shadow-inset" data-mini="true" value="@(Model.DATE_ESTABLISHED != null ? ((DateTime)Model.DATE_ESTABLISHED).ToShortDateString() : "")" />
+        </div>
+
+        <div data-role="fieldcontain">
+            <span class="bold ui-label-a">@Html.Label(ObjPointsStrings.DateRecovered_Label)</span>
+            <input type="text" name="DATE_RECOVERED" class="stnTextInput datepicker margin ui-shadow-inset" data-mini="true" value="@(Model.DATE_RECOVERED != null ? ((DateTime)Model.DATE_RECOVERED).ToShortDateString() : "")" />
+        </div>
+
+        <div data-role="fieldcontain">
+            <span class="bold ui-label-a">@Html.Label(ObjPointsStrings.DestroyedPoint_Label)</span>
+            @if (Model.OP_IS_DESTROYED == 1)
+            {
+                <input type="checkbox" class="margin" checked="checked" name="OP_IS_DESTROYED" value="1" />
+            }
+            else
+            {
+                <input type="checkbox" class="margin" name="OP_IS_DESTROYED" value="1" />
+            }
+        </div>
+            
+        <div data-role="fieldcontain">
+            <span class="bold ui-label-a">@Html.Label(globalStrings.SiteNo_Label)</span>
+            <label for="SITE_ID" style="float:left">@ViewData["aSiteNum"]</label>
+        </div>
+
+        <br />
+    
+    <br clear="all" />
+    <br />
+
+    <div id="formSubmitDiv" class="formSection">
+        <div class="leftSideSubmit">
+            <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+            <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" class="submit" value="Save" /></div></div>        
+        </div>
+   </div>
+         
+</div>
+}
+
+<script type="text/javascript">
+    $().ready(function () {
+        $("#loading").fadeOut();
+        $('input').filter('.datepicker').datepicker({
+            changeMonth: true,
+            yearRange: '1965:2030',
+            changeYear: true
+        });
+        //$("#longitude").mask("-999.?99999");
+
+        //radio button change going from dec degrees to degree minute seconds show/hides lat/long input texts
+        $("#dd_radio").change(function () { //Dec Deg
+            $("#Lat_dmc").hide();
+            $("#Long_dmc").hide();
+
+            if ($("#Latsec").val() != "") {
+                var degLa = $("#Latdec").val();
+                var minLa = $("#Latmin").val();
+                var secLa = $("#Latsec").val();
+                var decDegLat = azimuth(degLa, minLa, secLa);
+                $("#latitude").val(decDegLat);
+
+            }
+            if ($("#Longdec").val() != "") {
+                var degLo = $("#Longdec").val();
+                var minLo = $("#Longmin").val();
+                var secLo = $("#Longsec").val();
+                var decDegLong = azimuth(degLo, minLo, secLo);
+                $("#longitude").val(decDegLong);
+            }
+
+            $("#Lat_dd").show();
+            $("#Long_dd").show();
+        });
+
+        $("#dms_radio").change(function () { //dms
+            $("#Lat_dd").hide();
+            $("#Long_dd").hide();
+
+            if ($("#latitude").val() != "") {
+                var dms = deg_to_dms($("#latitude").val());
+                var dmsArray = dms.split(":");
+                $("#Latdec").val(dmsArray[0]);
+                $("#Latmin").val(dmsArray[1]);
+                $("#Latsec").val(dmsArray[2]);
+            }
+            if ($("#longitude").val() != "") {
+                var dms = deg_to_dms($("#longitude").val());
+                var dmsArray = dms.split(":");
+                $("#Longdec").val("-" + dmsArray[0]);
+                $("#Longmin").val(dmsArray[1]);
+                $("#Longsec").val(dmsArray[2]);
+            }
+            $("#Lat_dmc").show();
+            $("#Long_dmc").show();
+        });
+
+        //if they check unquantifid, clear out the certainty value and make it disabled, else enable it
+        $("#checkUnquantified").change(function () {     
+            if ($("#checkUnquantified").prop('checked')) {
+
+                $("#uncertainty").val("");
+                $("#uncertainty").prop('disabled', true);
+                $("#uncertainty").css('background-color', 'gainsboro');
+            }
+            else {
+                $("#uncertainty").prop('disabled', false);
+                $("#uncertainty").css('background-color', 'white');
+            }
+        });
+
+    });     // doc.ready
+
+    //adding OP_CONTROL_IDENTIFIERS TO this OP
+    function AddNewIdentifierRow() {
+        //how many rows are there
+        var ind = $('#controlTable >tbody:last >tr').length;
+        //append tr to the tbody with the rowID and index all op_control_identifiers
+        $("#controlTable tbody").append('<tr id="tr' + parseInt(ind+1) + '">' +
+            '<td><input type="hidden" name="OPIdentifiers[' + ind + '].OP_CONTROL_IDENTIFIER_ID" value="0" /><input type="text" class="stnTextInput ui-shadow-inset" name="OPIdentifiers[' + ind + '].IDENTIFIER" style="width:92%" /></td>' +
+            '<td style="text-align:center"><input type="radio" class="ui-shadow-inset" name="OPIdentifiers[' + ind + '].IDENTIFIER_TYPE" value="PID" />PID &nbsp;' +
+            '<input type="radio" class="ui-shadow-inset" name="OPIdentifiers[' + ind + '].IDENTIFIER_TYPE" value="Other" />Other' +
+            '<td style="text-align:center"><a onclick="RemoveIdentifier(\'tr' + parseInt(ind+1) + '\');"><img src="@Url.Content("~/Assets/Images/Close.fw.png")"/></a></td>'
+        );
+
+        //show the hidden header row
+        $(OPControlTableDiv).css("display", "inline-table");
+    }
+
+    //remove OP_CONTROL_IDENTIFIER from this OP
+    function RemoveIdentifier(trNum, opID) {
+        //remove the row
+        $("#" + trNum + "").remove();
+        
+        if (opID != undefined) {
+            //add to removed list
+            if ($("#ControlsToRemove").val() == "") {
+            $("#ControlsToRemove").val(opID);
+            }
+            else {
+                $("#ControlsToRemove").val($("#ControlsToRemove").val() + ", " + opID);
+            }
+        }
+
+        //update the table to fix rowIDs and Name Indexes (Very important so that controller gets info)
+        var index = 0;
+        $('#controlTable tbody tr').each(function (idx) {
+            //this row
+            $This = $(this);
+
+            //update tr id
+            $tr = $This[0];
+            var newID = "tr" + parseInt(index + 1);
+            $($tr).attr('id', newID);
+            
+            //update IDENTIFIER index
+            $Input = $This[0].children[0].children[0];
+            $Input1 = $This[0].children[0].children[1];
+            var name = $Input.name; //"OPIdentifiers[1].OP_CONTROL_IDENTIFIER_ID"
+            var name1 = $Input1.name; //"OPIdentifiers[1].IDENTIFIER"
+            var firstHalf = name.indexOf("[") + 1; //always same
+            var newName = name.substring(0, firstHalf) + index + name.substring(firstHalf + index.toString().length);
+            var newName1 = name1.substring(0, firstHalf) + index + name1.substring(firstHalf + index.toString().length);
+            $($Input).attr('name', newName);
+            $($Input1).attr('name', newName1);
+
+            //update both IDENTIFIER_TYPE index
+            $InputType1 = $This[0].children[1].children[0]; 
+            $InputType2 = $This[0].children[1].children[1];
+            var name2 = $InputType1.name;  //"OPIdentifiers[1].IDENTIFIER_TYPE"
+
+            var newName2 = name2.substring(0, firstHalf) + index + name2.substring(firstHalf + index.toString().length);
+            $($InputType1).attr('name', newName2); //PID
+            $($InputType2).attr('name', newName2); //Other
+
+            //update removeIdentifier X click trID passed
+            $OnClick = $This[0].children[2].children[0].attributes[0];
+            var name3 = $OnClick.nodeValue;
+            var fHalf2 = name3.indexOf("tr") + 2;
+            var newName3 = name3.substring(0, fHalf2) + parseInt(index + 1) + name3.substring(fHalf2 + +index.toString().length);
+            $OnClick.nodeValue = newName3;
+            index++;
+        });
+    }
+
+    //number formatter (any number and decimal place)
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode != 46 && charCode > 31
+            && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+    function isNegNumberKey(evt) {
+        //this allows only numbers and negative sign
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode > 31 && (charCode < 45 || charCode > 57)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    //convert deg min sec to dec degrees
+    function azimuth(deg, min, sec) {
+        if (deg < 0) {
+            azi = -1.0 * deg + 1.0 * min / 60.0 + 1.0 * sec / 3600.0;
+            return (-1.0 * azi).toFixed(5);
+        }
+        else {
+            azi = 1.0 * deg + 1.0 * min / 60.0 + 1.0 * sec / 3600.0;
+            return (azi).toFixed(5);
+        }
+    }
+
+    //convert dec degrees to dms
+    function deg_to_dms(deg) {
+        if (deg.substring(0, 1) == "-") {
+            deg = deg.substring(1);
+        }
+        var d = Math.floor(deg);
+        var minfloat = (deg - d) * 60;
+        var m = Math.floor(minfloat);
+        var s = ((minfloat - m) * 60).toFixed(3);
+
+        return ("" + d + ":" + m + ":" + s);
+    }
+
+    
+
+</script>

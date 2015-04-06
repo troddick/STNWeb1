@@ -1,0 +1,216 @@
+﻿@*Comment:
+04.14.14 - TR - added validation
+12.28.12 - JB - Style improvements
+12.05.12 - TR - brought Approval back in, broken now.
+11.30.12 - TR - pulled Approval out as partial view (in process of working)
+11.29.12 - TR - Convert this to a master page holding partial views for details and edits
+11.28.12 - TR - labels converted to html.Labels
+11.16.12 - TR - Approval now works
+10.29.12 - TR - Added Actionlink for Add new Instrument
+10.19.12 - JB - Added approval AJAX
+10.10.12 - JB - Created 
+*@
+
+@*
+/* Authors:
+ *      Jonathan Baier (jbaier@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display an HWM and link to it's parts 
+ */
+ *@
+@using System.Configuration;
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model STNServices.HWM
+
+@{
+    ViewBag.Title = "High Water Mark";
+    PEAK_SUMMARY PeakSummary = ViewData["PeakSummary"] as PEAK_SUMMARY;
+}
+
+<script src="@Url.Content("~/Assets/Scripts/jquery-1.8.3.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery-ui-1.10.4.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.unobtrusive-ajax.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.maskedinput.min.js")" type="text/javascript"></script>
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+<div id="dataTitle">                                                        
+           
+    <div class="title">
+        @Html.ActionLink(String.Format("Site: {0} ", ViewData["SiteNo"]), "Details", "Sites", new { id = Model.SITE_ID }, new { onclick = "loading();" })
+        | HWM: @Model.HWM_ID
+    </div>
+    @* if user is a field person, see if there's a peak or approval == they cant delete
+       if user is manager or admin, they can delete either way
+     *@
+     @if (ViewData["Role"] == "Field")
+     {
+         if (ViewData.ContainsKey("ManagerOnly"))
+         {
+             //there is a peak or approval on this hwm, they can't delete it
+             <div style="float:left;width:35%">
+                <div style="margin-left:4%;width:70%">This HWM cannot be deleted until a manager removes the Approval and/or Peak Summary.</div>
+             </div>
+         }
+         else
+         {
+             <div style="float:left">&nbsp;&nbsp;
+                 @Html.ActionLink("Delete", "Delete", "HWMs", new { id = Model.HWM_ID, siteID = Model.SITE_ID }, new { onclick = "return confirm('Are you sure you want to delete HWM " + Model.HWM_ID + "?');", @class = "STNButton" })
+             </div>
+         }
+     }
+     else
+     {
+         //it's a manager or admin logged in
+         <div style="float:left">&nbsp;&nbsp;
+             @Html.ActionLink("Delete", "Delete", "HWMs", new { id = Model.HWM_ID, siteID = Model.SITE_ID }, new { onclick = "return confirm('Are you sure you want to delete HWM " + Model.HWM_ID + "?');", @class = "STNButton" })
+         </div>
+     }           
+    <div>&nbsp;&nbsp;
+    @Html.ActionLink("Go to this site on the map", "ZoomToOnMap", "Home", new { id = Model.SITE_ID }, new { @class = "STNButton" })
+    </div>
+</div>
+<br clear="all" />
+
+<hr class="headerUnderline" />
+
+@* --------------------- Partial view (Details and Edit) will go here ------------------ *@
+<div id="content">
+    @{ Html.RenderAction("HWMDetailsPV", "HWMs", Model.HWM_ID);} 
+</div>
+@*----------------------End Partial views ----------------------------*@
+
+
+<div class="fiftyPercColumn">
+         
+@* -------------- Info Box holding HWM Approval Info *@
+    
+    @{ Html.RenderAction("ApprovalInfoBox", "Approval", new { id = Model.HWM_ID, FROM = "HWM" }); }
+
+    <br />
+    
+
+    
+@* -------------- Info Box holding Sensor Info ---------------*@
+    @{Html.RenderAction("HWMInfoBox", "HWMs", new { id = Model.SITE_ID });}
+@* --------------- End Sensor Info Box here ------------------*@
+
+@* -------------- HWM Peak Summary Info ----*@
+    <div id="PeakSum" class="subSection softHeader"> 
+	    <span class="bold">@Html.Label(globalStrings.PeakSummary_Label)</span>
+        <br />
+        @if (PeakSummary != null)
+        {
+            Html.RenderAction("PeakSumDetailsPV", "PeakSummary", new { pkId = PeakSummary.PEAK_SUMMARY_ID, FROM = "HWM", objID = Model.HWM_ID });
+        }
+        else
+        { 
+            <div>@Html.Label(globalStrings.PS_NoPeakSumm_Label)</div>
+            <br />
+            @Html.ActionLink("Add Peak Summary Info", "CreatePeakSumForm", "PeakSummary", new { id = Model.HWM_ID, FROM = "HWM" }, new { @class = "STNButton" })
+        <br />
+        }      
+        <br />                 
+    </div>
+    <br />
+
+@* -------------- Info Box holding Sensor Info ---------------*@
+    @{Html.RenderAction("InstrumentInfoBox", "Instruments", new { id = Model.SITE_ID });}
+@* --------------- End Sensor Info Box here ------------------*@
+
+@*------------------------ Info Box holding HWM Files Info --------------------------*@
+     @{ Html.RenderAction("HWMFileInfoBox", "Files", Model.HWM_ID);}
+@*------------------------ End File Info Box here --------------------------------  *@
+
+    <br />
+    <br />
+</div>
+<br clear="all" />       
+
+
+<style type="text/css">
+        #HWMEditForm label.error {
+        margin-left: 10px;
+        width: auto;
+        display: inline;
+        color: Red;
+    } 
+    #PeakEditForm label.error 
+    {
+        margin-left: 10px;
+        width: auto;
+        display: inline;
+        color: Red;
+    }
+</style>
+
+<script type="text/javascript">
+    $(function () {
+        //datepicker 
+        $('input').filter('.datepicker').datepicker({
+            changeMonth: true,
+            yearRange: '1965:2030',
+            changeYear: true
+        });
+    });
+
+    $().ready(function () {
+        $("#loading").fadeOut();
+        $("#HWMEditForm").validate();
+    });
+
+    function edit_successActions() {
+       $("#loading").fadeOut();
+       $("#HWMEditForm").removeData("validator");
+       $("#HWMEditForm").removeData("unobtrusiveValidation");    
+        
+        //validate form on and submit
+       $("#HWMEditForm").validate({    
+            rules: {
+                HWM_TYPE_ID: "required",
+                HWM_ENVIRONMENT: "required",
+                HWM_QUALITY_ID: "required",
+                HDATUM_ID: "required",
+                HCOLLECT_METHOD_ID: "required",
+                FLAG_DATE: "required"
+            },
+            messages: {
+                HWM_TYPE_ID: "Required",
+                HWM_ENVIRONMENT: "Required",
+                HWM_QUALITY_ID: "Required",
+                HDATUM_ID: "Required",
+                HCOLLECT_METHOD_ID: "Required",
+                FLAG_DATE: "Required"
+            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                $.ajax({
+                    url: form.action,
+                    type: form.method,
+                    data: $(form).serialize(),
+                    success: function (response) {
+                        window.location.href = '@Url.Action("Details", new { id = Model.HWM_ID })'
+                    }
+                });
+            }
+        });
+    }
+
+    $("#PeakEditForm").validate({
+        rules: {
+            PeakDate: "required"
+        }
+    });
+
+    function cancelClick() {
+        $("#loading").fadeIn();
+        window.location.href = '@Url.Action("Details", "HWMs", new { id = Model.HWM_ID })'
+    };
+
+
+</script>

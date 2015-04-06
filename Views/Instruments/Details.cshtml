@@ -1,0 +1,231 @@
+﻿@* 
+04.16.14 - TR - added validation
+02.14.13 - TR - Using InstrumentModel to show an instrument and instrument status object
+12.06.12 - TR - Changed Interval to number and added radio buttons for Min/Sec (Stored as seconds)
+12.03.12 - TR - Pulled Details out and put into partial view
+11.28.12 - TR - labels converted to html.Labels
+10.29.12 - TR - Created 
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display an Instrument and link to it's parts 
+ */
+ *@
+@using System.Configuration;
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using STNWeb.Models;
+
+@model STNWeb.Models.InstrumentModel
+
+@{
+    ViewBag.Title = "Sensor";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    INSTRUMENT_STATUS ProposedInstrumentStat = @Model.PropInstrStatus;
+    INSTRUMENT_STATUS DeployedInstrumentStat = @Model.DeplInstrStatus;
+    INSTRUMENT_STATUS RetrievedInstrumentStat = @Model.RetrInstrStatus;
+    INSTRUMENT_STATUS LostInstrumentStat = @Model.LostInstrStatus;
+}
+
+
+<script src="@Url.Content("~/Assets/Scripts/jquery-1.8.3.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery-ui-1.10.4.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.unobtrusive-ajax.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.maskedinput.min.js")" type="text/javascript"></script>
+
+<link href="@Url.Content("~/Assets/Styles/multiple-select.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Assets/Styles/jquery.datetimepicker.css")" rel="stylesheet" type="text/css" />
+
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+<div id="dataTitle"> 
+    <div class="title">
+        @Html.ActionLink(String.Format("Site: {0} ", ViewData["SiteNo"]), "Details", "Sites", new { id = Model.Instr.SITE_ID }, new { onclick = "loading();" }) 
+        | Sensor: @Model.Instr.SERIAL_NUMBER &nbsp;&nbsp;
+    </div>
+    
+    <div style="float:left">
+        @Html.ActionLink("Delete", "Delete", new { id = Model.Instr.INSTRUMENT_ID, siteID = Model.Instr.SITE_ID }, new { onclick = "return confirm('Are you sure you want to delete instrument id " + Model.Instr.INSTRUMENT_ID + "?');", @class = "STNButton" })
+    </div>
+    
+    <div>&nbsp;&nbsp;
+        @Html.ActionLink("Go to this site on the map", "ZoomToOnMap", "Home", new { id = Model.Instr.SITE_ID }, new { @class = "STNButton" })
+     </div>
+</div>
+<br clear="all" />    
+
+<hr class="headerUnderline" />
+
+@*EDIT for this instrument*@
+@*----------------------Partial views Details and Edit--------------------*@
+
+    <div id="content">
+    @{ 
+        Html.RenderAction("DepInstrDetailsPV", new {id= Model.Instr.INSTRUMENT_ID}); 
+        } 
+    </div>
+
+@*--------------------End Partial--------------------------*@
+
+
+<div class="fiftyPercColumn">
+    
+@*------------------------ Render File Info Box here --------------------------*@
+     @{ Html.RenderAction("SensorFileInfoBox", "Files", Model.Instr.INSTRUMENT_ID);}
+@*------------------------ End File Info Box here -----------------------------*@  
+           
+    
+    <br />
+</div>
+<br clear="all" />
+
+<div >
+    <hr style="width:50%; float:left; clear:both" />
+    @* show retrieved/lost *@
+ <div id="retrieve" style="margin-top:15px; width:100%">   
+    @if (RetrievedInstrumentStat != null || LostInstrumentStat != null)
+    {        
+        Html.RenderAction("RetInstrDetailsPV", "Instruments", Model.Instr.INSTRUMENT_ID);          
+    } 
+    </div>
+</div>
+     
+
+<br clear="all" />
+
+
+<style type="text/css">
+        #DepSensorEditForm label.error {
+        margin-left: 10px;
+        width: auto;
+        display: inline;
+        color: Red;
+    } 
+    #RetrieveForm label.error {
+        margin-left: 10px;
+        width: auto;
+        display: inline;
+        color: Red;
+    } 
+    #RetSensorEditForm label.error {
+        margin-left: 10px;
+        width: auto;
+        display: inline;
+        color: Red;
+    } 
+</style>
+
+<script type="text/javascript">
+
+    $().ready(function () {
+        $("#loading").fadeOut();
+        $("#DepSensorEditForm").validate();
+        $("#RetrieveForm").validate();
+        $("#RetSensorEditForm").validate();
+    });
+    function edit_successActions() {
+        $("#DepSensorEditForm").removeData("validator");
+        $("#DepSensorEditForm").removeData("unobtrusiveValidation");
+
+        $("#RetrieveForm").removeData("validator");
+        $("#RetrieveForm").removeData("unobtrusiveValidation");
+
+        $("#RetSensorEditForm").removeData("validator");
+        $("#RetSensorEditForm").removeData("unobtrusiveValidation");
+
+
+        //validate form on and submit
+        $("#RetrieveForm").validate({
+            rules: {
+                'RetrInstrStatus.STATUS_TYPE_ID': "required",
+                'Instr.INST_COLLECTION_ID': "required",
+                'RetrInstrStatus.TIME_STAMP': "required"
+            },
+            messages: {
+                'RetrInstrStatus.STATUS_TYPE_ID': "Required",
+                'Instr.INST_COLLECTION_ID': "Required",
+                'RetrInstrStatus.TIME_STAMP': "Required"
+            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                $.ajax({
+                    url: form.action,
+                    type: form.method,
+                    data: $(form).serialize(),
+                    success: function (response) {
+                        if (response == "details") {
+                            window.location.href = '@Url.Action("Details", new { id = Model.Instr.INSTRUMENT_ID})'
+                        }
+                        else {
+                            window.location.href = '@Url.Action("FileCreate", "Files", new { id = Model.Instr.INSTRUMENT_ID, aPage = "Sensor" })'
+                        }
+                    }
+                });
+            }
+        });
+
+        //validate form on and submit
+        $("#RetSensorEditForm").validate({
+            rules: {
+                'RetrInstrStatus.TIME_STAMP': "required",
+                'Instr.INST_COLLECTION_ID': "required"
+            },
+            messages: {
+                'RetrInstrStatus.TIME_STAMP': "Required",
+                'Instr.INST_COLLECTION_ID': "Required"
+            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                $.ajax({
+                    url: form.action,
+                    type: form.method,
+                    data: $(form).serialize(),
+                    success: function (response) {
+                        window.location.href = '@Url.Action("Details", new { id = Model.Instr.INSTRUMENT_ID})'
+                    }
+                });
+            }
+        });
+
+
+        $("#loading").fadeOut();
+
+        //validate form on and submit
+        $("#DepSensorEditForm").validate({
+            rules: {
+                'Instr.SENSOR_TYPE_ID': "required",
+                'Instr.SENSOR_BRAND_ID': "required",
+                'Instr.SERIAL_NUMBER': "required",
+                'DeplInstrStatus.TIME_STAMP': "required"
+            },
+            messages: {
+                'Instr.SENSOR_TYPE_ID': "Required",
+                'Instr.SENSOR_BRAND_ID': "Required",
+                'Instr.SERIAL_NUMBER': "Required",
+                'DeplInstrStatus.TIME_STAMP': "Required"
+            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                $.ajax({
+                    url: form.action,
+                    type: form.method,
+                    data: $(form).serialize(),
+                    success: function (response) {
+                        window.location.href = '@Url.Action("Details", new { id = Model.Instr.INSTRUMENT_ID})'
+                    }
+                });
+            }
+        });
+    }
+
+    
+</script>

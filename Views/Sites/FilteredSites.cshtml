@@ -1,0 +1,41 @@
+﻿@* Comments:
+06.06.13 - TR - Created 
+
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2013 USGS - WiM
+ * Purpose:
+ *      Display sites based on query 
+ */
+ *@
+ 
+@using STNServices;
+@using STNServices.Resources;
+@using STNWeb.Assets.Resources;
+
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#loading").fadeOut();
+    });   
+         
+</script>
+@{
+    List<SiteBase> results = @ViewData["ResultingSites"] as List<STNServices.Resources.SiteBase>;
+}
+<div>Sites: (@(results.Count.ToString()) Total)</div> 
+<div style="height:400px; width:220px; overflow:auto"> 
+    <ul>
+        @foreach (var ss in @ViewData["ResultingSites"] as List<STNServices.Resources.SiteBase>)
+        {
+            <li>@Html.ActionLink(ss.SITE_NO, "Details", "Sites", new {id = ss.SITE_ID}, new {onclick = "loading();"})</li>
+        }
+    </ul>
+</div>
+        <br clear="all" />

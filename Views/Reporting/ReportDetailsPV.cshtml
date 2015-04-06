@@ -1,0 +1,873 @@
+﻿@*
+02.20.14 - TR - Created 
+*@ @*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2014 USGS - WiM
+ * Purpose:
+ *      Report details page 
+ */
+ *@
+@using System.Configuration;
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using STNWeb.Models;
+
+
+@model STNWeb.Models.ReportingModel
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#loading").fadeOut();
+        debugger;
+    });        
+</script>
+       
+      
+<div>
+    <table class="Sec1Reporting-table" style="width: 100%">
+        @* Section 1: Date, Event, State selection *@
+        <tr>
+            <td colspan="8" style="border-bottom: 1px solid #59595C">
+                <span style="font-size: x-large; font-family: 'BryantBold'">Section 1: Report Parameters</span>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+        </tr>
+        <tr>                        
+            <td style="width: 15%; padding-left:38px;">
+                <span style="font-size: 15px">Date being reported:</span>
+            </td>
+            <td style="width: 11%;vertical-align:bottom">
+                <span>@(((DateTime)Model.aReport.REPORT_DATE).ToShortDateString())</span>
+            </td>
+            
+            <td style="width: 5%">
+                <span style="font-size: 15px">Event:</span>
+            </td>
+            <td style="width: 13%;vertical-align:bottom">
+                <span>@ViewData["EventName"]</span>
+            </td>
+            <td style="width: 6%">
+                <span style="font-size: 15px">State:</span>
+            </td>
+            <td colspan="3" style="width: 24%;vertical-align:bottom">
+                <span>@Model.aReport.STATE</span>
+            </td>
+        </tr>
+        <tr style="height: 30px">
+            <td colspan="8"></td>
+        </tr>
+    </table>
+    @* End of step 1 *@
+</div>
+<br />
+    
+<div class="fiftyPercColumn">
+    @* Section 2: Personnel and Vehicle Counts *@
+    <table style="float: left" class="Reporting-table">                    
+        <tr>
+            <td colspan="4">
+                <span style="font-size: x-large; font-family: 'BryantBold'">Section 2: Personnel and Vehicle Counts</span>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td style="text-align: center; font-family: 'BryantBold';">Surfacewater</td>
+            <td style="text-align: center; font-family: 'BryantBold';">Water Quality<br />and Other</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width: 21%">
+                <span>Employees not accounted for</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.SW_FIELDPERS_NOTACCT</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.WQ_FIELDPERS_NOTACCT</span>
+            </td>
+        </tr>
+        <tr>
+            <td rowspan="3" style="width: 12%">
+                <span>Personnel in <br />the field</span>
+            </td>
+            <td>
+                <span>Yesterday</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.SW_YEST_FIELDPERS</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.WQ_YEST_FIELDPERS</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Today</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.SW_TOD_FIELDPERS</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.WQ_TOD_FIELDPERS</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Tomorrow</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.SW_TMW_FIELDPERS</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.WQ_TMW_FIELDPERS</span>
+            </td>
+        </tr>
+        <tr>
+            <td rowspan="3">
+                <span>Personnel in <br />the office</span>
+            </td>
+            <td>
+                <span>Yesterday</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.SW_YEST_OFFICEPERS</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.WQ_YEST_OFFICEPERS</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span >Today</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.SW_TOD_OFFICEPERS</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.WQ_TOD_OFFICEPERS</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span >Tomorrow</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.SW_TMW_OFFICEPERS</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.WQ_TMW_OFFICEPERS</span>
+            </td>
+        </tr>
+        <tr>
+            <td rowspan="3">
+                <span>Vehicles <br /> deployed</span>
+            </td>
+            <td>
+                <span >Trucks & Cars</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.SW_AUTOS_DEPL</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.WQ_AUTOS_DEPL</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span >Boats</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.SW_BOATS_DEPL</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.WQ_BOATS_DEPL</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span >Other</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.SW_OTHER_DEPL</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.WQ_OTHER_DEPL</span>
+            </td>
+        </tr>
+    </table>
+                
+    @* Section 3: Instrumentation and Sampling Counts *@
+    <table style="float: left; margin-top: 20px; margin-bottom: 20px" class="Reporting-table">                    
+        <tr>
+            <td colspan="4">
+                <span style="font-size: x-large; font-family: 'BryantBold'">Section 3: Instrumentation<br />& Sampling Counts</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width: 21%">
+                <span >Gage visits (cumulative)</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.GAGE_VISIT</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width: 21%">
+                <span >Gages down at present</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.GAGE_DOWN</span>
+            </td>
+        </tr>
+        <tr>
+            <td rowspan="2" style="width: 12%">
+                <span>Discharge<br />measurements</span>
+            </td>
+            <td>
+                <span >To date</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.TOT_DISCHARGE_MEAS</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span >Planned</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.PLAN_DISCHARGE_MEAS</span>
+            </td>
+        </tr>
+        <tr>
+            <td rowspan="2">
+                <span>Check<br />measurements</span>
+            </td>
+            <td>
+                <span >To Date</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.TOT_CHECK_MEAS</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span >Planned</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.PLAN_CHECK_MEAS</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width: 21%">
+                <span >Indirect measurements planned</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.PLAN_INDIRECT_MEAS</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width: 21%">
+                <span >Rating extensions</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.RATING_EXTENS</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width: 21%">
+                <span >Peaks of record on gages<br />to date ( > 20 years of record)</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.GAGE_PEAK_RECORD</span>
+            </td>
+        </tr>
+        <tr>
+            <td rowspan="4">
+                <span>Rapid Deployment<br />gages, to date</span>
+            </td>
+            <td>
+                <span >Planned</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.PLAN_RAPDEPL_GAGE</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Deployed</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.DEP_RAPDEPL_GAGE</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Recovered</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.REC_RAPDEPL_GAGE</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Lost</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.LOST_RAPDEPL_GAGE</span>
+            </td>
+        </tr>
+        <tr>
+            <td rowspan="4">
+                <span>Water Level<br />Sensors, to date</span>
+            </td>
+            <td>
+                <span >Planned</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.PLAN_WTRLEV_SENSOR</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Deployed</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.DEP_WTRLEV_SENSOR</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Recovered</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.REC_WTRLEV_SENSOR</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Lost</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.LOST_WTRLEV_SENSOR</span>
+            </td>
+        </tr>
+        <tr>
+            <td rowspan="4">
+                <span>Wave Sensors,<br />to date</span>
+            </td>
+            <td>
+                <span >Planned</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.PLAN_WV_SENS</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Deployed</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.DEP_WV_SENS</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Recovered</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.REC_WV_SENS</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Lost</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.LOST_WV_SENS</span>
+            </td>
+        </tr>
+        <tr>
+            <td rowspan="4">
+                <span>Barometers,<br /> to date</span>
+            </td>
+            <td>
+                <span >Planned</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.PLAN_BAROMETRIC</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Deployed</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.DEP_BAROMETRIC</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Recovered</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.REC_BAROMETRIC</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Lost</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.LOST_BAROMETRIC</span>
+            </td>
+        </tr>
+        <tr>
+            <td rowspan="4">
+                <span>Meteorological<br /> Sensors, to date</span>
+            </td>
+            <td>
+                <span >Planned</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.PLAN_METEOROLOGICAL</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Deployed</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.DEP_METEOROLOGICAL</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Recovered</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.REC_METEOROLOGICAL</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Lost</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.LOST_METEOROLOGICAL</span>
+            </td>
+        </tr>
+        <tr>
+            <td rowspan="2">
+                <span>Highwater Mark,<br /> to date</span>
+            </td>
+            <td>
+                <span>Flagged</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.HWM_FLAGGED</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Collected</span>
+            </td>
+            <td style="padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.HWM_COLLECTED</span>
+            </td>
+        </tr>
+                    
+        <tr>
+            <td colspan="2" style="width: 21%">
+                <span >QW Gage visits (cumulative)</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.QW_GAGE_VISIT</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width: 21%">
+                <span >Continuous QW Gages visited</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.QW_CONT_GAGEVISIT</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width: 21%">
+                <span >Continuous QW Gages down</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.QW_GAGE_DOWN</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width: 21%">
+                <span >Discrete QW samples collected</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.QW_DISCR_SAMPLES</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="width: 21%">
+                <span >Sediment samples collected</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; text-align:center">
+                <span>@Model.aReport.COLL_SEDSAMPLES</span>
+            </td>
+        </tr>
+    </table>
+    <br />
+</div>
+    
+<div class="fiftyPercColumn">
+    @*Notes table*@
+    <table class="Sec1Reporting-table" style="width: 98%; float: right">
+        <tr>
+            <td style="border-bottom: 1px solid #59595C">
+                <span style="font-size: x-large; font-family: 'BryantBold'">Section 4: Notes</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <textarea readonly="readonly" style="color:#696969; width:95.5%" id="notesText" rows="12" cols="30">@Model.aReport.NOTES</textarea>
+            </td>
+        </tr>
+    </table>
+               
+    @{ ReportMember Submitter = ViewData["Submitter"] as ReportMember;   }
+
+               
+    @* Section 5: Contact Info*@
+    <table class="Sec1Reporting-table" style="width: 98%; float: right; margin-top: 20px">
+        <tr>
+            <td colspan="2" style="border-bottom: 1px solid #59595C">
+                <span style="font-size: x-large; font-family: 'BryantBold'">Section 5: Contact Information</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <span style="font-size: large; font-family: 'BryantBold'">Submitter</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding-left: 40px; width: 4%">
+                <span>Name</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px">
+                <span>@Submitter.MemberName</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding-left: 40px">
+                <span>Phone</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px">
+                <span>@Submitter.Phone</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding-left: 40px">
+                <span>Email</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px">
+                <span>@Submitter.Email</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding-left: 40px">
+                <span>Office Name</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px">
+                <span>@Submitter.OfficeName</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding-left: 40px">
+                <span>Office Address</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px">
+                <span>@Submitter.OfficeAddress1</span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <span style="font-size: x-large; font-family: 'BryantBold'">Event Contacts</span>
+            </td>
+        </tr>
+        <tr>
+            @* Deployed Staff *@
+            <td colspan="2">
+                <span style="font-size: large; font-family: 'BryantBold'">Deployed Staff (required)</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="border: 0px none; padding-left: 40px; width: 4%">
+                <span >First Name</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                <span>@Model.DeplContact.FNAME</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="border: 0px none; padding-left: 40px; width: 4%">
+                <span >Last Name</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                <span>@Model.DeplContact.LNAME</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="border: 0px none; padding-left: 40px">
+                <span >Email</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                <span>@Model.DeplContact.EMAIL</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="border: 0px none; padding-left: 40px">
+                <span >Phone</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                <span>@Model.DeplContact.PHONE</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="border: 0px none; padding-left: 40px">
+                <span>Alternate Phone</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                <span>@Model.DeplContact.ALT_PHONE</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="border: 0px none">
+            </td>
+        </tr>
+        @if (Model.GenContact != null)
+        {
+            <tr>@* General *@
+                <td colspan="2" style="border-bottom: 0px none">
+                    <span style="font-size: large; font-family: 'BryantBold'">General (optional)</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>First Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <span>@Model.GenContact.FNAME</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>Last Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <span>@Model.GenContact.LNAME</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Email</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <span>@Model.GenContact.EMAIL</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <span>@Model.GenContact.PHONE</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Alternate Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <span>@Model.GenContact.ALT_PHONE</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none">
+                </td>
+            </tr>
+        }
+        @if (Model.InlandContact != null)
+        {
+            <tr>
+                @* Inland Flood *@
+                <td colspan="2" style="border-bottom: 0px none">
+                    <span style="font-size: large; font-family: 'BryantBold'">Inland Flood (optional)</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>First Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <span>@Model.InlandContact.FNAME</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>Last Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <span>@Model.InlandContact.LNAME</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Email</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <span>@Model.InlandContact.EMAIL</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <span>@Model.InlandContact.PHONE</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Alternate Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <span>@Model.InlandContact.ALT_PHONE</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none">
+                </td>
+            </tr>
+        }
+        @if (Model.CoastContact != null)
+        {
+        <tr>
+            @* Coastal Staff *@
+            <td colspan="2" style="border-bottom: 0px none">
+                <span style="font-size: large; font-family: 'BryantBold'">Coastal Flood (optional)</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="border: 0px none; padding-left: 40px; width: 4%">
+                <span>First Name</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                <span>@Model.CoastContact.FNAME</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="border: 0px none; padding-left: 40px; width: 4%">
+                <span>Last Name</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                <span>@Model.CoastContact.LNAME</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="border: 0px none; padding-left: 40px">
+                <span>Email</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                <span>@Model.CoastContact.EMAIL</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="border: 0px none; padding-left: 40px">
+                <span>Phone</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                <span>@Model.CoastContact.PHONE</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="border: 0px none; padding-left: 40px">
+                <span>Alternate Phone</span>
+            </td>
+            <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                <span>@Model.CoastContact.ALT_PHONE</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="border: 0px none">
+            </td>
+        </tr>
+        }
+        @if (Model.WaterContact != null)
+        {
+            <tr>
+                @* Water Quality Staff *@
+                <td colspan="2" style="border-bottom: 0px none">
+                    <span style="font-size: large; font-family: 'BryantBold'">Water Quality (optional)</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>First Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <span>@Model.WaterContact.FNAME</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>Last Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <span>@Model.WaterContact.LNAME</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Email</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <span>@Model.WaterContact.EMAIL</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <span>@Model.WaterContact.PHONE</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Alternate Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <span>@Model.WaterContact.ALT_PHONE</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none">
+                </td>
+            </tr>
+        }
+    </table>
+</div>
+     
+<br clear="all" />
+        
+   
+    

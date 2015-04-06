@@ -1,0 +1,228 @@
+﻿@* Comments:
+04.09.14 - TR - added jquery.validate
+01.30.13 - TR - dropdown list of manager members for Coordinator
+01.29.13 - TR - added loading logo
+11.27.12 - TR - changed labels to html helper
+10.25.12 - TR - Fixed cancel button
+10.24.12 - TR - Added ViewData reference for EVENT_TYPE and EVENT_STATUS dropdowns
+10.12.12 - TR - Removed "main" div and only have it in _Layout
+10.12.12 - TR - Removed "main" div and only have it in _Layout
+10.10.12 - TR - Added "main" div for css formatting
+10.02.12 - TR - Created 
+
+*@
+
+@*
+/* Authors:
+*      Tonia Roddick (troddick@usgs.gov)
+* Copyright:
+*      2012 USGS - WiM
+* Purpose:
+*      Create an Event 
+*/
+*@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model STNServices.EVENT
+
+@{
+    ViewBag.Title = "Create Event";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="@Url.Content("~/Assets/Scripts/jquery-1.8.3.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery-ui-1.10.4.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.js")" type="text/javascript"></script>
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+<div id="dataTitle">
+        <div class="title">Create Event</div>
+    </div>
+    <br clear="all" />        
+    <hr class="headerUnderline" />
+    @if (ViewData.ContainsKey("Role"))
+    {
+        <div>You are not authorized to create an event.</div>
+    }
+    else
+    {
+        using (Ajax.BeginForm("EventCreate", "Events", null, new AjaxOptions() { HttpMethod = "POST" }, new { @id = "createEventForm" }))
+        {    
+            <div class="fiftyPercColumn">
+        
+                <div class="ui-grid-a">
+                    <div data-role="fieldcontain">
+                        <div class="ui-block-a"><span class="required bold">@Html.Label(EventStrings.Name_Label)</span></div>
+                        <div class="ui-block-b"><input type="text" class="required stnTextInput ui-shadow-inset" id="name" name="EVENT_NAME" data-mini="true" /></div>
+                        <div class="ui-block-c" id="EVENT_NAME_validate"></div>
+                    </div>
+                </div>
+
+                 <div class="ui-grid-a">
+                    <div data-role="fieldcontain">
+                        <div class="ui-block-a"><span class="required bold">@Html.Label(EventStrings.Description_Label)</span></div>
+                        <div class="ui-block-b"><textarea cols="30" rows="4" class="stnTextInput ui-shadow-inset" name="EVENT_DESCRIPTION" data-mini="true"></textarea></div>
+                        <div class="ui-block-c" id="EVENT_DESCRIPTION_validate"></div>
+                    </div>
+                </div>
+        
+                <div class="ui-grid-a">
+                    <div data-role="fieldcontain">
+                        <div class="ui-block-a"><span class="required bold">@Html.Label(EventStrings.StartDate_Label)</span></div>
+                        <div class="ui-block-b"><input type="text" class="required stnTextInput ui-shadow-inset datepicker" name="EVENT_START_DATE" data-mini="true" /></div>
+                        <div class="ui-block-c" id="EVENT_START_DATE_validate"></div>
+                    </div>
+                </div>
+
+                <div class="ui-grid-a">
+                    <div data-role="fieldcontain">
+                        <div class="ui-block-a"><span class="bold">@Html.Label(EventStrings.EndDate_Label)</span></div>
+                        <div class="ui-block-b"><input type="text" class="stnTextInput ui-shadow-inset datepicker" name="EVENT_END_DATE" data-mini="true" /></div>
+                    </div>
+                </div>
+
+                <div class="ui-grid-a">
+                    <div data-role="fieldcontain">
+                        <div class="ui-block-a"><span class="required bold">@Html.Label(EventStrings.Type_Label)</span></div>
+                        <div class="ui-block-b">
+                            <select id="groupPlaceholder" class="required stnSelectInput ui-shadow-inset" name="EVENT_TYPE_ID" data-native-menu="false" data-mini="true">
+					            <option value="">Choose Event Type</option>
+                                @foreach (STNServices.EVENT_TYPE aET in ViewData["EventType"] as List<EVENT_TYPE>)
+                                {
+                                    <option value='@aET.EVENT_TYPE_ID'>@aET.TYPE</option> 
+                                }
+                            </select>
+                            <br />	
+                        </div>
+                        <div class="ui-block-c" id="EVENT_TYPE_ID_validate"></div>
+                    </div>
+                </div>
+
+                <div class="ui-grid-a">
+                    <div data-role="fieldcontain">
+                        <div class="ui-block-a"><span class="required bold">@Html.Label(EventStrings.Status_Label)</span></div>
+                        <div class="ui-block-b">
+                            <select id="eventStatDD" class="required stnSelectInput ui-shadow-inset" name="EVENT_STATUS_ID" data-native-menu="false" data-mini="true">
+					            <option value="">Choose Event Status</option>
+                                @foreach (STNServices.EVENT_STATUS aES in ViewData["EventStatus"] as List<EVENT_STATUS>)
+                                {
+                                    <option value='@aES.EVENT_STATUS_ID'>@aES.STATUS</option> 
+                                }
+                            </select>
+                            <br />	
+                        </div>
+                        <div class="ui-block-c" id="EVENT_STATUS_ID_validate"></div>
+                    </div>
+                </div>
+
+                <div class="ui-grid-a">
+                    <div data-role="fieldcontain">
+                        <div class="ui-block-a"><span class="required bold">@Html.Label(EventStrings.Coordinator_Label)</span></div>
+                        <div class="ui-block-b">
+                            <select id="eventCoordDD" class="stnSelectInput ui-shadow-inset" name="EVENT_COORDINATOR" data-native-menu="false" data-mini="true">
+                                <option value=""></option>
+                                @foreach (STNServices.MEMBER aMember in ViewData["ManagerMemberList"] as List<MEMBER>)
+                                {
+                                    <option @( (aMember.USERNAME == User.Identity.Name) ? "selected" : "") value='@aMember.MEMBER_ID'>@aMember.FNAME @aMember.LNAME</option>
+                                }
+                            </select>
+                            <br />
+                        </div>
+                        <div class="ui-block-c" id="EVENT_COORDINATOR_validate"></div>
+                    </div>                      
+                </div>
+
+            </div>
+    
+            <br clear="all" />
+            <br />
+    
+            <div id="formSubmitDiv" class="formSection">
+                <div class="leftSideSubmit">
+                    <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+                    <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" class="submit" value="Submit" /></div></div>
+
+                    <asp:Button ID="SaveSiteButton" runat="server" Text="Save" />
+                </div>
+    
+            </div>
+        }
+    }
+<script type="text/javascript">
+    window.onload = function () {
+        var txtbox = document.getElementById("name");
+        txtbox.focus();
+    }
+
+    $(function () {
+        //datepicker 
+        $('input').filter('.datepicker').datepicker({
+            changeMonth: true,
+            yearRange: '1965:2030',
+            changeYear: true
+        });
+    });
+
+    $().ready(function () {
+        //validate form on and submit
+        $("#createEventForm").validate({
+            rules: {
+                EVENT_NAME: "required",
+                EVENT_DESCRIPTION: "required",
+                EVENT_START_DATE: "required",
+                EVENT_TYPE_ID: "required",
+                EVENT_STATUS_ID: "required",
+                EVENT_COORDINATOR: "required"
+            },
+            messages: {
+                EVENT_NAME: "Required",
+                EVENT_DESCRIPTION: "Required",
+                EVENT_START_DATE: {
+                    required: "Required",
+                    dateFormat: "Please enter start date in dd/mm/yyyy format"
+                },
+                EVENT_TYPE_ID: "Required",
+                EVENT_STATUS_ID: "Required",
+                EVENT_COORDINATOR: "Required"
+            },
+            errorPlacement: function (error, element) {
+                var name = $(element).attr("name");
+                error.appendTo($("#" + name + "_validate"));
+            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                form.submit();
+            }
+        });
+    });  
+
+    function cancelClick() {
+        $("#loading").fadeIn();
+        window.location.href = '@Url.Action("Index", "Events")'
+    };
+
+    function loading() {
+        $("#loading").fadeIn();
+    }
+</script>
+
+<style type="text/css">
+    #createEventForm label.error {
+        margin-left: 10px;
+        width: auto;
+        display: inline;
+        color: Red;
+    } 
+    
+    .ui-grid-a .ui-block-a 
+    {
+        width:15em !important;
+    }
+    .ui-grid-a .ui-block-b
+    {
+        width:19em !important;
+    }
+</style>

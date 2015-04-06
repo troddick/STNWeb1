@@ -1,0 +1,186 @@
+﻿@*
+04.21.14 - TR - validate
+10.10.12 - TR - Created 
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Quick HWM creation page (Site, HWM, OP)
+ */
+ *@
+@using System.Configuration;
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+
+@model STNWeb.Models.QuickHWMModel
+           
+
+     <div class="fiftyPercColumn">
+       
+        <div style="color:#59595C; font-size:large; font-weight:bold; margin-bottom: 10px">Objective Point</div>
+        
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">@Html.Label(ObjPointsStrings.OPType_Label)</span></div>
+                <div class="ui-block-b">
+                    <select id="opTypeDD" class="stnSelectInput ui-shadow-inset required" name="opmod.OP_TYPE_ID" data-native-menu="false" data-mini="true">
+					    <option value="">Choose Objective Point Type</option>
+                         @foreach (OBJECTIVE_POINT_TYPE opT in ViewData["OPTypeList"] as List<OBJECTIVE_POINT_TYPE>)
+                         {
+                             <option value='@opT.OBJECTIVE_POINT_TYPE_ID'>@opT.OP_TYPE</option> 
+                         }
+                    </select>
+                    <br />	
+                </div>
+            </div>
+        </div>
+        
+        <div class="ui-grid-a">
+                <div data-role="fieldcontain">
+                    <div class="ui-block-a"><span class="required">@Html.Label(ObjPointsStrings.Name_Label)</span></div>
+                    <div class="ui-block-b"><input type="text" class="required stnTextInput ui-shadow-inset" name="opmod.NAME" data-mini="true" /></div>
+                </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">@Html.Label(ObjPointsStrings.Description_Label)</span></div>
+                <div class="ui-block-b"><textarea rows="4" cols="30" class="required stnTextInput ui-shadow-inset" name="opmod.DESCRIPTION" data-mini="true"></textarea></div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(ObjPointsStrings.OPControlIdentifier_Label)</div>
+                <div class="ui-block-b"><input type="button" value="Add New Identifier" onclick="AddNewIdentifierRow();" /></div>                
+            </div>
+        </div>
+
+        <div id="OPControlTableDiv" class="hidden" style="margin-left:202px">
+            <table id="controlTable">
+                <thead>
+                    <tr>
+                        <td>Identifier</td><td style="text-align:center">Type</td>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+               <div class="ui-block-a"></div>
+               <div class="ui-block-b" style="margin-bottom:0">
+                   <span>
+                        <input type="radio" name="ElevationUnit" id="ft_radio" checked="checked" value="ft" />ft
+                        <input type="radio" name="ElevationUnit" id="mtr_radio" value="meter" />meter
+                   </span>
+               </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(ObjPointsStrings.Elevation_Label)</div>
+                <div class="ui-block-b"><input type="text" onkeypress="return isNegNumberKey(event)" id="elevation" class="stnTextInput ui-shadow-inset" name="opmod.ELEV_FT" data-mini="true" /></div>
+            </div>
+        </div>
+        
+     </div>
+
+     <div class="fiftyPercColumn" style="margin-top:31px">
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(globalStrings.VDatum_Label)</div>
+                <div class="ui-block-b">
+                    <select id="vdatumDD" class="stnSelectInput ui-shadow-inset" name="opmod.VDATUM_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Vertical Datum</option>
+                        @foreach (STNServices.VERTICAL_DATUMS aDatum in ViewData["vDatumList"] as List<VERTICAL_DATUMS>)
+                        {
+                            <option value='@aDatum.DATUM_ID'>@aDatum.DATUM_NAME</option> 
+                        }
+                    </select><br />	
+                </div>
+            </div>
+        </div>
+            
+        @* Vertical collection method *@
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(HWMStrings.VCollectMethod_Label)</div>
+                <div class="ui-block-b">
+                    <select id="VcollectMethodDD" class="stnSelectInput ui-shadow-inset" name="opmod.VCOLLECT_METHOD_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Vertical Collection Method</option>
+                        @foreach (VERTICAL_COLLECT_METHODS aVCM in ViewData["VcollectMethodList"] as List<VERTICAL_COLLECT_METHODS>)
+                        {
+                            <option value='@aVCM.VCOLLECT_METHOD_ID'>@aVCM.VCOLLECT_METHOD</option> 
+                        }
+                    </select><br />	
+                </div>
+            </div>
+        </div>
+        
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+               <div class="ui-block-a"></div>
+               <div class="ui-block-b" style="margin-bottom:0">
+                   <span>
+                        <input type="radio" name="UncertainUnit" id="ft2_radio" checked="checked" value="ft" />+/- ft
+                        <input type="radio" name="UncertainUnit" id="cm_radio" value="cm" />+/- cm
+                   </span>
+               </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(ObjPointsStrings.Uncertainty_Label)</div>
+                <div class="ui-block-b">
+                    <input type="text" onkeypress="return isNegNumberKey(event)" style="width:66px" id="uncertainty" class="stnTextInput ui-shadow-inset" name="opmod.UNCERTAINTY" data-mini="true" />
+                    <span style="margin-left: 22px; margin-right:9px; text-decoration:underline">OR</span>
+                    <input type="checkbox" id="checkUnquantified" name="UNQUANTIFIED" value="1" />Unquantified
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(ObjPointsStrings.Quality_label)</div>
+                <div class="ui-block-b">
+                    <select id="qualityDD" class="stnSelectInput ui-shadow-inset" name="opmod.OP_QUALITY_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose an OP Quality</option>
+                        @foreach (OP_QUALITY aQ in ViewData["Qualities"] as List<OP_QUALITY>)
+                        {
+                            <option value='@aQ.OP_QUALITY_ID'>@aQ.QUALITY</option> 
+                        }
+                    </select><br />	
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(ObjPointsStrings.ElevationNotes_Label)</div>
+                <div class="ui-block-b"><textarea rows="4" cols="30" class="stnTextInput ui-shadow-inset" name="opmod.OP_NOTES" data-mini="true"></textarea></div>
+            </div>
+        </div>
+        
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">@Html.Label(ObjPointsStrings.DateEstablished_Label)</span></div>
+                <div class="ui-block-b"><input type="text" class="required stnTextInput datepicker ui-shadow-inset" name="opmod.DATE_ESTABLISHED" data-mini="true" value="@DateTime.Now.ToShortDateString()" /></div>
+            </div>
+        </div>
+        
+     </div>
+
+    <br />   
+    
+   <br clear="all" />
+

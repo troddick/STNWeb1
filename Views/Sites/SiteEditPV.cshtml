@@ -1,0 +1,705 @@
+﻿@* Comments:
+04.18.16 - TR - added horizontal collection method
+04.11.14 - TR - added validation
+01.24.13 - TR - added loading spinning logo
+11.27.12 - TR - changed labels to html helper
+11.26.12 - TR - Created 
+*@
+
+@*
+/* Authors:
+*      Tonia Roddick (troddick@usgs.gov)
+* Copyright:
+*      2012 USGS - WiM
+* Purpose:
+*      Edit a Site (Partial View)
+*/
+*@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using STNWeb.Models;
+
+
+@model STNWeb.Models.SiteModel
+           
+           @*
+<script src="@Url.Content("~/Assets/Scripts/jquery.multiple.select.js")" type="text/javascript"></script>
+<link href="@Url.Content("~/Assets/Styles/multiple-select.css")" rel="stylesheet" type="text/css" />
+*@
+
+@using (Ajax.BeginForm("Edit", "Sites", new { id = Model.aSite.SITE_ID }, new AjaxOptions() { HttpMethod = "POST", UpdateTargetId = "content", LoadingElementId = "loading" }, new { @id = "SiteEditForm" }))
+{
+    <input type="hidden" name="aSite.SITE_ID" value="@Model.aSite.SITE_ID"  />
+    <input type="hidden" name="aSite.SITE_NO" value="@Model.aSite.SITE_NO" />
+    <input type="hidden" name="aSite.SITE_NAME" value="@Model.aSite.SITE_NAME" />
+    
+    
+    <div class="fiftyPercColumn"> 
+            
+        <div data-role="fieldcontain">
+	        <span class="required bold ui-label-a">@Html.Label(SiteStrings.Desc_Label)</span>
+	        <textarea rows="4" cols="30" class="stnTextInput ui-shadow-inset required margin" name="aSite.SITE_DESCRIPTION" data-mini="true">@Model.aSite.SITE_DESCRIPTION</textarea>
+		</div>
+
+        <div data-role="fieldcontain">
+	        <span class="bold ui-label-a">@Html.Label(SiteStrings.InternalNotes_Label)</span>
+	        <textarea rows="4" cols="30" class="stnTextInput ui-shadow-inset margin" name="aSite.SITE_NOTES" data-mini="true">@Model.aSite.SITE_NOTES</textarea>
+		</div>
+
+        <div data-role="fieldcontain" style="margin-bottom:5px">
+            <span class="ui-label-a">&nbsp;</span>
+            <span>
+                <input type="radio" name="IntervalUnit" id="dd_radio" checked="checked" value="DecDeg" />Dec Deg
+                <input type="radio" name="IntervalUnit" id="dms_radio" value="DMS" />DMS
+            </span>
+        </div>
+
+        <div data-role="fieldcontain">
+	        <span class="required bold ui-label-a">@Html.Label(SiteStrings.Latitude_Label)</span>             
+	        <div id="Lat_dd"><input type="text" class="stnTextInput ui-shadow-inset required margin" id="latitude" onkeypress="return isNumberKey(event)" name="aSite.LATITUDE_DD" data-mini="true" value="@Model.aSite.LATITUDE_DD"  /></div>
+            <div class="hidden" id="Lat_dmc" style="margin-bottom:5px">
+                <input type="text" style="width:9%" class="stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" id="Latdec" name="LATITUDE_D" data-mini="true" />&nbsp;°&nbsp;&nbsp;
+                <input  type="text" style="width:9%" class="stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" id="Latmin" name="LATITUDE_M" data-mini="true" />&nbsp;′&nbsp;&nbsp;
+                <input  type="text" style="width:20%" class="stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" id="Latsec" name="LATITUDE_S" data-mini="true" />&nbsp;″
+            </div>
+        </div>
+
+        <div data-role="fieldcontain">
+	        <span class="required bold ui-label-a">@Html.Label(SiteStrings.Longitude_Label)</span>
+	        <div id="Long_dd"><input type="text" class="stnTextInput ui-shadow-inset required margin" id="longitude" name="aSite.LONGITUDE_DD" data-mini="true" value="@Model.aSite.LONGITUDE_DD"  /></div>
+            <div class="hidden"  id="Long_dmc" style="margin-bottom:5px">
+                <input type="text" style="width:9%" class="stnTextInput ui-shadow-inset" id="Longdec" name="LONGITUDE_D" data-mini="true" />&nbsp;°&nbsp;&nbsp;
+                <input  type="text" style="width:9%" class="stnTextInput ui-shadow-inset" id="Longmin" onkeypress="return isNumberKey(event)" name="LONGITUDE_M" data-mini="true" />&nbsp;′&nbsp;&nbsp;
+                <input  type="text" style="width:20%" class="stnTextInput ui-shadow-inset" id="Longsec" onkeypress="return isNumberKey(event)" name="LONGITUDE_S" data-mini="true" />&nbsp;″
+            </div>
+        </div>
+
+        <div data-role="fieldcontain">
+            <span class="required bold ui-label-a">@Html.Label(SiteStrings.HDatum_Label)</span>
+	        <label>
+                <select id="hdatumDD" class="stnTextInput ui-shadow-inset required selectmargin" name="aSite.HDATUM_ID" data-native-menu="false" data-mini="true">
+			        <option value="">Choose a Horizontal Datum</option>
+                        @foreach (STNServices.HORIZONTAL_DATUMS aDatum in ViewData["hDatumList"] as List<HORIZONTAL_DATUMS>)
+                        {
+                            <option @( (aDatum.DATUM_ID == Model.aSite.HDATUM_ID) ? "selected" : "") value='@aDatum.DATUM_ID'>@aDatum.DATUM_NAME</option> 
+                        }
+                </select>
+            </label>
+            <br />	
+		</div>
+
+        <div data-role="fieldcontain">
+            <span class="required bold ui-label-a">@Html.Label(HWMStrings.HCollectMethod_Label)</span>
+	        <label>
+                <select id="collMethoddd" class="stnTextInput ui-shadow-inset required selectmargin" name="aSite.HCOLLECT_METHOD_ID" data-native-menu="false" data-mini="true">
+			        <option value="">Choose a Horizontal Collection Method</option>
+                        @foreach (HORIZONTAL_COLLECT_METHODS hcm in ViewData["hCollectMethodList"] as List<HORIZONTAL_COLLECT_METHODS>)
+                        {
+                            <option @( (hcm.HCOLLECT_METHOD_ID == Model.aSite.HCOLLECT_METHOD_ID) ? "selected" : "") value='@hcm.HCOLLECT_METHOD_ID'>@hcm.HCOLLECT_METHOD</option> 
+                        }
+                </select>
+            </label>
+            <br />	
+		</div>
+
+        <div data-role="fieldcontain">
+	        <span class="bold ui-label-a">@Html.Label(SiteStrings.Address_Label)</span>
+	        <input type="text" class="stnTextInput ui-shadow-inset margin" name="aSite.ADDRESS" data-mini="true" value="@Model.aSite.ADDRESS"  />			   
+        </div>
+
+        <div data-role="fieldcontain">
+	        <span class="bold ui-label-a">@Html.Label(SiteStrings.City_Label)</span>
+	        <input type="text" class="stnTextInput ui-shadow-inset margin" name="aSite.CITY" data-mini="true" value="@Model.aSite.CITY"  />
+        </div>
+            
+        <div data-role="fieldcontain">
+	        <span class="required bold ui-label-a">@Html.Label(SiteStrings.State_Label)</span>
+                <select id="statedd" class="stnTextInput ui-shadow-inset required selectmargin" onchange="stateChange(this)" data-native-menu="false" data-mini="true">
+			        <option value="">Choose a State</option>
+                        @foreach (STATES st in ViewData["States"] as List<STATES>)
+                        {
+                            <option @( (st.STATE_ABBREV == Model.aSite.STATE) ? "selected" : "") value='@st.STATE_ID'>@st.STATE_NAME</option> 
+                        }
+                </select>
+            <input type="hidden" name="aSite.STATE" id="stateNameINPUT" value="@Model.aSite.STATE" />
+        </div>
+            
+        <div data-role="fieldcontain">
+	        <span class="bold ui-label-a">@Html.Label(SiteStrings.Zip_Label)</span>
+            <input type="text" class="stnTextInput ui-shadow-inset margin" id="zip" name="aSite.ZIP" data-mini="true" value="@Model.aSite.ZIP"  />
+        </div>
+
+        <div data-role="fieldcontain">
+	        <span class="required bold ui-label-a">@Html.Label(SiteStrings.County_Label)</span>
+            <input type="hidden" value="@ViewData["AllCounties"]" id="allTheCounties" />
+            <select id="county" class="required stnSelectInput ui-shadow-inset selectmargin" data-native-menu="false" name="aSite.COUNTY" data-mini="true">					   
+                <option value="">Choose a County</option>
+                    @foreach (COUNTIES cou in ViewData["StateCounties"] as List<COUNTIES>)
+                    {
+                        <option @( (cou.COUNTY_NAME == Model.aSite.COUNTY) ? "selected" : "") value='@cou.COUNTY_NAME'>@cou.COUNTY_NAME</option> 
+                    }
+            </select>
+        </div>
+            
+        <div data-role="fieldcontain">
+	        <span class="bold ui-label-a">@Html.Label(SiteStrings.Waterbody_Label)</span>
+	        <input type="text" class="stnTextInput ui-shadow-inset margin" name="aSite.WATERBODY" data-mini="true" value="@Model.aSite.WATERBODY"  />
+		</div>
+            
+         <div data-role="fieldcontain">
+	        <span class="bold ui-label-a">Drainage Area (sq mi):</span>
+	        <input type="text" class="stnTextInput ui-shadow-inset margin" name="aSite.DRAINAGE_AREA_SQMI" onkeypress="return isNumberKey(event)" data-mini="true" value="@Model.aSite.DRAINAGE_AREA_SQMI"  />
+		</div>
+
+        <div data-role="fieldcontain">
+  	        <span class="bold ui-label-a">@Html.Label(SiteStrings.USGSStationID_Label)</span>
+	        <input type="text" class="stnTextInput ui-shadow-inset margin" name="aSite.USGS_SID" data-mini="true" value="@Model.aSite.USGS_SID"  />
+        </div>
+
+        <div data-role="fieldcontain">
+  	        <span class="bold ui-label-a">@Html.Label(SiteStrings.NOAAStationID_Label)</span>
+	        <input type="text" class="stnTextInput ui-shadow-inset margin" name="aSite.NOAA_SID" data-mini="true" value="@Model.aSite.NOAA_SID"  />
+        </div>
+
+        <div data-role="fieldcontain">
+  	        <span class="bold ui-label-a">@Html.Label(SiteStrings.OtherStationID_Label)</span>
+	        <input type="text" class="stnTextInput ui-shadow-inset margin" placeholder="Please add details in the Site Description" name="aSite.OTHER_SID" data-mini="true" value="@Model.aSite.OTHER_SID"  />
+        </div>
+
+        <div data-role="fieldcontain">
+	        <span class="bold ui-label-a">@Html.Label(SiteStrings.SafetyNotes_Label)</span>
+	        <textarea rows="4" cols="30" class="stnTextInput ui-shadow-inset margin" name="aSite.SAFETY_NOTES" data-mini="true">@Model.aSite.SAFETY_NOTES</textarea>
+		</div>
+
+         @* --------------HOUSING SECTION-------------------*@
+
+        <div style="margin-bottom:10px;margin-top:10px;">  
+            <div class="siteHousingSection softHeader" style="min-height:120px;overflow:visible">
+	            <div class="boxTitle">Site Housing</div>
+                <br />
+
+                <div class="ui-grid-a">
+                    <div data-role="fieldcontain">
+                        <div class="ui-block-a" style="width:34%">Site Housing Type(s):</div>
+                        <div class="ui-block-b">                     
+                            <select id="HouseTypesDD" multiple="multiple" class="stnTextInput ui-shadow-inset" style="width:280px !important" data-native-menu="false" data-mini="true">
+                                @foreach (HOUSING_TYPE ht in ViewData["HousingTypes"] as List<HOUSING_TYPE>)
+                                {
+                                    <option value='@ht.HOUSING_TYPE_ID'>@ht.TYPE_NAME</option> 
+                                }
+                            </select>
+                            
+                            <br />	
+                        </div>
+                    </div>
+                </div>               
+                <br clear="all" />
+                <div id="siteHousings" style="display:none;overflow:auto;">
+                    <table id="SHTable" style="width:98%">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left">Housing Type</th>
+                                <th style="text-align:left;width:9%;">Housing Length (ft)</th>
+                                <th style="text-align:center;width:22%;">Housing Material</th>
+                                <th style="text-align:center">Housing Notes</th>
+                                <th style="text-align:left;width:6%;">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewData.ContainsKey("SiteHousings"))
+                            {
+                                var index = 0;
+                                foreach (SiteHousingModel shm in Model.SiteHousings as List<SiteHousingModel>)
+                                {
+                                <tr id="@(shm.HOUSING_TYPE_ID)">
+                                    <td style="min-width:134px">@shm.HousingTypeName<input type="hidden" name="SiteHousings[@(index)].HOUSING_TYPE_ID" value="@shm.HOUSING_TYPE_ID" /></td>
+                                    <td style="max-width:13px"><input type="text" class="stnTextInput ui-shadow-inset" style="max-width:24px" onkeypress="return isNumberKey(event)" name="SiteHousings[@(index)].LENGTH" value="@shm.LENGTH" /><input type="hidden" name="SiteHousings[@(index)].SITE_ID" value="@shm.SITE_ID" /></td>
+                                    <td style="text-align:center"><input type="text" class="stnTextInput ui-shadow-inset" style="width:90%" name="SiteHousings[@(index)].MATERIAL" value="@shm.MATERIAL" /><input type="hidden" name="SiteHousings[@(index)].SITE_HOUSING_ID" value="@shm.SITE_HOUSING_ID" /></td>
+                                    <td style="text-align:left"><textarea cols="30" class="stnTextInput ui-shadow-inset" name="SiteHousings[@(index)].NOTES">@shm.NOTES</textarea></td>
+                                    <td style="text-align: center;max-width:13px"><input style="max-width:24px" class="stnTextInput ui-shadow-inset" type="text" name="SiteHousings[@(index)].AMOUNT" value="@shm.AMOUNT" /></td>
+                                </tr>
+                                    index++;
+                                }
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>        
+            <input type="hidden" id="hiddenHTIds" name="houseTypeIDs" value="@Model.houseTypeIDs" />
+        </div>
+
+        @* ---------------END HOUSING SECTION -------------*@
+
+            
+
+        <div data-role="fieldcontain">
+            <span class="bold ui-label-a">@Html.Label(SiteStrings.Priority_Label)</span>
+	        <label>
+                <select id="groupPlaceholder" class="stnTextInput ui-shadow-inset selectmargin" name="aSite.PRIORITY_ID" data-native-menu="false" data-mini="true">
+			        <option value="0">Choose a Priority</option>
+                        @foreach (DEPLOYMENT_PRIORITY aPri in ViewData["priorityList"] as List<DEPLOYMENT_PRIORITY>)
+                        {
+                            <option @( (aPri.PRIORITY_ID == Model.aSite.PRIORITY_ID) ? "selected" : "") value='@aPri.PRIORITY_ID'>@aPri.PRIORITY_NAME</option> 
+                        }
+                </select>
+            </label>
+            <br />	
+		</div>
+
+        @* --------------------------- Network Types -------------------*@
+    <br />
+    <div data-role="fieldcontain">
+            <span class="bold ui-label-a">@Html.Label(SiteStrings.NetworkType_Label)</span>
+	        
+    @{
+                        List<NETWORK_TYPE> SiteNetworkTypes = ViewData["siteNets"] as List<NETWORK_TYPE>;
+                        List<NETWORK_TYPE> NetworkTypeList = ViewData["NetworkTypeList"] as List<NETWORK_TYPE>;
+        <table>
+        @for (int i = 0; i < NetworkTypeList.Count; i++)
+        {
+            Boolean existing = false;
+            foreach (NETWORK_TYPE nt in SiteNetworkTypes)
+            {
+                if (nt.NETWORK_TYPE_ID == NetworkTypeList[i].NETWORK_TYPE_ID)
+                {
+                    existing = true;
+                }
+            }
+            if (existing)
+            {
+                <tr><td>
+                <input type="checkbox" name="SiteNetworkTypes" checked="checked" value="@NetworkTypeList[i].NETWORK_TYPE_ID" />@NetworkTypeList[i].NETWORK_TYPE_NAME</td></tr>
+            }
+            else
+            {
+                <tr><td>
+                <input type="checkbox" name="SiteNetworkTypes" value="@NetworkTypeList[i].NETWORK_TYPE_ID" />@NetworkTypeList[i].NETWORK_TYPE_NAME</td></tr>
+            }
+        }
+        </table>
+     } 
+       
+     </div>
+
+         <br clear="all" />
+
+         @* --------------------------- Network Names -------------------*@
+    <br />
+    <div data-role="fieldcontain">
+            <span class="bold ui-label-a">@Html.Label(SiteStrings.NetworkName_Label)</span>
+	        
+    @{
+        List<NETWORK_NAME> SiteNetworkNames = ViewData["siteNetNames"] as List<NETWORK_NAME>;
+        List<NETWORK_NAME> NetworkNameList = ViewData["NetworkNameList"] as List<NETWORK_NAME>;
+        <table>
+        @for (int i = 0; i < NetworkNameList.Count; i++)
+        {
+            Boolean existing = false;
+            foreach (NETWORK_NAME nn in SiteNetworkNames)
+            {
+                if (nn.NETWORK_NAME_ID == NetworkNameList[i].NETWORK_NAME_ID)
+                {
+                    existing = true;
+                }
+            }
+            if (existing)
+            {
+                <tr><td>
+                <input type="checkbox" name="SiteNetworkNames" checked="checked" value="@NetworkNameList[i].NETWORK_NAME_ID" />@NetworkNameList[i].NAME</td></tr>
+            }
+            else
+            {
+                <tr><td>
+                <input type="checkbox" name="SiteNetworkNames" value="@NetworkNameList[i].NETWORK_NAME_ID" />@NetworkNameList[i].NAME</td></tr>
+            }
+        }
+        </table>
+     } 
+       
+     </div>
+
+         <br clear="all" />
+
+        <div data-role="fieldcontain">
+  	        <span class="bold ui-label-a">@Html.Label(SiteStrings.Zone_Label)</span>
+	        <input type="text" class="stnTextInput ui-shadow-inset margin" name="aSite.ZONE" data-mini="true" value="@Model.aSite.ZONE"  />
+        </div>
+
+        <div data-role="fieldcontain">
+            <span class="bold ui-label-a">@Html.Label(SiteStrings.PermSensor_Label)</span>
+            <div class="margin" style="display:inline-block">
+                @if (Model.aSite.IS_PERMANENT_HOUSING_INSTALLED == "Yes")
+                {
+                    <span>
+                        <input type="radio" name="aSite.IS_PERMANENT_HOUSING_INSTALLED" checked="checked" value="Yes" />Yes
+                        <input type="radio" name="aSite.IS_PERMANENT_HOUSING_INSTALLED" value="No" />No
+                    </span>
+                }
+                else
+                {
+                    <span>
+                        <input type="radio" name="aSite.IS_PERMANENT_HOUSING_INSTALLED" value="Yes" />Yes
+                        <input type="radio" name="aSite.IS_PERMANENT_HOUSING_INSTALLED" checked="checked" value="No" />No
+                    </span>
+                }
+            </div>
+        </div>        
+
+        <div data-role="fieldcontain">
+	        <span class="bold ui-label-a">Site Creator:</span>
+	        <label style="display:inline-block">@( (ViewData.ContainsKey("creator")) ? ViewData["creator"] : "")</label>
+	    </div>
+        
+        <div data-role="fieldcontain">
+            <span class="bold ui-label-a">Access Permission Granted:</span>
+            <div class="margin" style="display:inline-block">
+                @if (Model.aSite.ACCESS_GRANTED == "Yes")
+                {
+                    <span>
+                        <input type="radio" name="aSite.ACCESS_GRANTED" checked="checked" value="Yes" />Yes
+                        <input type="radio" name="aSite.ACCESS_GRANTED" value="No" />No
+                        <input type="radio" name="aSite.ACCESS_GRANTED" value="Not Needed" />Not Needed
+                    </span>
+                }
+                else if (Model.aSite.ACCESS_GRANTED == "No")
+                {
+                    <span>
+                        <input type="radio" name="aSite.ACCESS_GRANTED" value="Yes" />Yes
+                        <input type="radio" name="aSite.ACCESS_GRANTED" checked="checked" value="No" />No
+                        <input type="radio" name="aSite.ACCESS_GRANTED" value="Not Needed" />Not Needed
+                    </span>
+                }
+                else
+                {
+                    <span>
+                        <input type="radio" name="aSite.ACCESS_GRANTED" value="Yes" />Yes
+                        <input type="radio" name="aSite.ACCESS_GRANTED" value="No" />No
+                        <input type="radio" name="aSite.ACCESS_GRANTED" checked="checked" value="Not Needed" />Not Needed
+                    </span>
+                }
+            </div>
+        </div>        
+
+        
+        <h2>Land Owner Contact Information</h2>
+        @if (Model.aLandOwner != null)
+        {
+            <div style="color:Red;font-size:small;width:80%">Do not record information that private citizens have a reasonable expectation of privacy about. No names or phone numbers of private citizens. Business contact information is acceptable.</div>
+       
+            <input type="hidden" name="aLandOwner.LANDOWNERCONTACTID" value="@Model.aLandOwner.LANDOWNERCONTACTID" />
+
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.LO_FirstName_Label)</span>
+                <input type="text" class="stnTextInput ui-shadow-inset margin" name="aLandOwner.FNAME" data-mini="true" value="@Model.aLandOwner.FNAME" />
+            </div>        
+        
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.LO_LastName_Label)</span>
+                <input type="text" class="stnTextInput ui-shadow-inset margin" name="aLandOwner.LNAME" data-mini="true" value="@Model.aLandOwner.LNAME" />
+            </div>
+              
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.LO_Title_Label)</span>
+                <input type="text" class="stnTextInput ui-shadow-inset margin" name="aLandOwner.TITLE" data-mini="true" value="@Model.aLandOwner.TITLE" />
+            </div>
+            
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.Address_Label)</span>
+                <input type="text" class="stnTextInput ui-shadow-inset margin" name="aLandOwner.ADDRESS" data-mini="true" value="@Model.aLandOwner.ADDRESS" />
+            </div>
+         
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.City_Label)</span>
+                <input type="text" class="stnTextInput ui-shadow-inset margin" name="aLandOwner.CITY" data-mini="true" value="@Model.aLandOwner.CITY" />
+            </div>    
+    
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.State_Label)</span>
+                <input type="text" class="stnTextInput ui-shadow-inset margin" name="aLandOwner.STATE" data-mini="true" value="@Model.aLandOwner.STATE" />
+            </div>
+     
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.Zip_Label)</span>
+                <input type="text" class="stnTextInput ui-shadow-inset margin" id="lzip" name="aLandOwner.ZIP" data-mini="true" value="@Model.aLandOwner.ZIP" />
+            </div>
+     
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.LO_PrimaryNo_Label)</span>
+                <input type="text" class="stnTextInput ui-shadow-inset margin" id="LandownerpPhone" name="aLandOwner.PRIMARYPHONE" data-mini="true" value="@Model.aLandOwner.PRIMARYPHONE" />
+            </div>
+      
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.LO_SecondaryNo_Label)</span>
+                <input type="text" class="stnTextInput ui-shadow-inset margin" id="LandownersPhone" name="aLandOwner.SECONDARYPHONE" data-mini="true" value="@Model.aLandOwner.SECONDARYPHONE" />
+            </div>
+      
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.LO_Email_Label)</span>
+                <input type="text" class="stnTextInput ui-shadow-inset margin" name="aLandOwner.EMAIL" data-mini="true" value="@Model.aLandOwner.EMAIL" />
+            </div>
+        }
+        else
+        {
+            <div style="color:Red;font-size:small;width:80%">Do not record information that private citizens have a reasonable expectation of privacy about. No names or phone numbers of private citizens. Business contact information is acceptable.</div>
+       
+            @*new contact *@
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.LO_FirstName_Label)</span>
+                <input type="text" class="stnTextInput ui-shadow-inset margin" name="aLandOwner.FNAME" data-mini="true" />
+            </div>        
+        
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.LO_LastName_Label)</span>
+                <input type="text" class="stnTextInput ui-shadow-inset margin" name="aLandOwner.LNAME" data-mini="true" />
+            </div>
+              
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.Address_Label)</span>
+                <input type="text" class="stnTextInput ui-shadow-inset margin" name="aLandOwner.ADDRESS" data-mini="true" />
+            </div>
+         
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.City_Label)</span>
+                <input type="text" class="stnTextInput ui-shadow-inset margin" name="aLandOwner.CITY" data-mini="true" />
+            </div>    
+    
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.State_Label)</span>
+                <input type="text" class="stnTextInput ui-shadow-inset margin" name="aLandOwner.STATE" data-mini="true" />
+            </div>
+     
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.Zip_Label)</span>
+                <input type="text" id="lzip" class="stnTextInput ui-shadow-inset margin" name="aLandOwner.ZIP" data-mini="true" />
+            </div>
+     
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.LO_PrimaryNo_Label)</span>
+                <input type="text" id="LandownerpPhone" class="stnTextInput ui-shadow-inset margin" name="aLandOwner.PRIMARYPHONE" data-mini="true" />
+            </div>
+      
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.LO_SecondaryNo_Label)</span>
+                <input type="text" id="LandownersPhone" class="stnTextInput ui-shadow-inset margin" name="aLandOwner.SECONDARYPHONE" data-mini="true" />
+            </div>
+      
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.LO_Email_Label)</span>
+                <input type="text" class="stnTextInput ui-shadow-inset margin" name="aLandOwner.EMAIL" data-mini="true" />
+            </div>
+
+            <div data-role="fieldcontain">
+                
+            </div>
+        }
+     
+     
+      <div id="formSubmitDiv" class="formSection">
+            <div class="leftSideSubmit">
+                <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+                <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" class="submit" value="Save" /></div></div>
+            </div>
+       </div>
+   </div>
+}
+
+
+<script type="text/javascript">
+    $().ready(function () {
+        $("#loading").fadeOut();
+
+
+        var unchecked;
+        var uncheckedArray;
+        $("#HouseTypesDD").multipleSelect({
+            placeholder: "Choose Housing Type",
+            selectAll: false,
+            onClick: function (view) {
+                //determine if they are unchecking anything, if so store it to be removed from table
+                if (!view.checked) {
+                    if (unchecked == undefined) {
+                        unchecked = view.value;
+                    }
+                    else {
+                        unchecked += "," + view.value;
+                    }
+                    uncheckArray = unchecked.split(',');
+                }
+            },
+            onClose: function () {
+                var houseIDs = $("#HouseTypesDD").multipleSelect("getSelects");
+                var textArray = $("#HouseTypesDD").multipleSelect("getSelects", "text");
+                if (houseIDs.length == 0) {
+                    //clear the table values
+                    $("#SHTable tbody tr").remove();
+                    $(siteHousing).css("display", "none");
+                    $("#hiddenHTIds").val("");
+                }
+                else {
+                    //add a row for each housetype chosen
+                    $(siteHousings).css("display", "block");
+                    $.each(houseIDs, function (name, value) {
+                        var uniqueId = "#" + value;
+                        //if this id exists already, don't add it again                                                
+                        if (!$(uniqueId).length >= 1) {
+                            //find out how many rows there are and use that -1 as index [name]
+                            var ind = $('#SHTable >tbody:last >tr').length;
+
+                            $("#SHTable tbody").append('<tr id="' + value + '">' +
+                                '<td style="min-width:134px">' + textArray[name] + '<input type="hidden" name="SiteHousings[' + ind + '].HOUSING_TYPE_ID" value="' + value + '" /></td>' +
+                                '<td style="max-width:13px"><input type="text" class="stnTextInput ui-shadow-inset" style="max-width:24px" onkeypress="return isNumberKey(event)" id="Length" name="SiteHousings[' + ind + '].LENGTH" /></td>' +
+                                '<td style="text-align:center"><input type="text" class="stnTextInput ui-shadow-inset" style="width:90%" id="Material" name="SiteHousings[' + ind + '].MATERIAL" /></td>' +
+                                '<td style="text-align:left"><textarea cols="30" id="Notes" class="stnTextInput ui-shadow-inset" name="SiteHousings[' + ind + '].NOTES" /></td>' +
+                                '<td style="text-align: center;max-width:13px"><input type="text" class="stnTextInput ui-shadow-inset" style="max-width:24px" id="Length" name="SiteHousings[' + ind + '].AMOUNT" value="1" /></td>' +
+                                '</tr>');
+                        }
+                    });
+                    //if there are any unchecked, remove each one
+                    if (uncheckArray != undefined) {
+                        if (uncheckArray.length >= 1) {
+                            $.each(uncheckArray, function (n, v) {
+                                if (v != "")
+                                    $('#SHTable tbody tr#' + v).remove();
+                            });
+                        }
+                    }
+                }
+                if (uncheckArray != undefined) {
+                    if (uncheckArray.length >= 1) {
+                        uncheckArray.length = 0;
+                        unchecked = "";
+                    }
+                }
+            }
+
+        });
+
+        //if there are siteHousings, when doc loads add those to the SHTable tbody and store in hidden inputs
+        var HT_IDs = $("#hiddenHTIds").val();
+        var HTArray = HT_IDs.split(',');
+
+        if (HT_IDs != "") {
+            if (HTArray.length >= 1) {
+                $("#HouseTypesDD").multipleSelect('setSelects', HTArray);
+                $(siteHousings).css("display", "block");
+            }
+        }
+
+        //disable all those that are checked so they can't uncheck (must make amt 0 to remove)
+        $('li label :checkbox').val(HTArray).filter(":checked").attr("disabled", true);
+
+        $("#zip").mask("99999");
+        $("#lzip").mask("99999");
+        $("#pPhone").mask("(999) 999-9999? x99999");
+        $("#sPhone").mask("(999) 999-9999? x99999");
+        $("#LandownerpPhone").mask("(999) 999-9999? x99999");
+        $("#LandownersPhone").mask("(999) 999-9999? x99999");
+
+        //radio button change going from dec degrees to degree minute seconds show/hides lat/long input texts
+        $("#dd_radio").change(function () { //Dec Deg
+            $("#Latsec").removeClass("required");
+            $("#Longsec").removeClass("required");
+
+            $("#Lat_dmc").hide();
+            $("#Long_dmc").hide();
+
+            $("#latitude").addClass("required");
+            $("#longitude").addClass("required");
+
+            if ($("#Latsec").val() != "") {
+                var degLa = $("#Latdec").val();
+                var minLa = $("#Latmin").val();
+                var secLa = $("#Latsec").val();
+                var decDegLat = azimuth(degLa, minLa, secLa);
+                $("#latitude").val(decDegLat);
+
+            }
+            if ($("#Longdec").val() != "") {
+                var degLo = $("#Longdec").val();
+                var minLo = $("#Longmin").val();
+                var secLo = $("#Longsec").val();
+                var decDegLong = azimuth(degLo, minLo, secLo);
+                $("#longitude").val(decDegLong);
+            }
+
+            $("#Lat_dd").show();
+            $("#Long_dd").show();
+        });
+
+        $("#dms_radio").change(function () { //dms
+            $("#latitude").removeClass("required");
+            $("#longitude").removeClass("required");
+
+            $("#Lat_dd").hide();
+            $("#Long_dd").hide();
+
+            $("#Latsec").addClass("required");
+            $("#Longsec").addClass("required");
+
+            if ($("#latitude").val() != "") {
+                var dms = deg_to_dms($("#latitude").val());
+                var dmsArray = dms.split(":");
+                $("#Latdec").val(dmsArray[0]);
+                $("#Latmin").val(dmsArray[1]);
+                $("#Latsec").val(dmsArray[2]);
+            }
+            if ($("#longitude").val() != "") {
+                var dms = deg_to_dms($("#longitude").val());
+                var dmsArray = dms.split(":");
+                $("#Longdec").val("-" + dmsArray[0]);
+                $("#Longmin").val(dmsArray[1]);
+                $("#Longsec").val(dmsArray[2]);
+            }
+            $("#Lat_dmc").show();
+            $("#Long_dmc").show();
+        });
+
+
+    });
+
+    //convert deg min sec to dec degrees
+    function azimuth(deg, min, sec) {
+        if (deg < 0) {
+            azi = -1.0 * deg + 1.0 * min / 60.0 + 1.0 * sec / 3600.0;
+            return (-1.0 * azi).toFixed(5);
+        }
+        else {
+            azi = 1.0 * deg + 1.0 * min / 60.0 + 1.0 * sec / 3600.0;
+            return (azi).toFixed(5);
+        }
+    }
+
+    //convert dec degrees to dms
+    function deg_to_dms(deg) {
+        if (deg.substring(0, 1) == "-") {
+            deg = deg.substring(1);
+        }
+        var d = Math.floor(deg);
+        var minfloat = (deg - d) * 60;
+        var m = Math.floor(minfloat);
+        var s = ((minfloat - m) * 60).toFixed(3);
+
+        return ("" + d + ":" + m + ":" + s);
+    }
+    function loading() {
+        $("#loading").fadeIn();
+    }
+    
+    function cancelClick() {
+        $("#loading").fadeIn();
+        window.location.href = '@Url.Action("Details", "Sites", new { id = Model.aSite.SITE_ID })'
+    };
+
+    //number formatter (any number and decimal place)
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode != 46 && charCode > 31
+            && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+</script>

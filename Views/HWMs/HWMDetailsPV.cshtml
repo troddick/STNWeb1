@@ -1,0 +1,180 @@
+﻿@* Comments:
+11.29.12 - TR - Created (Parial View)
+
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display details of a HWM 
+ */
+ *@
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model STNServices.HWM
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#loading").fadeOut();
+    });        
+</script>
+
+@if (Session["TeamId"] != null)
+{
+    using (Ajax.BeginForm("HWMEditPV", "HWMs", new { id = Model.HWM_ID }, new AjaxOptions() { UpdateTargetId = "content", HttpMethod = "GET", LoadingElementId = "loading", OnSuccess = "edit_successActions" }))
+    {
+        <div><input type="submit" class="STNButton icon editIcon" value="Edit HWM"/></div>
+        <br clear="all" /> 
+    }
+}
+else 
+{
+    <div style="width:50%">To Edit HWM, please first <a href="@Url.Action("HWMEditPV", new { id = Model.HWM_ID })" >choose</a> an event and collection team.</div>
+    <br />
+}
+@{
+    SITE aSite = ViewData["aSite"] as SITE;
+}
+<div class="fiftyPercColumn"> 
+                        
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(HWMStrings.SiteNo_Label)</span>
+	    <label class="inline">@aSite.SITE_NO</label>
+	</div>
+    
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(HWMStrings.WaterBody_Label)</span>
+	    <label class="inline">@Model.WATERBODY</label>
+	</div>
+
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(HWMStrings.Event_Label)</span>
+	    <label class="inline">@( (ViewData.ContainsKey("Event")) ? ViewData["Event"] : "")</label>
+	</div>
+  
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(HWMStrings.HWMType_Label)</span>
+	    <label class="inline">@( (ViewData.ContainsKey("HWMType")) ? ViewData["HWMType"] : "")</label>
+	</div>
+            
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(HWMStrings.HWMEnvironment_Label)</span>
+	    <label class="inline">@Model.HWM_ENVIRONMENT</label>
+	</div>
+    
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(HWMStrings.HWMQual_Label)</span>
+	    <label class="inline">@( ViewData["HWMQual"] + " " + ViewData["QualValue"])</label>
+	</div>
+           
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(HWMStrings.Bank_Label)</span>
+	    <label class="inline">@Model.BANK</label>
+	</div>
+              
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(HWMStrings.LocationDesc_Label)</span>
+	    <textarea class="textAreaDetails inline" cols="30" rows="4" readonly="readonly">@Model.HWM_LOCATIONDESCRIPTION</textarea>
+	</div>
+             
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(SiteStrings.Latitude_Label)</span>
+	    <label class="inline">@Model.LATITUDE_DD</label>
+	</div>       
+                        
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(SiteStrings.Longitude_Label)</span>
+	    <label class="inline">@Model.LONGITUDE_DD</label>
+	</div>       
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(SiteStrings.HDatum_Label)</span>
+	    <label class="inline">@ViewData["aHorizontalDatum"]</label>
+	</div>
+                       
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(HWMStrings.HCollectMethod_Label)</span>
+	    <label class="inline">@((ViewData.ContainsKey("HCollectMethod")) ? ViewData["HCollectMethod"] : "")</label>
+	</div>
+    
+    <div>
+	    <span class="bold ui-label-a">Surveyed Elevation (ft):</span>
+	    <label class="inline">@Model.ELEV_FT</label>
+	</div>       
+                                    
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(globalStrings.VDatum_Label)</span>
+	    <label class="inline">@( (ViewData.ContainsKey("VerticalDatum")) ? ViewData["VerticalDatum"] : "")</label>
+	</div> 
+    
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(HWMStrings.Height_Label)</span>
+	    <label class="inline">@Model.HEIGHT_ABOVE_GND</label>
+	</div>   
+                   
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(HWMStrings.FlagDate_Label)</span>
+	    <label class="inline">@(Model.FLAG_DATE != null ? ((DateTime)Model.FLAG_DATE).ToShortDateString() : "")</label>
+	</div>       
+      
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(HWMStrings.SurveyDate_Label)</span>
+	    <label class="inline">@( Model.SURVEY_DATE != null ? ((DateTime)Model.SURVEY_DATE).ToShortDateString() : "")</label>
+	</div> 
+                                        
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(HWMStrings.VCollectMethod_Label)</span>
+	    <label class="inline">@( (ViewData.ContainsKey("VCollectMethod")) ? ViewData["VCollectMethod"] : "")</label>
+	</div> 
+    
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(HWMStrings.Marker_Label)</span>
+	    <label class="inline">@( (ViewData.ContainsKey("MarkerID")) ? ViewData["MarkerID"] : "")</label>
+	</div>  
+               
+    <div>
+        <span class="bold ui-label-a">@Html.Label(HWMStrings.Notes_Label)</span>
+        <textarea class="textAreaDetails inline" cols="30" rows="4" readonly="readonly">@Model.HWM_NOTES</textarea>
+    </div>
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(HWMStrings.Stillwater_Label)</span>
+        @{
+            if (Model.STILLWATER == 0)
+            {
+              <label class="inline">No</label>
+            }
+            else if (Model.STILLWATER == 1)
+            {
+             <label class="inline">Yes</label>
+            }
+            else
+            {
+              <label></label>
+            }
+        }
+    </div>
+
+    <br />
+        
+    <div>
+	    <span class="bold ui-label-a">Flag Team:</span>
+	    <label class="inline">@ViewData["FlagTeam"]</label>
+	</div>
+
+    <div>
+	    <span class="bold ui-label-a">Survey Team:</span>
+	    <label class="inline">@ViewData["SurveyTeam"]</label>
+	</div>
+
+    <br clear="all" />
+
+    <div style="margin-top:8px">
+        <iframe width="88%" frameborder="0" scrolling="no" marginheight="0" height="290" marginwidth="0" 
+            src="@(System.Configuration.ConfigurationManager.AppSettings["STNFieldInset"].ToString())?lat=@aSite.LATITUDE_DD&lng=@aSite.LONGITUDE_DD"></iframe>
+    </div>
+</div>

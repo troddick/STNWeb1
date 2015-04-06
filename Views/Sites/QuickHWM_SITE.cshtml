@@ -1,0 +1,194 @@
+﻿@*
+04.21.14 - TR - validate
+10.10.12 - TR - Created 
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Quick HWM creation page (Site, HWM, OP)
+ */
+ *@
+@using System.Configuration;
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+
+@model STNWeb.Models.QuickHWMModel
+           
+
+     <div class="fiftyPercColumn">
+       
+        <div style="color:#59595C; font-size:large; font-weight:bold; margin-bottom: 10px">Site</div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">@Html.Label(SiteStrings.Desc_Label)</span></div>
+                <div class="ui-block-b"><textarea rows="4" cols="30" class="required stnTextInput ui-shadow-inset" name="Qsite.SITE_DESCRIPTION" data-mini="true"></textarea></div>
+            </div>
+        </div>
+
+         <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"></div>
+                <div class="ui-block-b">
+                    <span>
+                        <input type="radio" name="IntervalUnit" id="dd_radio" checked="checked" value="DecDeg" />Dec Deg
+                        <input type="radio" name="IntervalUnit" id="dms_radio" value="DMS" />DMS
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">@Html.Label(SiteStrings.Latitude_Label)</span></div>
+                <div class="ui-block-b hidden"  id="Lat_dmc">
+                    <input type="text" style="width:20%" class="stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" id="Latdec" name="Qsite.LATITUDE_D" data-mini="true" />&nbsp;°&nbsp;&nbsp;
+                    <input  type="text" style="width:20%" class="stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" id="Latmin" name="Qsite.LATITUDE_M" data-mini="true" />&nbsp;′&nbsp;&nbsp;
+                    <input  type="text" style="width:20%" class="stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" id="Latsec" name="Qsite.LATITUDE_S" data-mini="true" />&nbsp;″
+                </div>
+                <div class="ui-block-b" id="Lat_dd"><input type="text" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" id="latitude" name="Qsite.LATITUDE_DD" data-mini="true" /></div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">@Html.Label(SiteStrings.Longitude_Label)</span></div>
+                <div class="ui-block-b hidden"  id="Long_dmc">
+                    <input type="text" style="width:20%" class="stnTextInput ui-shadow-inset" id="Longdec" name="Qsite.LONGITUDE_D" data-mini="true" />&nbsp;°&nbsp;&nbsp;
+                    <input  type="text" style="width:20%" class="stnTextInput ui-shadow-inset" id="Longmin" onkeypress="return isNumberKey(event)" name="Qsite.LONGITUDE_M" data-mini="true" />&nbsp;′&nbsp;&nbsp;
+                    <input  type="text" style="width:20%" class="stnTextInput ui-shadow-inset" id="Longsec" onkeypress="return isNumberKey(event)" name="Qsite.LONGITUDE_S" data-mini="true" />&nbsp;″
+                </div>
+                <div class="ui-block-b" id="Long_dd"><input type="text" class="required stnTextInput ui-shadow-inset" id="longitude" name="Qsite.LONGITUDE_DD" data-mini="true" /></div>
+            </div>
+        </div>
+        
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">Click here to populate address fields:</span></div>
+                <div class="ui-block-b"><input class="STNButton" type="button" id="getAddress" value="Lookup Address" /></div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">@Html.Label(SiteStrings.HDatum_Label)</span></div>
+                <div class="ui-block-b">
+                    <select id="hdatumDD" class="required stnSelectInput ui-shadow-inset" name="Qsite.HDATUM_ID" data-native-menu="false" data-mini="true">
+				        <option value="">Choose Horizontal Datum</option>
+                        @foreach (HORIZONTAL_DATUMS aHDatum in ViewData["HDatumList"] as List<HORIZONTAL_DATUMS>)
+                        {
+                            <option value='@aHDatum.DATUM_ID'>@aHDatum.DATUM_NAME</option> 
+                        }
+                    </select>
+                    <br />	
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">@Html.Label(HWMStrings.HCollectMethod_Label)</span></div>
+                <div class="ui-block-b">
+                    <select id="gpsTypeDD" class="stnSelectInput ui-shadow-inset" name="Qsite.HCOLLECT_METHOD_ID" data-native-menu="false" data-mini="true">
+				        <option value="">Choose Horizontal Datum</option>
+                        @foreach (HORIZONTAL_COLLECT_METHODS hcm in ViewData["hCollectMethodList"] as List<HORIZONTAL_COLLECT_METHODS>)
+                        {
+                            <option value='@hcm.HCOLLECT_METHOD_ID'>@hcm.HCOLLECT_METHOD</option> 
+                        }
+                    </select>
+                    <br />	
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">@Html.Label(SiteStrings.Waterbody_Label)</span></div>
+                <div class="ui-block-b"><input type="text" class="required stnTextInput ui-shadow-inset" name="Qsite.WATERBODY" data-mini="true" /></div>
+            </div>
+        </div>
+
+        
+        
+     </div>
+
+     <div class="fiftyPercColumn" style="margin-top:31px">
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(SiteStrings.Address_Label)</div>
+                <div class="ui-block-b"><input type="text" id="road" class="stnTextInput ui-shadow-inset" name="Qsite.ADDRESS" data-mini="true" /></div>
+            </div>
+        </div>
+        
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(SiteStrings.City_Label)</div>
+                <div class="ui-block-b"><input type="text" id="city" class="stnTextInput ui-shadow-inset" name="Qsite.CITY" data-mini="true" /></div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">@Html.Label(SiteStrings.State_Label)</span></div>
+                <div class="ui-block-b"><select id="state" class="required stnSelectInput ui-shadow-inset" onchange="stateChange(this)" data-native-menu="false" data-mini="true">
+					    <option value=""></option>
+                        @foreach (STATES st in ViewData["States"] as List<STATES>)
+                        {
+                            <option value='@st.STATE_ID'>@st.STATE_NAME</option> 
+                        }
+                    </select>
+                    <input type="hidden" name="Qsite.STATE" id="stateNameINPUT" />
+                </div>
+            </div>
+        </div>
+        
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                 <div class="ui-block-a">@Html.Label(SiteStrings.Zip_Label)</div>
+                    <div class="ui-block-b"><input type="text" id="zip" class="stnTextInput ui-shadow-inset" name="Qsite.ZIP" data-mini="true" /></div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">@Html.Label(SiteStrings.County_Label)</span></div>
+                <div class="ui-block-b"><input type="hidden" value="@ViewData["Counties"]" id="allTheCounties" />
+                    <select id="county" class="required stnSelectInput ui-shadow-inset" name="Qsite.COUNTY" data-native-menu="false" data-mini="true">
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(SiteStrings.USGSStationID_Label)</div>
+                <div class="ui-block-b"><input type="text" class="stnTextInput ui-shadow-inset" name="Qsite.USGS_SID" data-mini="true" /></div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(SiteStrings.NOAAStationID_Label)</div>
+                <div class="ui-block-b"><input type="text" class="stnTextInput ui-shadow-inset" name="Qsite.NOAA_SID" data-mini="true" /></div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(SiteStrings.OtherStationID_Label)</div>
+                <div class="ui-block-b"><input type="text" placeholder="Please add details in the Site Description" class="stnTextInput ui-shadow-inset" name="Qsite.OTHER_SID" data-mini="true" /></div>
+            </div>
+        </div>
+
+       
+     </div>
+
+    <br />   
+      
+    
+   <br clear="all" />

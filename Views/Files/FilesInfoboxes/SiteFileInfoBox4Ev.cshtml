@@ -1,0 +1,137 @@
+﻿ 
+@* Comments:
+04.19.13 - TR - Updated to show files sorted by type
+02.06.13 - TR - Created 
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Partial view containing File box (list of Files for a site for an event)
+ */
+ *@
+ 
+ 
+ @using STNServices;
+ @using STNWeb.Assets.Resources;
+
+ <div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+ 
+ <div class="subSection softHeader">
+	    <label class="boxTitle">Files</label>
+        <br />
+        
+        @if (ViewData.ContainsKey("SiteEvFiles"))
+        {
+            if (ViewData.ContainsKey("PhotoFiles"))
+            {
+                <div class="">Photo Files</div>@* PHOTO FILES *@
+                <ul>
+                    @foreach (var aFile in ViewData["PhotoFiles"] as List<FILE>)
+                    {
+                        if (aFile.PATH != null)
+                        {
+                            <li>
+                                @Html.ActionLink(string.Format("{0}: ({1})", aFile.FILE_DATE != null ? ((DateTime)aFile.FILE_DATE).ToShortDateString() : "No Date", aFile.PATH), "FileDetails", "Files", new { id = aFile.FILE_ID }, new { onclick = "loading();" })
+                            </li>
+                        }
+                        else if (aFile.FILE_URL != null)
+                        {
+                            <li>
+                                @Html.ActionLink(string.Format("{0}: ({1})", aFile.FILE_DATE != null ? ((DateTime)aFile.FILE_DATE).ToShortDateString() : "No Date", aFile.FILE_URL), "FileDetails", "Files", new { id = aFile.FILE_ID }, new { onclick = "loading();" })
+                            </li>
+                        }
+                        else
+                        {
+                            <li>
+                                @Html.ActionLink(string.Format("{0}: ({1})", aFile.FILE_DATE != null ? ((DateTime)aFile.FILE_DATE).ToShortDateString() : "No Date", aFile.FILE_ID.ToString()), "FileDetails", "Files", new { id = aFile.FILE_ID }, new { onclick = "loading();" })
+                            </li>
+                        }
+                    }
+                </ul>
+                <div style="width:270px; height: 80px; overflow:auto; overflow-y:hidden; margin-top: 15px; padding-bottom: 5px">
+                    <span style="width:auto; white-space:nowrap">
+                        @foreach (var aFile in ViewData["PhotoFiles"] as List<FILE>)
+                        { 
+                            <a href="@Url.Action("DownloadFile", "Files", new { id = aFile.FILE_ID })" target="_blank" title="@aFile.PATH"><img alt="" title="@(aFile.PATH), @(aFile.DESCRIPTION)" style="max-width:70px; margin:auto" src="@Url.Action("DownloadFile", "Files", new { id = aFile.FILE_ID })" /></a>
+                        } 
+                    </span>
+                </div>
+                <br clear="all" />
+            }
+            if (ViewData.ContainsKey("DataFiles"))
+            { 
+             
+                 <div class="">Data Files</div>@* DATA FILES *@
+                 <ul>
+                     @foreach (var aFile in ViewData["DataFiles"] as List<FILE>)
+                     {
+                         if (aFile.PATH != null)
+                         {
+                             <li>
+                                 @Html.ActionLink(string.Format("{0}: ({1})", aFile.FILE_DATE != null ? ((DateTime)aFile.FILE_DATE).ToShortDateString() : "No Date", aFile.PATH), "FileDetails", "Files", new { id = aFile.FILE_ID }, new { onclick = "loading();" })
+                             </li>
+                         }
+                         else if (aFile.FILE_URL != null)
+                         {
+                             <li>
+                                 @Html.ActionLink(string.Format("{0}: ({1})", aFile.FILE_DATE != null ? ((DateTime)aFile.FILE_DATE).ToShortDateString() : "No Date", aFile.FILE_URL), "FileDetails", "Files", new { id = aFile.FILE_ID }, new { onclick = "loading();" })
+                             </li>
+                         }
+                         else
+                         {
+                             <li>
+                                 @Html.ActionLink(string.Format("{0}: ({1})", aFile.FILE_DATE != null ? ((DateTime)aFile.FILE_DATE).ToShortDateString() : "No Date", aFile.FILE_ID.ToString()), "FileDetails", "Files", new { id = aFile.FILE_ID }, new { onclick = "loading();" })
+                             </li>
+                         }
+                     }
+                </ul>
+            }
+            if (ViewData.ContainsKey("AllOtherFiles"))
+            {
+             
+                 <div class="">All Other Files</div>@* ALL OTHER FILES *@
+                 <ul>
+                     @foreach (var aFile in ViewData["AllOtherFiles"] as List<FILE>)
+                     {
+                         if (aFile.PATH != null)
+                         {
+                             <li>
+                                 @Html.ActionLink(string.Format("{0}: ({1})", aFile.FILE_DATE != null ? ((DateTime)aFile.FILE_DATE).ToShortDateString() : "No Date", aFile.PATH), "FileDetails", "Files", new { id = aFile.FILE_ID }, new { onclick = "loading();" })
+                             </li>
+                         }
+                         else if (aFile.FILE_URL != null)
+                         {
+                             <li>
+                                 @Html.ActionLink(string.Format("{0}: ({1})", aFile.FILE_DATE != null ? ((DateTime)aFile.FILE_DATE).ToShortDateString() : "No Date", aFile.FILE_URL), "FileDetails", "Files", new { id = aFile.FILE_ID }, new { onclick = "loading();" })
+                             </li>
+                         }
+                         {
+                             <li>
+                                 @Html.ActionLink(string.Format("{0}: ({1})", aFile.FILE_DATE != null ? ((DateTime)aFile.FILE_DATE).ToShortDateString() : "No Date", aFile.FILE_ID.ToString()), "FileDetails", "Files", new { id = aFile.FILE_ID }, new { onclick = "loading();" })
+                             </li>
+                         }
+                     }
+                </ul>
+            }
+        }
+        else
+        {
+            <div>No Files for this Event and Site</div>
+            <br />
+        }            
+        
+        <div>@Html.ActionLink("Upload new file", "FileCreate", "Files", new { Id = ViewData["SiteId"], aPage = "SITE" }, new { @class = "STNButton", onclick = "loading();" })</div>
+<br />
+</div>
+<br />
+
+<script type="text/javascript">
+    function loading() {
+        $("#loading").fadeIn();
+    };
+</script>

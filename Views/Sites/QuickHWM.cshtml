@@ -1,0 +1,384 @@
+﻿@*
+04.21.14 - TR - validate
+10.10.12 - TR - Created 
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Quick HWM creation page (Site, HWM, OP)
+ */
+ *@
+@using System.Configuration;
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@{
+    ViewBag.Title = "Quick HWM";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    STNWeb.Models.address thisAddress = null;
+}
+@model STNWeb.Models.QuickHWMModel
+           
+           
+<script src="@Url.Content("~/Assets/Scripts/jquery-1.8.3.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery-ui-1.10.4.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.maskedinput.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+<div id="dataTitle">
+    <div class="title">Create Quick HWM</div>
+</div>
+<br clear="all" />
+<hr class="headerUnderline" />
+
+@using (Ajax.BeginForm("CreateQuickHWM", "Sites", null, new AjaxOptions() { HttpMethod = "POST" }, new { @id = "CreateQuickForm" }))
+{
+     <div>
+       
+         @{ 
+            Html.RenderAction("QuickHWM_SITE"); 
+          } 
+
+        <hr style="display:block;width:100%" />
+
+         @{ 
+            Html.RenderAction("QuickHWM_OP"); 
+          } 
+        
+        <hr style="display:block;width:100%" />
+        
+         @{ 
+            Html.RenderAction("QuickHWM_HWM"); 
+          } 
+
+     </div>
+
+    <br />   
+      
+    <div id="formSubmitDiv" class="formSection">
+        <div class="leftSideSubmit">
+            <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel&#10; " onclick="cancelClick();" /></div></div>
+            <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" name="Create" class="submit" value="Submit&#10; " /></div></div>
+            <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" name="Create" class="submit" value="Submit&#10;& Upload File" /></div></div>
+            
+        </div>
+    </div>
+    
+   <br clear="all" />
+}
+
+<style type="text/css">
+    #CreateQuickForm label.error {
+        @*margin-left: 10px;*@
+        width: auto;
+        display: block;
+        color: Red;
+    }
+</style>
+
+<script type="text/javascript">  
+    function cancelClick() {
+        $("#loading").fadeIn();
+        window.location.href = '@Url.Action("Index", "Home")'
+    };
+
+    $(document).ready(function () {
+        //radio button change going from dec degrees to degree minute seconds show/hides lat/long input texts
+        $("#dd_radio").change(function () {
+            $("#Latsec").removeClass("required");
+            $("#Longsec").removeClass("required");
+
+            $("#Lat_dmc").hide();
+            $("#Long_dmc").hide();
+
+            $("#latitude").addClass("required");
+            $("#longitude").addClass("required");
+
+            if ($("#Latsec").val() != "") {
+                var degLa = $("#Latdec").val();
+                var minLa = $("#Latmin").val();
+                var secLa = $("#Latsec").val();
+                var decDegLat = azimuth(degLa, minLa, secLa);
+                $("#latitude").val(decDegLat);
+
+            }
+            if ($("#Longdec").val() != "") {
+                var degLo = $("#Longdec").val();
+                var minLo = $("#Longmin").val();
+                var secLo = $("#Longsec").val();
+                var decDegLong = azimuth(degLo, minLo, secLo);
+                $("#longitude").val(decDegLong);
+            }
+
+            $("#Lat_dd").show();
+            $("#Long_dd").show();
+        });
+        $("#dms_radio").change(function () {
+            $("#latitude").removeClass("required");
+            $("#longitude").removeClass("required");
+
+            $("#Lat_dd").hide();
+            $("#Long_dd").hide();
+
+            $("#Latsec").addClass("required");
+            $("#Longsec").addClass("required");
+
+            if ($("#latitude").val() != "") {
+                var dms = deg_to_dms($("#latitude").val());
+                var dmsArray = dms.split(":");
+                $("#Latdec").val(dmsArray[0]);
+                $("#Latmin").val(dmsArray[1]);
+                $("#Latsec").val(dmsArray[2]);
+            }
+            if ($("#longitude").val() != "") {
+                var dms = deg_to_dms($("#longitude").val());
+                var dmsArray = dms.split(":");
+                $("#Longdec").val("-" + dmsArray[0]);
+                $("#Longmin").val(dmsArray[1]);
+                $("#Longsec").val(dmsArray[2]);
+            }
+            $("#Lat_dmc").show();
+            $("#Long_dmc").show();
+        });
+
+        $('input').filter('.datepicker').datepicker({
+            changeMonth: true,
+            yearRange: '1965:2030',
+            changeYear: true
+        });
+
+        $.mask.definitions['m'] = '[0-5]';
+
+        $("#Latdec").mask("9?99"); 
+        $("#Longdec").mask("-9?99");
+        $("#Latmin").mask("m?999"); 
+        $("#Longmin").mask("m?999");
+        $("#Latsec").mask("m9.?9999"); 
+        $("#Longsec").mask("m9.?9999");
+        //$("#latitude").mask("99.?99999");
+        //$("#longitude").mask("-99.?99999");
+        $("#zip").mask("99999");
+
+        $("#CreateQuickForm").validate();
+        $("#CreateQuickForm").removeData("validator");
+        $("#CreateQuickForm").removeData("unobtrusiveValidation");
+
+        
+
+        $("#CreateQuickForm").validate({
+            rules: {
+                'Qsite.DESCRIPTION': "required",
+                'Qsite.WATERBODY': "required",
+                'Qsite.STATE': "required",
+                'Qsite.COUNTY': "required",
+                'Qsite.LATITUDE_DD': {
+                    required: true,
+                    range: [0, 72.0]
+                 },
+                'Qsite.LONGITUDE_DD': {
+                    required: true,
+                    range: [-175.0, -60.0]
+                 },
+                'Qsite.HDATUM_ID': "required",
+                'Qsite.HCOLLECT_METHOD_ID': "required",
+                'Qhwm.HWM_TYPE_ID': "required",
+                'Qhwm.HWM_ENVIRONMENT': "required",
+                'Qhwm.FLAG_DATE': "required",
+                'Qhwm.HWM_QUALITY_ID': "required"
+            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                form.submit();
+            }
+        });
+    });     //end $(document).ready(function ()
+
+    //number formatter (any number and decimal place)
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode != 46 && charCode > 31
+            && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+    //convert and store lat long correctly for db
+    $('#getAddress').click(function () {
+        $("#loading").fadeIn();
+
+        var stringCounties = document.getElementById("allTheCounties").defaultValue;
+        var counties = $.parseJSON('[' + stringCounties + ']');
+
+        var ddRadio = document.getElementById("dd_radio");
+        var dmsRadio = document.getElementById("dms_radio");
+        var lat = 0; var long = 0;
+        if (dmsRadio.checked == true) {
+            var Latdec = document.getElementById("Latdec").value;
+            var Latmin = document.getElementById("Latmin").value;
+            var Latsec = document.getElementById("Latsec").value;
+            lat = azimuth(Latdec, Latmin, Latsec);
+            $('#latitude').val(lat);
+            var Longdec = document.getElementById("Longdec").value;
+            var Longmin = document.getElementById("Longmin").value;
+            var Longsec = document.getElementById("Longsec").value;
+            long = azimuth(Longdec, Longmin, Longsec);
+            $('#longitude').val(long);
+        }
+        else {
+            lat = $('#latitude').val();
+            long = $('#longitude').val();
+        }
+        if (lat == "" && long == "")
+        { alert("Must enter latitude and longitude first"); }
+        $.ajax({
+            url: '@Url.Action("GetAddress", "Sites")',
+            data: { latitude: lat, longitude: long },
+            dataType: "xml",
+            success: function (response) {
+                $("#state").val("");
+                $("#county").empty();
+                var address = response.getElementsByTagName("addressparts")[0];
+                var stateName = "";
+                if (address == null) { alert("Must enter valid lat/long"); }
+                if (address.getElementsByTagName("road").length != 0) {
+                    $('#road').val(address.getElementsByTagName("road")[0].firstChild.data);
+                }
+                //is it city/hamlet/town/village == city
+                if (address.getElementsByTagName("city").length != 0) {
+                    $('#city').val(address.getElementsByTagName("city")[0].firstChild.data);
+                }
+                if (address.getElementsByTagName("hamlet").length != 0) {
+                    $('#city').val(address.getElementsByTagName("hamlet")[0].firstChild.data);
+                }
+                if (address.getElementsByTagName("town").length != 0) {
+                    $('#city').val(address.getElementsByTagName("town")[0].firstChild.data);
+                }
+                if (address.getElementsByTagName("village").length != 0) {
+                    $('#city').val(address.getElementsByTagName("village")[0].firstChild.data);
+                }
+                if (address.getElementsByTagName("state").length != 0) {
+                    stateName = address.getElementsByTagName("state")[0].firstChild.data;
+                    //select this state from the dropdown
+                    $("#state option:contains(" + stateName + ")").attr('selected', 'selected');
+                    //$('select[id="state"]').valid();
+                    //assign the STATE = statename for db storage
+                    $("#stateNameINPUT").val(stateName);
+                    //get the unique state id for county filtering
+                    var stateId = $("#state").val();
+                    //now only show counties for this state
+                    var countySelect = document.getElementById("county");
+                    countySelect.empty;
+                    var stateCounties = counties[0].filter(function (e) {
+                        return e.STATE_ID == stateId;
+                    });
+                    for (var i = 0; i < stateCounties.length; i++) {
+                        var opt = stateCounties[i];
+                        var el = document.createElement("option");
+                        el.textContent = opt.COUNTY_NAME;
+                        el.value = opt.COUNTY_NAME;
+                        countySelect.appendChild(el);
+                    }
+
+                    if (address.getElementsByTagName("postcode").length != 0) {
+                        $('#zip').val(address.getElementsByTagName("postcode")[0].firstChild.data);
+                    }
+
+                    if (address.getElementsByTagName("county").length != 0) {
+                        var cty = "County";
+                        var prh = "Parish";
+
+                        if (address.getElementsByTagName("county")[0].firstChild.data.indexOf(cty) > -1) {
+                            var countyName = address.getElementsByTagName("county")[0].firstChild.data.replace("County", "").trim();
+                        }
+                        else if (address.getElementsByTagName("county")[0].firstChild.data.indexOf(prh) > -1) {
+                            var countyName = address.getElementsByTagName("county")[0].firstChild.data.replace("Parish", "").trim();
+                        }
+                        //select this state from the dropdown
+                        $("#county option:contains(" + countyName + ")").attr('selected', 'selected');
+                    }
+                }
+            },
+            error: function (xhr, ajaxOptions, throwError) {
+                alert(xhr.responseText);
+            }
+        });
+        $("#loading").fadeOut();
+    });
+
+    function stateChange(what) {
+        //get all the counties to filter
+        var stringCounties = document.getElementById("allTheCounties").defaultValue;
+        var counties = $.parseJSON('[' + stringCounties + ']');
+
+        //get the chosen state id and name (for db storage)
+        var stateId = what.selectedIndex;
+        var thisStateName = what[stateId].text;
+        $("#stateNameINPUT").val(thisStateName);
+
+        //filter counties by this state
+        var stateCounties = counties[0].filter(function (e) {
+            return e.STATE_ID == stateId;
+        });
+
+        //clear the county dropdown to then add this state's counties
+        $("#county").find('option').remove();
+        $("#county").prepend("<option value='' selected='selected'></option>");
+        for (var i = 0; i < stateCounties.length; i++) {
+            var opt = stateCounties[i];
+            var el = document.createElement("option");
+            el.textContent = opt.COUNTY_NAME;
+            el.value = opt.COUNTY_NAME;
+            $("#county").append(el);
+        }
+
+        //clear the countyINPUT
+        //$("#countyNameINPUT").val("");
+    }
+
+    //convert deg min sec to dec degrees
+    function azimuth(deg, min, sec) {
+        if (deg < 0) {
+            azi = -1.0 * deg + 1.0 * min / 60.0 + 1.0 * sec / 3600.0;
+            return (-1.0 * azi).toFixed(5);
+        }
+        else {
+            azi = 1.0 * deg + 1.0 * min / 60.0 + 1.0 * sec / 3600.0;
+            return (azi).toFixed(5);
+        }
+    }
+
+    //convert dec degrees to dms
+    function deg_to_dms(deg) {
+        if (deg.substring(0, 1) == "-") {
+            deg = deg.substring(1);
+        }
+        var d = Math.floor(deg);
+        var minfloat = (deg - d) * 60;
+        var m = Math.floor(minfloat);
+        var s = ((minfloat - m) * 60).toFixed(3);
+
+        return ("" + d + ":" + m + ":" + s);
+    }
+
+    //adding OP_CONTROL_IDENTIFIERS TO this OP
+    function AddNewIdentifierRow() {
+        //how many rows are there
+        var ind = $('#controlTable >tbody:last >tr').length;
+        //append tr to the tbody with the rowID and index all op_control_identifiers
+        $("#controlTable tbody").append('<tr id="' + ind + '">' +
+            '<td><input type="text" name="opmod.OPIdentifiers[' + ind + '].IDENTIFIER" class="stnTextInput ui-shadow-inset" /></td>' +
+            '<td><input type="radio" class="ui-shadow-inset" name="opmod.OPIdentifiers[' + ind + '].IDENTIFIER_TYPE" value="PID" />PID' +
+            '<input type="radio" class="ui-shadow-inset" name="opmod.OPIdentifiers[' + ind + '].IDENTIFIER_TYPE" value="Other" />Other'
+        );
+        //show the hidden header row
+
+        $(OPControlTableDiv).css("display", "inline-table");
+    }
+</script>
+

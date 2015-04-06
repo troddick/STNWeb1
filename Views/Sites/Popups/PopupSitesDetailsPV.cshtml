@@ -1,0 +1,379 @@
+﻿@* Comments:
+01.22.12 - TR - Created (Parial View)
+
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display Popup for Mapper when a Site is clicked 
+ */
+ *@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using STNWeb.Models;
+
+@model STNServices.SITE
+
+           
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title></title>
+
+
+<link href="@Url.Content("~/Assets/Styles/Site.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Assets/Styles/STN.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Assets/Styles/jquery-ui.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Assets/Scripts/jquery.unobtrusive-ajax.min.js")" type="text/javascript"></script>
+
+<script src="@Url.Content("~/Assets/Scripts/jquery-1.8.3.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery-ui.js")" type="text/javascript"></script>
+
+    
+
+
+<style type="text/css">
+.ui-tabs .ui-tabs-nav li a 
+{
+    padding: 0.5em 0.5em;
+}
+</style>
+<script type="text/javascript">
+    $(function () {
+        $("#tabs").tabs();
+    });
+</script>
+
+</head>
+<body>
+    <div id="tabs">
+        <ul>
+            <li><a href="#tab1-Site">@Model.SITE_NO</a></li>
+            <li><a href="#tabs2-HWMs">HWMs</a></li>
+            <li><a href="#tabs3-Instruments">Instruments</a></li>
+            <li><a href="#tabs4-Files">Files</a></li>
+            <li><a href="#tabs5-Peaks">Peaks</a></li>
+        </ul>
+
+        @*Site Detail Tab*@
+        <div id="tab1-Site"> 
+           <div>
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.Desc_Label)</span>
+                <textarea class="inline textAreaDetails">@Model.SITE_DESCRIPTION</textarea>
+             </div>
+                
+            <div>
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.Latitude_Label)</span>
+	            <label class="inline">@Model.LATITUDE_DD</label>
+            </div>
+            
+            <div>
+	            <span class="bold ui-label-a">@Html.Label(SiteStrings.Longitude_Label)</span>
+	            <label class="inline">@Model.LONGITUDE_DD</label>
+	        </div>
+            
+            <div>
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.HDatum_Label)</span>
+	            <label class="inline">@ViewData["aHorizontalDatum"]</label>
+	        </div>
+
+            <div>
+                 <span class="bold ui-label-a">@Html.Label(SiteStrings.Address_Label)</span>
+                 <label class="inline">@Model.ADDRESS</label>
+            </div>
+
+            <div>
+                 <span class="bold ui-label-a">  </span>
+                 <label class="inline" style="margin-left:14em">@(Model.CITY), @(Model.STATE) @(Model.ZIP)</label>
+
+            </div>
+            
+            <div>
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.County_Label)</span>
+                <label class="inline">@Model.COUNTY</label>
+            </div>
+
+            <div>
+                <span class="bold ui-label-a">@Html.Label(SiteStrings.Waterbody_Label)</span>
+                <label class="inline">@Model.WATERBODY</label>
+            </div>
+
+            <div>
+                <span class="bold ui-label-a">USGS ID:</span>
+	            <label class="inline">@Model.USGS_SID</label>
+            </div>
+
+            <div>
+                <span class="bold ui-label-a">NOAA ID:</span>
+	            <label class="inline">@Model.NOAA_SID</label>
+            </div>
+
+            <div>
+                <span class="bold ui-label-a">Other ID:</span>
+	            <label class="inline">@Model.OTHER_SID</label>
+            </div>
+
+            <div>
+                <span class="bold ui-label-a">Priority:</span>
+	            <label class="inline">@ViewData["aPriority"]</label>
+            </div>
+
+            <div>
+                <span class="bold ui-label-a">Zone:</span>
+	            <label class="inline">@Model.ZONE</label>
+            </div>
+
+            <div>
+                <span class="bold ui-label-a">Housing?</span>
+	            <label class="inline">@Model.IS_PERMANENT_HOUSING_INSTALLED</label>
+            </div>
+
+
+            <br clear="all" />
+            <div style="clear:left; padding-top:15px">
+                @Html.ActionLink("Site Details", "Details", "Sites", new { id = Model.SITE_ID }, new { @class = "STNButton", target = "_top" })
+            </div>
+        
+        </div> @* end id="tab1-Site" div *@
+
+        @*HWMs Tab*@
+        <div id="tabs2-HWMs">
+
+            <label class="bold">@Html.Label(globalStrings.HWM_Label)</label>
+            <br />
+            <ul>
+            @if (ViewData.ContainsKey("SiteHWMs"))
+            {
+                foreach (var aHWM in ViewData["SiteHWMs"] as List<HWM>)
+                {
+                    if (aHWM.FLAG_DATE != null)
+                    {
+                        <li>
+                            @Html.ActionLink(String.Format("{0} - {1} ({2} ft.)", ((DateTime)aHWM.FLAG_DATE).ToShortDateString(), aHWM.HWM_LOCATIONDESCRIPTION, aHWM.ELEV_FT), "Details", "HWMs", new { id = aHWM.HWM_ID }, new { target = "_top" })                                                        
+                        </li>                                              
+                    }
+                    else if (aHWM.SURVEY_DATE != null)
+                    {
+                    <li>
+                        @Html.ActionLink(String.Format("{0} - {1} ({2} ft.)", ((DateTime)aHWM.SURVEY_DATE).ToShortDateString(), aHWM.HWM_LOCATIONDESCRIPTION, aHWM.ELEV_FT), "Details", "HWMs", new { id = aHWM.HWM_ID }, new { target = "_top" })                                                        
+                    </li>   
+                    }
+                    else
+                    {
+                    <li>
+                        @Html.ActionLink(String.Format("{0} ({1} ft.)", aHWM.HWM_LOCATIONDESCRIPTION, aHWM.ELEV_FT), "Details", "HWMs", new { id = aHWM.HWM_ID }, new { target = "_top" })                                                        
+                    </li>   
+                    }
+                }
+            }
+            </ul>
+            <div>
+                @Html.ActionLink("Add new HWM", "Create", "HWMs", new { siteId = Model.SITE_ID }, new { @class = "STNButton", target = "_top" })
+            </div>
+
+        </div> @* end id="tabs2-HWMs" div *@
+  
+        @*Instruments Tab*@
+        <div id="tabs3-Instruments">            
+            <label class="bold">@Html.Label(globalStrings.Sensor_Label)</label>
+            <br />
+            @if (ViewData.ContainsKey("instrumentList"))
+            {
+            <ul>
+                @foreach (InstrSensorType anInstrument in ViewData["instrumentList"] as List<InstrSensorType>)
+                {
+                    <li>
+                        @Html.ActionLink(String.Format("Sensor {0} - {1}", anInstrument.SerialNumber, anInstrument.SensorType), "Details", "Instruments", new { id = anInstrument.InstrID }, new { target = "_top" })                                                        
+                    </li>                                              
+                }                    
+            </ul>
+            }
+            <div><a id="deployNew" class="STNButton">Deploy new Sensor</a></div>
+            @* "Deploy new Sensor" --> check to see if the site has a op set. *@
+            <script type="text/javascript">
+                $('#deployNew').click(function () {
+                    $.ajax({
+                        url: '@Url.Action("CheckOP", "Sites")',
+                        data: { siteId: '@Model.SITE_ID' },
+                        success: function (response) {
+                            if (response == "False") {
+                                alert("An Objective Point must be created first");
+                                window.top.location.href = '@Url.Action("ObjPointCreate", "ObjPoints", new { siteId = Model.SITE_ID })';
+                            }
+                            else {
+                                window.top.location.href = '@Url.Action("Create", "Instruments", new { siteId = Model.SITE_ID })';
+                            }
+                        },
+                        error: function (xhr, ajaxOptions, throwError) { alert(xhr.responseText); }
+                    })
+                });
+            </script>
+        </div> @* end id="tabs3-Instruments" div *@
+
+        @*Files Tab*@
+        <div id="tabs4-Files">
+            <div>  
+                @*Photo Files (mostly want photo files - previewed in popup..)*@
+                <div class="popUpList">
+	                <span class="bold">Photo Files</span> 
+                    <br />
+                    <ul>
+                        @foreach (FILE aFile in ViewData["photoSFList"] as List<FILE>)
+                        {
+                            if (aFile.PATH != null)
+                            {
+                                <li>
+                                    @Html.ActionLink(string.Format("{0}: ({1})", aFile.FILE_DATE != null ? ((DateTime)aFile.FILE_DATE).ToShortDateString() : "No Date", aFile.PATH), "FileDetails", "Files", new { id = aFile.FILE_ID }, new { target = "_top" })
+                                </li>
+                                <div style="width:100px;height:100px">
+                                    <img alt="" title="@(aFile.PATH), @(aFile.DESCRIPTION)" style="max-width:100%; max-height:100%; margin:auto; display:block" src="@Url.Action("DownloadFile", "Files", new { id = aFile.FILE_ID })" />
+                                </div>
+                            }
+                            else if (aFile.FILE_URL != null)
+                            {
+                                <li>
+                                    @Html.ActionLink(string.Format("{0}: ({1})", aFile.FILE_DATE != null ? ((DateTime)aFile.FILE_DATE).ToShortDateString() : "No Date", aFile.FILE_URL), "FileDetails", "Files", new { id = aFile.FILE_ID }, new { target = "_top" })
+                                </li>
+                                <div style="width:100px;height:100px">
+                                    <img alt="" title="@(aFile.PATH), @(aFile.DESCRIPTION)" style="max-width:100%; max-height:100%; margin:auto; display:block" src="@Url.Action("DownloadFile", "Files", new { id = aFile.FILE_ID })" />
+                                </div>
+                            }
+                            else
+                            {
+                                <li>
+                                    @Html.ActionLink(string.Format("{0}: ({1})", aFile.FILE_DATE != null ? ((DateTime)aFile.FILE_DATE).ToShortDateString() : "No Date", aFile.FILE_ID.ToString()), "FileDetails", "Files", new { id = aFile.FILE_ID }, new { target = "_top" })
+                                </li>
+                                <div style="width:100px;height:100px">
+                                    <img alt="" title="@(aFile.PATH), @(aFile.DESCRIPTION)" style="max-width:100%; max-height:100%; margin:auto; display:block" src="@Url.Action("DownloadFile", "Files", new { id = aFile.FILE_ID })" />
+                                </div>
+                            }
+
+                        }
+                    </ul>
+                </div>
+
+   
+                @*Data Files*@
+                <div class="popUpList">
+	                <span class="bold">Data Files</span>
+                    <br />
+                    <ul>
+                        @foreach (var aFile in ViewData["dataSFList"] as List<FILE>)
+                        {
+                            if (aFile.PATH != null)
+                            {
+                                <li>
+                                    @Html.ActionLink(string.Format("{0}: ({1})", aFile.FILE_DATE != null ? ((DateTime)aFile.FILE_DATE).ToShortDateString() : "No Date", aFile.PATH), "FileDetails", "Files", new { id = aFile.FILE_ID }, new { target = "_top" })
+                                </li>
+                            }
+                            else if (aFile.FILE_URL != null)
+                            {
+                                <li>
+                                    @Html.ActionLink(string.Format("{0}: ({1})", aFile.FILE_DATE != null ? ((DateTime)aFile.FILE_DATE).ToShortDateString() : "No Date", aFile.FILE_URL), "FileDetails", "Files", new { id = aFile.FILE_ID }, new { target = "_top" })
+                                </li>
+                            }
+                            else
+                            {
+                                <li>
+                                    @Html.ActionLink(string.Format("{0}: ({1})", aFile.FILE_DATE != null ? ((DateTime)aFile.FILE_DATE).ToShortDateString() : "No Date", aFile.FILE_ID.ToString()), "FileDetails", "Files", new { id = aFile.FILE_ID }, new { target = "_top" })
+                                </li>
+                            }
+                        }
+                    </ul>
+               </div>
+
+                @* All other Files*@
+                <div class="popUpList">
+	                <span class="bold">All Other Files</span>
+                    <br />
+                    <ul>
+                        @foreach (var aFile in ViewData["otherSFList"] as List<FILE>)
+                        {
+                            if (aFile.PATH != null)
+                            {
+                                <li>
+                                    @Html.ActionLink(string.Format("{0}: ({1})", aFile.FILE_DATE != null ? ((DateTime)aFile.FILE_DATE).ToShortDateString() : "No Date", aFile.PATH), "FileDetails", "Files", new { id = aFile.FILE_ID }, new { target = "_top" })
+                                </li>
+                            }
+                            else if (aFile.FILE_URL != null)
+                            {
+                                <li>
+                                    @Html.ActionLink(string.Format("{0}: ({1})", aFile.FILE_DATE != null ? ((DateTime)aFile.FILE_DATE).ToShortDateString() : "No Date", aFile.FILE_URL), "FileDetails", "Files", new { id = aFile.FILE_ID }, new { target = "_top" })
+                                </li>
+                            }
+                            else
+                            {
+                                <li>
+                                    @Html.ActionLink(string.Format("{0}: ({1})", aFile.FILE_DATE != null ? ((DateTime)aFile.FILE_DATE).ToShortDateString() : "No Date", aFile.FILE_ID.ToString()), "FileDetails", "Files", new { id = aFile.FILE_ID }, new { target = "_top" })
+                                </li>
+                            }
+                        }
+                    </ul>
+                 </div>
+            </div>
+            <br clear="all" />
+        </div> @* end id="tabs4-Files" div*@
+
+        <div id="tabs5-Peaks">
+        @{
+            List<PeakSummaryModel> PeakModel = ViewData["Peaks"] as List<PeakSummaryModel>; }
+            @if (PeakModel.Count >= 1)
+            {
+                <table id="peak-table-a">
+                    <thead>
+                        <tr>
+                            <th scope="col">Elevation (ft)</th>@*sorted high to low*@
+                            <th scope="col">Date</th>@*estimated should be italics*@
+                            <th scope="col">Time</th>@*estimated should be italics*@
+                            <th scope="col">Event</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">More Details</th>@*link to details*@
+                        </tr>
+                    </thead>
+                    <tbody>
+                     @foreach (PeakSummaryModel peak in PeakModel)
+                     {
+                        <tr>
+                            <td>@peak.PeakStage</td> 
+                            @{
+                         if (peak.DateEstimated >= 1)
+                         { <td><i>@peak.PeakDate</i></td> }
+                         else
+                         { <td>@peak.PeakDate</td> }
+                            }
+                            @{
+                         if (peak.TimeEstimated >= 1)
+                         { <td><i>@peak.PeakTime</i></td> }
+                         else
+                         { <td>@peak.PeakTime</td> }
+                            }
+                                <td>@peak.EventName</td>
+                            @{
+                         if (peak.PeakHWMDesc != null)
+                         { <td>@peak.PeakHWMDesc</td> }
+                         if (peak.PeakDataFileDesc != null)
+                         { <td>@peak.PeakDataFileDesc</td>}
+                            }
+                            <td>@Html.ActionLink("More Details", "Details", "Sites", new { id = peak.Link2Details, evId = peak.eventId }, new { target = "_top" })</td>
+                        </tr>
+                     }
+                   </tbody>
+                </table>
+            }
+            else
+            {
+                <div>There is no Peak for this site.</div>
+            }
+            <br clear="all" />
+        </div> @* end id="tabs5-Peaks" div *@
+    </div>
+    
+        
+</body>
+</html>

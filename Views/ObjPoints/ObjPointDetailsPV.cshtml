@@ -1,0 +1,160 @@
+﻿@* Comments:
+11.26.12 - TR - Created (Parial View)
+
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display details of a Objective Point 
+ */
+ *@
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model STNServices.OBJECTIVE_POINT
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#loading").fadeOut();
+    });        
+</script>
+
+ @using (Ajax.BeginForm("ObjPointEditPV", "ObjPoints", new { id = Model.OBJECTIVE_POINT_ID }, new AjaxOptions() { UpdateTargetId = "content", HttpMethod = "GET", LoadingElementId = "loading", OnSuccess = "edit_successActions" }, new { @style = "float:left; margin-right:10px" }))
+    {
+          <div><input type="submit" class="STNButton editIcon" value="Edit Objective Point"/></div>      
+    }
+
+    <br clear="all" /> 
+
+    <div class="fiftyPercColumn" style="margin-top:10px">
+        
+        <div>
+            <span class="bold ui-label-a">@Html.Label(ObjPointsStrings.OPType_Label)</span>
+            <label class="inline">@ViewData["OPType"]</label>
+        </div>
+
+        <div>
+            <span class="bold ui-label-a">@Html.Label(ObjPointsStrings.Name_Label)</span>
+            <label class="inline">@Model.NAME</label>
+        </div>
+
+        <div>
+            <span class="bold ui-label-a">@Html.Label(ObjPointsStrings.Description_Label)</span>
+            <textarea class="textAreaDetails inline" rows="4" cols="30" readonly="readonly">@Model.DESCRIPTION</textarea>
+        </div>
+
+        <div>
+            <span class="bold ui-label-a">@Html.Label(ObjPointsStrings.OPControlIdentifier_Label)</span>
+             @if (ViewData.ContainsKey("ControlIDs"))
+            {
+                <table style="display:inline-block; float:left;padding-bottom:7px">
+                    <thead>
+                        <tr>
+                            <th style="width:26%;text-align:left;padding-left:10px;border-bottom: 1px solid #AAAAD3;border-top: 1px solid #AAAAD3">Identifier</th>
+                            <th style="width:13%;border-bottom: 1px solid #AAAAD3;border-top: 1px solid #AAAAD3">Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (OP_CONTROL_IDENTIFIER opc in ViewData["ControlIDs"] as List<OP_CONTROL_IDENTIFIER>)
+                        {
+                            <tr>
+                                <td style="padding-left:10px">@opc.IDENTIFIER</td>
+                                <td style="text-align:center">@opc.IDENTIFIER_TYPE</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+       
+           }
+           else
+           {
+                <label class="inline">No Control Identifiers were added for this Objective Point.</label>
+           }
+        </div>
+
+        <div>
+            <span class="bold ui-label-a">@Html.Label(SiteStrings.Latitude_Label)</span>
+            <label class="inline">@Model.LATITUDE_DD</label>
+        </div>
+
+        <div>
+            <span class="bold ui-label-a">@Html.Label(SiteStrings.Longitude_Label)</span>
+            <label class="inline">@Model.LONGITUDE_DD</label>
+        </div>
+        
+        <div>
+            <span class="bold ui-label-a">@Html.Label(SiteStrings.HDatum_Label)</span>
+            <label class="inline">@ViewData["aHorizontalDatum"]</label>
+        </div>
+
+        <div>
+            <span class="bold ui-label-a">@Html.Label(HWMStrings.HCollectMethod_Label)</span>
+            <label class="inline">@ViewData["aHColMethod"]</label>
+        </div>
+
+        <div>
+            <span class="bold ui-label-a">@Html.Label(ObjPointsStrings.Elevation_Label) (ft)</span>
+            <label class="inline">@Model.ELEV_FT</label>
+        </div>
+
+        <div>
+            <span class="bold ui-label-a">@Html.Label(globalStrings.VDatum_Label)</span>
+            <label class="inline">@ViewData["aVerticalDatum"]</label>
+        </div>        
+        
+        <div>
+            <span class="bold ui-label-a">@Html.Label(HWMStrings.VCollectMethod_Label)</span>
+            <label class="inline">@ViewData["VCollectMethod"]</label>
+        </div>    
+
+        <div>
+            <span class="bold ui-label-a">@Html.Label(ObjPointsStrings.Uncertainty_Label) (ft)</span>
+            @if (Model.UNCERTAINTY.HasValue)
+            {
+                <label class="inline">@Model.UNCERTAINTY</label>
+            }
+            else if (Model.UNQUANTIFIED == "1")
+            {
+                <label class="inline">Unquantified</label>
+            }
+            else
+            {
+                <label></label>
+            }
+        </div>
+        
+        <div>
+            <span class="bold ui-label-a">@Html.Label(ObjPointsStrings.Quality_label)</span>
+            <label class="inline">@ViewData["thisQuality"]</label>
+        </div>        
+        
+        <div>
+            <span class="bold ui-label-a">@Html.Label(ObjPointsStrings.ElevationNotes_Label)</span>
+            <textarea class="textAreaDetails inline" rows="4" cols="30" readonly="readonly">@Model.OP_NOTES</textarea>
+        </div>
+    
+        <div>
+            <span class="bold ui-label-a">@Html.Label(ObjPointsStrings.DateEstablished_Label)</span>
+            <label class="inline">@(((DateTime)Model.DATE_ESTABLISHED).ToShortDateString())</label>
+        </div>
+        
+        <div>
+            <span class="bold ui-label-a">@Html.Label(ObjPointsStrings.DateRecovered_Label)</span>
+            <label class="inline">@( Model.DATE_RECOVERED != null ? ((DateTime)Model.DATE_RECOVERED).ToShortDateString() : "")</label>
+        </div>
+
+        <div>
+            <span class="bold ui-label-a">@Html.Label(ObjPointsStrings.DestroyedPoint_Label)</span>
+            <label class="inline">@((Model.OP_IS_DESTROYED == 1) ? "Yes" : "No")</label>
+        </div>
+
+        <div>
+            <span class="bold ui-label-a">@Html.Label(globalStrings.SiteNo_Label)</span>
+            <label class="inline" style="float:left">@ViewData["SiteNo"]</label>
+        </div>
+        <br clear="all" />
+   </div>

@@ -1,0 +1,223 @@
+﻿ 
+@* Comments:
+04.09.14 - TR - added jquery.validate
+11.21.12 - TR - Created master page for details and edit partialviews 
+
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display details of a member 
+ */
+ *@
+ 
+@using STNServices;
+
+@model STNServices.MEMBER
+
+@{
+    ViewBag.Title = "Member";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<script src="@Url.Content("~/Assets/Scripts/jquery-1.8.3.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery-ui-1.10.4.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.unobtrusive-ajax.min.js")" type="text/javascript"></script>
+
+<div id="dataTitle">
+    <div class="title">
+        @Html.ActionLink("All Members", "Index", "Members", null, new { onclick = "loading();" })
+            | Member: @(Model.FNAME + " " + Model.LNAME)&nbsp;&nbsp;
+    </div>
+
+    @if (ViewData["Role"] == "Admin")
+    {
+        <div>
+            @Html.ActionLink("Delete", "MemberDelete", new { id = Model.MEMBER_ID }, new { onclick = "return confirm('Are you sure you want to delete member " + Model.FNAME + " " + Model.LNAME + "?');", @class = "STNButton" })
+        </div>
+    }
+</div>
+<br clear="all" />
+
+<hr class="headerUnderline" />
+
+<div id="content">
+@if (Model.USERNAME == User.Identity.Name || ViewData["Role"] == "Admin")
+{
+    using (Ajax.BeginForm("MemberEditPV", "Members", new { id = Model.MEMBER_ID }, new AjaxOptions() { UpdateTargetId = "content", HttpMethod = "GET", OnSuccess = "edit_successActions" }, new { @onclick = "loading();", @style = "float:left; margin-right: 1em" }))
+    {     
+        <div>
+            <input type="submit" class="STNButton editIcon" value="Edit Member"/>
+        </div>
+        <br clear="all" />            
+    }
+    using (Ajax.BeginForm("MemberPasswordPV", "Members", new { id = Model.MEMBER_ID }, new AjaxOptions() { UpdateTargetId = "content", HttpMethod = "GET", OnSuccess = "passw_successActions" }, new { @onclick = "loading();" }))
+    {     
+        <div><input type="submit" class="STNButton" value="Change Password" /></div>
+        <br clear="all" />            
+    }
+}   
+                  
+@* --------------------- Partial views will go here ------------------*@
+    
+        @{ Html.RenderAction("MemberDetailsPV", "Members", Model.MEMBER_ID);} 
+
+        <input type="hidden" id="memberID" value="@Model.MEMBER_ID" />
+    </div>
+@*----------------------End Partial views ----------------------------*@
+
+<script type="text/javascript">
+    $().ready(function () {
+        $("#loading").fadeOut();
+        $("#memberEditForm").validate();
+        $("#memberPassForm").validate();
+    });
+
+    function edit_successActions() {
+        $("#loading").fadeOut();
+        $("#memberEditForm").removeData("validator");
+        $("#memberEditForm").removeData("unobtrusiveValidation");
+
+        //validate form on and submit
+        $("#memberEditForm").validate({
+            rules: {
+                FNAME: "required",
+                LNAME: "required",
+                USERNAME: "required",
+                AGENCY_ID: "required",
+                ROLE_ID: "required",
+                PHONE: "required",
+                EMAIL: "required"
+            },
+            messages: {
+                FNAME: "Required",
+                LNAME: "Required",
+                USERNAME: "Required",
+                AGENCY_ID: "Required",
+                ROLE_ID: "Required",
+                PHONE: "Required",
+                EMAIL: "Required"
+            },
+//            errorPlacement: function (error, element) {
+//                var name = $(element).attr("name");
+//                error.appendTo($("#" + name + "_validate"));
+//            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                $.ajax({
+                    url: form.action,
+                    type: form.method,
+                    data: $(form).serialize(),
+                    success: function (response) {
+                        window.location.href = '@Url.Action("MemberDE", new { id = Model.MEMBER_ID})'
+                    }
+                });
+            }
+        });
+    }
+
+    function passw_successActions() {
+        $("#loading").fadeOut();
+        $("#memberPassForm").removeData("validator");
+        $("#memberPassForm").removeData("unobtrusiveValidation");
+        //$.validator.unobtrusive.parse("memberPassForm");
+
+        $.validator.addMethod(
+            'regex',
+            function (value) {
+                //regular expression for a password requirement of at least 8 characters long and at least 3 of 4 character categories used (upper, lower, digit, special
+                var re = new RegExp("^(((?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]))|((?=.*[a-z])(?=.*[A-Z])(?=.*[!@@?#$%^&_:;-]))|((?=.*[a-z])(?=.*[0-9])(?=.*[!@@?#$%^&_:;-]))|((?=.*[A-Z])(?=.*[0-9])(?=.*[!@@?#$%^&_:;-]))).{8,}$");
+                return re.test(value);
+            },
+            "Please check your input"
+        );
+
+        //validate form on and submit
+        $("#memberPassForm").validate({
+            rules: {
+                New_Password: {
+                    required: true,
+                    minlength: 8,
+                    regex: true
+                },
+                confirm_Password: {
+                    required: true,
+                    minlength: 8,
+                    equalTo: "#New_Password",
+                    regex: true
+                }
+            },
+            messages: {
+                New_Password: {
+                    required: "Please provide a new password",
+                    minlength: "Your password must be at least 8 characters long",
+                    //regex: "Password must contain at least 8 characters, and a mix of at least 3 of following<br /> categories: uppercase, lowercase, numeric, and special (non-alphanumeric)."
+                    regex: "Password must contain at least 8 characters, and a mix of the following categories: uppercase, lowercase, and numeric."
+                },
+                confirm_Password: {
+                    required: "Please provide a password",
+                    minlength: "Your password must be at least 8 characters long",
+                    equalTo: "Please enter the same password as above",
+                    //regex: "Password must contain at least 8 characters, and a mix of at least 3 of following<br /> categories: uppercase, lowercase, numeric, and special (non-alphanumeric)."
+                    regex: "Password must contain at least 8 characters, and a mix of the following categories: uppercase, lowercase, and numeric."
+                }
+            },
+        //    errorPlacement: function (error, element) {
+      //          var name = $(element).attr("name");
+    //            error.appendTo($("#" + name + "_validate"));
+  //          },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                $.ajax({
+                    url: form.action,
+                    type: form.method,
+                    data: $(form).serialize(),
+                    success: function (response) {
+                        //$('#content').html(response);
+                        window.location.href = '@Url.Action("MemberDE", new { id = Model.MEMBER_ID})'
+                    }
+                });
+            }
+        });
+    }
+
+    function cancelClick() {
+        $("#loading").fadeIn();
+        var thisMemberID = $("#memberID").val();
+
+        window.location.href = '@Url.Action("MemberDE", new { id = Model.MEMBER_ID})'
+    };
+
+    </script>
+
+    <style type="text/css">
+        #memberPassForm label.error {
+        margin-left: 10px;
+        width: auto;
+        color: Red;
+    } 
+    #memberEditForm label.error {
+        margin-left: 10px;
+        width: auto;
+        color: Red;
+    } 
+    
+    /*.ui-label-a 
+    {
+        width:15em !important;
+    }
+    .margin
+    {
+        float:left;
+        width:19em !important;
+    }*/
+    
+
+</style>

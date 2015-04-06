@@ -1,0 +1,50 @@
+﻿
+@* Comments:
+05.14.14 - TR - changed to Objective Point
+11.29.12 - TR - Created 
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Partial view containing Objective Point info box (list of objective points for a site) 
+ */
+ *@
+ 
+ 
+ @using STNServices;
+ @using STNWeb.Assets.Resources;
+
+<div class="subSection softHeader">
+	    <label class="boxTitle">Objective Points</label>
+        <br />
+        <ul>
+            @foreach (OBJECTIVE_POINT anOP in ViewData["objectivePointList"] as List<OBJECTIVE_POINT>)
+            {
+                if (anOP.ELEV_FT != null)
+                {
+                    <li>
+                        @Html.ActionLink(String.Format("{0} ({1} ft.)", anOP.NAME, anOP.ELEV_FT), "ObjPointDetails", "ObjPoints", new { id = anOP.OBJECTIVE_POINT_ID }, new { onclick = "loading();" })                                                        
+                    </li> 
+                }
+                else
+                {
+                    <li>
+                        @Html.ActionLink(String.Format("{0} (No Elev)", anOP.NAME), "ObjPointDetails", "ObjPoints", new { id = anOP.OBJECTIVE_POINT_ID }, new { onclick = "loading();" })                                                        
+                    </li>
+                }
+            }                    
+        </ul>                              
+        <div style="margin-top:2em">@Html.ActionLink("Add new Objective Point", "ObjPointCreate", "ObjPoints", new { siteId = ViewData["SiteId"] }, new { @class = "STNButton", onclick = "loading();" })</div>
+	<br />
+    </div>
+    <br />
+
+<script type="text/javascript">
+    function loading() {
+        $("#loading").fadeIn();
+    };
+</script>

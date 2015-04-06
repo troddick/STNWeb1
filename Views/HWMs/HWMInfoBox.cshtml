@@ -1,0 +1,54 @@
+﻿ 
+@* Comments:
+11.29.12 - TR - Created 
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Partial view containing HWMs box (list of HWMs for a site) 
+ */
+ *@
+ 
+ 
+ @using STNServices;
+ @using STNWeb.Assets.Resources;
+
+ @{ 
+     SITE aSite = ViewData["Site"] as SITE; 
+     }
+
+ <div class="subSection softHeader">
+	    <label class="boxTitle">Site @aSite.SITE_NO HWMs</label>
+        <br />
+        <ul>
+            @foreach (HWM aHWM in ViewData["hwmList"] as List<HWM>)
+            {
+                if (aHWM.FLAG_DATE != null)
+                {
+                <li>
+                    @Html.ActionLink(String.Format("{0} - {1} ({2} ft.)", ((DateTime)aHWM.FLAG_DATE).ToShortDateString(), aHWM.HWM_LOCATIONDESCRIPTION, aHWM.ELEV_FT), "Details", "HWMs", new { id = aHWM.HWM_ID }, new { onclick = "loading();" })                                                        
+                </li>                                              
+                }
+                else if (aHWM.SURVEY_DATE != null)
+                {
+                <li>
+                    @Html.ActionLink(String.Format("{0} - {1} ({2} ft.)", ((DateTime)aHWM.SURVEY_DATE).ToShortDateString(), aHWM.HWM_LOCATIONDESCRIPTION, aHWM.ELEV_FT), "Details", "HWMs", new { id = aHWM.HWM_ID }, new { onclick = "loading();" })                                                        
+                </li>   
+                }
+                else
+                {
+                    <li>
+                        @Html.ActionLink(String.Format("{0} ({1} ft.)", aHWM.HWM_LOCATIONDESCRIPTION, aHWM.ELEV_FT), "Details", "HWMs", new { id = aHWM.HWM_ID }, new { onclick = "loading();" })                                                        
+                    </li>   
+                }
+            }                    
+        </ul>
+        <div style="margin-top:2em">@Html.ActionLink("Add new HWM", "Create", "HWMs", new { siteId = @aSite.SITE_ID }, new { @class = "STNButton", onclick= "loading();" } )</div>
+    <br />
+</div>
+<br />
+

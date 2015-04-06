@@ -1,0 +1,101 @@
+﻿@*
+Comments:
+04.26.13 - TR - Changed layout to only edit chosen one from dropdown
+01.30.13 - TR - adding loading logo and fixed from var to obj type for loop
+10.25.12 - TR - Added Delete and fixed cancel button
+10.12.12 - TR - Removed "main" div and only have it in _Layout
+10.10.12 - TR - Added "main" div for css formatting
+10.04.12 - TR - Created
+*@
+
+@*
+/* Authors:
+*      Tonia Roddick (troddick@usgs.gov)
+* Copyright:
+*      2012 USGS - WiM
+* Purpose:
+*      Edit Collect Method
+*/
+*@
+
+@using STNServices;
+
+@model STNServices.VERTICAL_COLLECT_METHODS
+
+@{
+    ViewBag.Title = "Edit Vertical Collect Methods";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+<div id="dataTitle">
+    <div class="title">Edit Vertical Collection Method</div>
+</div>
+<br clear="all" />
+<hr class="headerUnderline" />
+
+@using (Ajax.BeginForm("VCollectMethodEdit", "Lookups", new { id = Model.VCOLLECT_METHOD_ID }, new AjaxOptions() { HttpMethod = "POST" }, new { @id = "CreateVCollectionForm" }))
+    {
+        <div class="fiftyPercColumn">   
+            <input type="hidden" name="VCOLLECT_METHOD_ID" value="@Model.VCOLLECT_METHOD_ID" />
+                  
+            <div class="ui-grid-a">
+                <div class="ui-block-a"><span class="required">Vertical Collection Method:</span></div>
+                <div class="ui-block-b">
+                    <input type="text" class="required stnTextInput ui-shadow-inset" name="VCOLLECT_METHOD" data-mini="true" value="@Model.VCOLLECT_METHOD" /> 
+                </div>
+            </div>
+    </div>
+    
+        <div id="formSubmitDiv" class="formSection">
+        <div class="leftSideSubmit">
+            <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+            <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" class="submit" value="Submit" /></div></div>
+        </div>
+    
+    </div>
+    
+    }
+
+<script type="text/javascript">
+    function cancelClick() {
+        $("#loading").fadeIn();
+        window.location.href = '@Url.Action("Index", "Lookups")'
+    };
+
+    function loading() {
+        $("#loading").fadeIn();
+    }
+
+    //doc.ready 
+    $(document).ready(function () {
+        $("#CreateVCollectionForm").validate();
+        $("#CreateVCollectionForm").removeData("validator");
+        $("#CreateVCollectionForm").removeData("unobtrusiveValidation");
+
+        $("#CreateVCollectionForm").validate({
+            rules: {
+                'VCOLLECT_METHOD': "required"
+            },
+            messages: {
+                'VCOLLECT_METHOD': "Required"
+            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                form.submit();
+            }
+        });
+    });
+</script>
+
+<style type="text/css">
+    #CreateVCollectionForm label.error {      
+        width: auto;
+        display: block;
+        color: Red;
+    }    
+</style>

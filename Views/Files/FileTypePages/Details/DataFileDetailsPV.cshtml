@@ -1,0 +1,111 @@
+﻿@* Comments:
+12.08.12 - TR - Changed over to model: SensorDataFileModel
+12.06.12 - TR - Created (Parial View)
+
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display details of a Sensor's Data File 
+ */
+ *@
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model STNWeb.Models.FileDataFileModel
+           
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#loading").fadeOut();
+    });        
+</script>  
+
+@* Data File *@
+   
+   @using (Ajax.BeginForm("DataFileEditPV", "Files", new { id = Model.FDFM_File.FILE_ID }, new AjaxOptions() { UpdateTargetId = "content", HttpMethod = "GET", LoadingElementId = "loading", OnSuccess = "edit_successActions" }))
+    {
+        <div>
+            <div style="display:inline-block;float:left"><input type="submit" class="STNButton editIcon" value="Edit File Information"/></div>
+            &nbsp;
+            <div style="display:inline-block;margin-top:9px">
+                @Html.ActionLink("Download File", "DownloadFile", "Files", new { id = Model.FDFM_File.FILE_ID }, new { @class = "STNButton", target = "_blank" })
+            </div>
+        </div>
+        <br clear="all" /> 
+    }
+             
+             <br />
+<div class="fiftyPercColumn">
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(FileStrings.FileType_Label)</span>
+        <label class="inline">@ViewData["aFileType"]</label>
+    </div>
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(FileStrings.FileURL_Label)</span>
+        <label class="inline">@Model.FDFM_File.FILE_URL</label>
+    </div>
+
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(FileStrings.FileProcessor_Label)</span>
+	    <label class="inline">@ViewData["Processor"]</label>
+	</div>
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(FileStrings.DateCollected_Label)</span>
+	    <label class="inline">@(Model.FDFM_DataFile.COLLECT_DATE != null ? ((DateTime)Model.FDFM_DataFile.COLLECT_DATE).ToShortDateString() : "Unknown")</label>
+	</div>
+ 
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(FileStrings.DateUploaded_Label)</span>
+	    <label class="inline">@(Model.FDFM_File.FILE_DATE != null ? ((DateTime)Model.FDFM_File.FILE_DATE.Value).ToShortDateString() : "Unknown")</label>
+	</div>
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(FileStrings.FileDesc_Label)</span>
+	    <textarea readonly="readonly" class="inline">@Model.FDFM_File.DESCRIPTION</textarea>
+	</div>
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(FileStrings.FileGoodStart_Label)</span>
+	    <label class="inline">@Model.FDFM_DataFile.GOOD_START</label>
+	</div>
+    
+    <div>
+        <span class="bold ui-label-a">@Html.Label(FileStrings.FileGoodEnd_Label)</span>
+        <label class="inline">@Model.FDFM_DataFile.GOOD_END</label>
+    </div>
+
+    <div>
+        <span class="bold ui-label-a">Time Zone:</span>
+        <label class="inline">@Model.FDFM_DataFile.TIME_ZONE</label>
+    </div>
+
+    @if (ViewData.ContainsKey("aHWM"))
+    {
+        <div>
+            <span class="bold ui-label-a">@Html.Label(FileStrings.FileHWM_Label)</span>
+            <label class="inline">@ViewData["aHWM"]</label>
+        </div>
+    }
+
+    @if (ViewData.ContainsKey("aSite"))
+    {
+        <div>
+            <span class="bold ui-label-a">@Html.Label(FileStrings.FileSite_Label)</span>
+            <label class="inline">@ViewData["aSite"]</label>
+        </div>
+    }
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(FileStrings.FileElevation_Label)</span>
+        <label class="inline">@Model.FDFM_DataFile.ELEVATION_STATUS</label>
+    </div>
+
+    <br />
+</div>

@@ -1,0 +1,65 @@
+﻿ 
+@* Comments:
+02.06.13 - TR - Created 
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Partial view containing HWMs box (list of HWMs for a site for an event
+ */
+ *@
+ 
+ 
+ @using STNServices;
+ @using STNWeb.Assets.Resources;
+
+ <div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+ 
+ <div class="subSection softHeader">
+	    <label class="boxTitle">@Html.Label(globalStrings.HWM_Label)</label>
+        <br />
+        <ul>
+        @if (ViewData.ContainsKey("SiteEvHWMs"))
+        {
+            foreach (var aHWM in ViewData["SiteEvHWMs"] as List<HWM>)
+            {
+                if (aHWM.FLAG_DATE != null)
+                {
+                    <li>
+                        @Html.ActionLink(String.Format("{0} - {1} ({2} ft.)", ((DateTime)aHWM.FLAG_DATE).ToShortDateString(), aHWM.HWM_LOCATIONDESCRIPTION, aHWM.ELEV_FT), "Details", "HWMs", new { id = aHWM.HWM_ID }, new { onclick = "loading();" })                                                        
+                    </li>
+                }
+                else if (aHWM.SURVEY_DATE != null)
+                {
+                    <li>
+                        @Html.ActionLink(String.Format("{0} - {1} ({2} ft.)", ((DateTime)aHWM.SURVEY_DATE).ToShortDateString(), aHWM.HWM_LOCATIONDESCRIPTION, aHWM.ELEV_FT), "Details", "HWMs", new { id = aHWM.HWM_ID }, new { onclick = "loading();" })                                                        
+                    </li>
+                }
+                else
+                {
+                    <li>
+                        @Html.ActionLink(String.Format("{0} ({1} ft.)", aHWM.HWM_LOCATIONDESCRIPTION, aHWM.ELEV_FT), "Details", "HWMs", new { id = aHWM.HWM_ID }, new { onclick = "loading();" })                                                        
+                    </li>
+                }
+            }
+        }
+        else
+        {
+            <li>No HWMs for this Event and Site</li>
+        }            
+        </ul>
+        <div>@Html.ActionLink("Add new HWM", "Create", "HWMs", new { siteId = ViewData["SiteId"] }, new { @class = "STNButton", onclick= "loading();" } )</div>
+<br />
+</div>
+<br />
+
+<script type="text/javascript">
+    function loading() {
+        $("#loading").fadeIn();
+    };
+</script>

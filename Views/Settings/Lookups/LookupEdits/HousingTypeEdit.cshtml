@@ -1,0 +1,97 @@
+﻿@*
+Comments:
+10.04.12 - TR - Created
+
+*@
+
+@*
+/* Authors:
+*      Tonia Roddick (troddick@usgs.gov)
+* Copyright:
+*      2012 USGS - WiM
+* Purpose:
+*      Edit Housing Type
+*/
+*@
+
+@using STNServices;
+
+@model STNServices.HOUSING_TYPE
+
+@{
+    ViewBag.Title = "Edit Housing Type";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+    <div id="dataTitle">
+        <div class="title">Edit Housing Type</div>
+    </div>
+    <br clear="all" />
+    <hr class="headerUnderline" />
+    
+    @using (Ajax.BeginForm("HousingTypeEdit", "Lookups", new { id = Model.HOUSING_TYPE_ID }, new AjaxOptions() { HttpMethod = "POST" }, new { @id = "EditHouseTypeForm" }))
+    {
+        <div class="fiftyPercColumn">   
+            <input type="hidden" name="HOUSING_TYPE_ID" value="@Model.HOUSING_TYPE_ID" />
+                  
+            <div class="ui-grid-a">
+                <div class="ui-block-a"><span class="required">Housing Type:</span></div>
+                <div class="ui-block-b">
+                    <input type="text" class="stnTextInput ui-shadow-inset required" name="TYPE_NAME" data-mini="true" value="@Model.TYPE_NAME" />
+                </div>
+            </div>
+                
+        </div>
+    
+         <div id="formSubmitDiv" class="formSection">
+            <div class="leftSideSubmit">
+                <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+                <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" class="submit" value="Submit" /></div></div>
+
+            </div>
+    
+        </div>
+    }
+<script type="text/javascript">
+    function cancelClick() {
+        $("#loading").fadeIn();
+        window.location.href = '@Url.Action("Index", "Lookups")' 
+    };
+
+    function loading() {
+        $("#loading").fadeIn();
+    };
+    //doc.ready 
+    $(document).ready(function () {
+        $("#EditHouseTypeForm").validate();
+        $("#EditHouseTypeForm").removeData("validator");
+        $("#EditHouseTypeForm").removeData("unobtrusiveValidation");
+
+        $("#EditHouseTypeForm").validate({
+            rules: {
+                'TYPE_NAME': "required"
+            },
+            messages: {
+                'TYPE_NAME': "Required"
+            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                form.submit();
+            }
+        });
+    });
+</script>
+
+<style type="text/css">
+    #EditHouseTypeForm label.error {      
+        width: auto;
+        display: block;
+        color: Red;
+    }
+    
+</style>

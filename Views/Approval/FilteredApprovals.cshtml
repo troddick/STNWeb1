@@ -1,0 +1,72 @@
+﻿@* Comments:
+04.17.13 - TR - Created 
+*@
+
+@*
+/* Authors:
+*      Tonia Roddick (troddick@usgs.gov)
+* Copyright:
+*      2012 USGS - WiM
+* Purpose:
+*      Partial View for filtered list of HWMs and Data Files that need to be approved 
+*/
+*@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model STNWeb.Models.FilteredApprovals
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#loading").fadeOut();
+    });        
+</script>
+
+ <div class="fiftyPercColumn"> 
+        <div class="subSection">
+            <div class="subSectionHeader"><span class="bold">@Html.Label(globalStrings.HWM_Label)</span></div>
+            <div class="subSectionContent">
+                @if (ViewData.ContainsKey("hwmList"))
+                {
+                    <ul> @*foreach modelHWM in the List<modelHWM>, show:: modelHWM.siteNumber : modelHWM.elev_ft *@
+                    @foreach (STNWeb.Models.FilteredApprovals.hwmApproval aHWM in ViewData["hwmList"] as List<STNWeb.Models.FilteredApprovals.hwmApproval>)
+                    {
+                   
+                        <li>
+                            @Html.ActionLink(String.Format("{0}: {1} ({2} ft.)", aHWM.SiteNo, aHWM.HWM_ID, aHWM.ELEV_FT), "Details", "HWMs", new { id = aHWM.HWM_ID }, new { onclick = "loading();" })                                                        
+                        </li>                                              
+                    }                    
+                    </ul>
+                }
+                else
+                {
+                    <div>No HWMs returned from query.</div>
+                }
+            </div>
+        </div>
+    </div>
+        
+    <div class="fiftyPercColumn"> 
+        <div class="subSection">
+            <div class="subSectionHeader"><span class="bold">@Html.Label(FileStrings.InstrumentDF_Label)</span></div>
+            <div class="subSectionContent">                
+                @if (ViewData.ContainsKey("dataFileList"))
+                {
+                    <ul>
+                    @foreach (STNWeb.Models.FilteredApprovals.dataFileApproval aDataFile in ViewData["dataFileList"] as List<STNWeb.Models.FilteredApprovals.dataFileApproval>)
+                    {
+                        <li>
+                            @Html.ActionLink(String.Format("{0}: {1}", aDataFile.SiteNo, aDataFile.SensorType), "Details", "Instruments", new { id = aDataFile.Inst_ID }, new { onclick = "loading();" })                                                        
+                        </li>                                              
+                    }                    
+                    </ul>
+                }
+                else
+                {
+                    <div>No Data Files returned from query.</div>
+                }
+            </div> 
+        </div> 
+    </div> 

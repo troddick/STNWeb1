@@ -1,0 +1,125 @@
+﻿@* Comments:
+04.25.14 - TR - added rp_measurements
+04.16.14 - TR - added validation
+02.14.13 - TR - updated to show details of instrument_status
+12.06.12 - TR - Changed Interval to number and added radio buttons for Min/Sec (Stored as seconds)
+12.03.12 - TR - Created (Parial View)
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display details of a Retrieved Sensor 
+ */
+ *@
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using STNWeb.Models;
+
+
+@model STNWeb.Models.InstrumentModel
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#loading").fadeOut();
+    });        
+</script>    
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+<br clear="all" />
+<h2 style="margin-top:0">Retrieved Sensor Information</h2>
+
+@using (Ajax.BeginForm("RetInstrEditPV", "Instruments", new { id = Model.Instr.INSTRUMENT_ID }, new AjaxOptions() { UpdateTargetId = "retrieve", HttpMethod = "GET", LoadingElementId = "loading", OnSuccess = "edit_successActions" }))
+{
+    <div style="clear:left"><input type="submit" class="STNButton editIcon" value="Edit Retrieved Sensor"/></div>
+    <br />
+}
+<div class="fiftyPercColumn"> 
+     
+    <div>
+        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.Status_Label)</span>
+        <label class="inline">@ViewData["StatType"]</label>
+    </div>
+
+     <div>
+	    <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.Conditions_Label)</span>
+	    <label class="inline">@ViewData["Condition"]</label>
+    </div>
+    
+     @if (Model.RetrInstrStatus != null)
+    {
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.RetrievalNote_Label)</span>
+	        <textarea class="textAreaDetails inline" cols="30" readonly="readonly">@Model.RetrInstrStatus.NOTES</textarea>
+	    </div>
+        
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.RecoveryDate_Label)</span>
+	        <textarea class="textAreaDetails inline" cols="30" readonly="readonly">@Model.RetrInstrStatus.TIME_STAMP</textarea>
+	    </div>
+         
+        <div>
+	        <span class="bold ui-label-a">Time Zone:</span>
+	        <label class="inline">@Model.RetrInstrStatus.TIME_ZONE</label>
+	    </div>        
+    }
+     else
+     {
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.RetrievalNote_Label)</span>
+	        <textarea class="textAreaDetails inline" cols="30" readonly="readonly">@Model.LostInstrStatus.NOTES</textarea>
+	    </div>
+        
+         <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.RecoveryDate_Label)</span>
+	        <textarea class="textAreaDetails inline" cols="30" readonly="readonly">@Model.LostInstrStatus.TIME_STAMP</textarea>
+	    </div>
+         
+         <div>
+	        <span class="bold ui-label-a">Time Zone:</span>
+	        <label class="inline">@Model.LostInstrStatus.TIME_ZONE</label>
+	    </div>      
+     }
+    
+    <div>
+        <span class="bold ui-label-a">@Html.Label(globalStrings.CollectTeam_Label)</span>
+        <label class="inline">@ViewData["TeamName"]</label>
+    </div>
+
+    <div>
+        <span class="bold ui-label-a">Tape Down Information:</span>
+        
+        @if (ViewData.ContainsKey("StatusOPmeasurements"))
+        {
+            OPMeasModel thisOPMeas = ViewData["StatusOPmeasurements"] as OPMeasModel;
+                
+                <table id="opMeasTable" style="border-collapse:collapse;display:inline-block; width:95%;margin-left:10px">
+                    <thead>
+                        <tr><th style="width:25%;text-align:center">OP</th><th style="width:16%">Type</th><th style="width:15%">From OP</th><th style="width:15%">Hanging Length</th><th style="width:15%">Water Surface</th><th style="width:15%">Ground Surface</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding-left:10px">@thisOPMeas.ObjPointName</td>
+                            <td style="width:10px">@thisOPMeas.Type</td>
+                            <td style="text-align:center">@thisOPMeas.FromRP</td>
+                            <td style="text-align:center">@thisOPMeas.HangingLength</td>
+                            <td style="text-align:center">@thisOPMeas.WaterSurface</td>
+                            <td style="text-align:center">@thisOPMeas.GroundSurface</td>
+                        </tr>
+                    </tbody>
+                </table>
+       
+        }
+        else
+        {
+                <label class="inline">No tape down values were added for this retrieval</label>
+        }
+        </div>
+
+   
+    
+</div>
+        

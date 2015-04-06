@@ -1,0 +1,140 @@
+﻿@*
+Comments:
+02.02.13 - TR - Created
+
+*@
+
+@*
+/* Authors:
+*      Tonia Roddick (troddick@usgs.gov)
+* Copyright:
+*      2012 USGS - WiM
+* Purpose:
+*      Create Agency
+*/
+*@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model System.Collections.Generic.List<STNServices.AGENCY>
+
+@{
+    ViewBag.Title = "Create Agency";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="@Url.Content("~/Assets/Scripts/jquery.maskedinput.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+
+    <div id="dataTitle">
+        <div class="title">Agencies</div>
+        
+    </div>
+    <br clear="all" />
+    <hr class="headerUnderline" />
+    
+    @using (Ajax.BeginForm("AgencyCreate", "Lookups", null, new AjaxOptions() { HttpMethod = "POST" }, new { @id = "CreateAgencyForm" }))
+    {   
+        <div class="fiftyPercColumn">
+            <div class="ui-grid-a">
+                <div style="height:158px;overflow:auto" class="ui-block-b">
+                    @{
+        foreach (AGENCY t in Model)
+        {    
+                            @t.AGENCY_NAME
+                            <br />
+        }
+                     }
+                </div>
+
+                 <div class="ui-block-a"><span class="required bold">@Html.Label(LookupsStrings.AgencyName_createNew)</span></div>
+                 <div class="ui-block-b"><input type="text" class="stnTextInput required ui-shadow-inset" id="name" name="AGENCY_NAME" data-mini="true" /></div>
+
+                 <div class="ui-block-a"><span class="bold">@Html.Label(LookupsStrings.AgencyAdd_createNew)</span></div>
+                 <div class="ui-block-b"><input type="text" class="stnTextInput ui-shadow-inset" name="ADDRESS" data-mini="true" /></div>
+
+                 <div class="ui-block-a"><span class="bold">@Html.Label(LookupsStrings.AgencyCity_createNew)</span></div>
+                 <div class="ui-block-b"><input type="text" class="stnTextInput ui-shadow-inset" name="CITY" data-mini="true" /></div>
+
+                 <div class="ui-block-a"><span class="bold">@Html.Label(LookupsStrings.AgencyState_createNew)</span></div>
+                 <div class="ui-block-b">
+                    <select id="agState" class="stnTextInput ui-shadow-inset" style="width:100%" name="STATE" data-native-menu="false" data-mini="true">
+					    <option value="">Choose a State</option>
+                        @foreach (STATES st in ViewData["States"] as List<STATES>)
+                        {
+                            <option value='@st.STATE_ABBREV'>@st.STATE_NAME</option> 
+                        }
+                    </select>
+                 </div>
+                 <div class="ui-block-a"><span class="bold">@Html.Label(LookupsStrings.AgencyZip_createNew)</span></div>
+                 <div class="ui-block-b"><input type="text" class="stnTextInput ui-shadow-inset" id="aZip" name="ZIP" data-mini="true" /></div>
+
+                 <div class="ui-block-a"><span class="bold">@Html.Label(LookupsStrings.AgencyPhone_createNew)</span></div>
+                 <div class="ui-block-b"><input type="text" class="stnTextInput ui-shadow-inset" id="aPhone" name="PHONE" data-mini="true" /></div>
+            </div>
+        </div>
+    
+         <div id="formSubmitDiv" class="formSection">
+            <div class="leftSideSubmit">
+                <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+                <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" class="submit" value="Submit" /></div></div>
+           </div>    
+        </div>
+    }
+
+<script type="text/javascript">
+    window.onload = function () {
+        var txtbox = document.getElementById("name");
+        txtbox.focus();
+    }
+
+    //masked requirements for certain fields
+    jQuery(function ($) {
+        $("#aZip").mask("99999");
+        $("#aPhone").mask("(999) 999-9999? x99999");
+    });
+    function cancelClick() {
+        $("#loading").fadeIn();
+        window.location.href = '@Url.Action("Index", "Lookups")'
+    };
+
+    function loading() {
+        $("#loading").fadeIn();
+    };
+
+    //doc.ready 
+    $(document).ready(function () {
+        $("#CreateAgencyForm").validate();
+        $("#CreateAgencyForm").removeData("validator");
+        $("#CreateAgencyForm").removeData("unobtrusiveValidation");
+
+
+        $("#CreateAgencyForm").validate({
+            rules: {
+                AGENCY_NAME: "required"
+            },
+            messages: {
+                AGENCY_NAME: "Required"
+            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                form.submit();
+            }
+
+        });
+    });
+</script>
+
+<style type="text/css">
+    #CreateAgencyForm label.error {      
+        width: auto;
+        display: block;
+        color: Red;
+    }
+    
+</style>

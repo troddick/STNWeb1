@@ -1,0 +1,153 @@
+﻿@*
+Comments:
+04.26.13 - TR - Changed layout to only edit chosen one from dropdown
+02.08.13 - TR - Created
+*@
+
+@*
+/* Authors:
+*      Tonia Roddick (troddick@usgs.gov)
+* Copyright:
+*      2012 USGS - WiM
+* Purpose:
+*      Edit Agency
+*/
+*@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model STNServices.AGENCY
+
+@{
+    ViewBag.Title = "Edit Agency";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="@Url.Content("~/Assets/Scripts/jquery.maskedinput.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+<div id="dataTitle">
+    <div class="title">Edit Agency</div>
+</div>
+<br clear="all" />
+<hr class="headerUnderline" />
+
+@using (Ajax.BeginForm("AgencyEdit", "Lookups", new { id = Model.AGENCY_ID }, new AjaxOptions() { HttpMethod = "POST" }, new { @id = "EditAgencyForm" }))
+    {
+        <div class="fiftyPercColumn">   
+            <input type="hidden" name="AGENCY_ID" value="@Model.AGENCY_ID" />
+                  
+            <div class="ui-grid-a">
+                <div class="ui-block-a"><span class="required">@Html.Label(LookupsStrings.AgencyName_createNew)</span></div>
+                <div class="ui-block-b">
+                    <input type="text" class="required stnTextInput ui-shadow-inset" name="AGENCY_NAME" data-mini="true" value="@Model.AGENCY_NAME" /> 
+                </div>
+            </div>
+            
+            <div class="ui-grid-a">
+                <div class="ui-block-a">@Html.Label(LookupsStrings.AgencyAdd_createNew)</div>
+                <div class="ui-block-b">
+                    <input type="text" class="stnTextInput ui-shadow-inset" name="ADDRESS" data-mini="true" value="@Model.ADDRESS" /> 
+                </div>
+            </div> 
+            
+            <div class="ui-grid-a">
+                <div class="ui-block-a">@Html.Label(LookupsStrings.AgencyCity_createNew)</div>
+                <div class="ui-block-b">
+                    <input type="text" class="stnTextInput ui-shadow-inset" name="CITY" data-mini="true" value="@Model.CITY" /> 
+                </div>
+            </div> 
+           
+           
+            <div class="ui-grid-a">
+                <div class="ui-block-a">@Html.Label(LookupsStrings.AgencyState_createNew)</div>
+                <div class="ui-block-b">
+                    <select id="stateDD" class="stnTextInput ui-shadow-inset" style="width:100%" name="STATE" data-native-menu="false" data-mini="true">
+			            <option value=""></option>
+                        @foreach (STATES st in ViewData["States"] as List<STATES>)
+                        {
+                            <option @( (st.STATE_ABBREV == Model.STATE) ? "selected" : "") value='@st.STATE_ABBREV'>@st.STATE_NAME</option> 
+                        }
+                    </select> 
+                </div>
+            </div>
+
+            
+            <div class="ui-grid-a">
+                <div class="ui-block-a">@Html.Label(LookupsStrings.AgencyZip_createNew)</div>
+                <div class="ui-block-b">
+                    <input type="text" class="stnTextInput ui-shadow-inset" name="ZIP" data-mini="true" value="@Model.ZIP" /> 
+                </div>
+            </div>
+
+            
+            <div class="ui-grid-a">
+                <div class="ui-block-a">@Html.Label(LookupsStrings.AgencyPhone_createNew)</div>
+                <div class="ui-block-b">
+                    <input type="text" class="stnTextInput ui-shadow-inset" name="PHONE" data-mini="true" value="@Model.PHONE" /> 
+                </div>
+            </div>
+    </div>
+    
+        <div id="formSubmitDiv" class="formSection">
+        <div class="leftSideSubmit">
+            <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+            <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" class="submit" value="Submit" /></div></div>
+        </div>
+    
+    </div>
+    
+    }
+
+<script type="text/javascript">
+    //masked requirements for certain fields
+    jQuery(function ($) {
+        $("#aZip").mask("99999");
+        $("#aPhone").mask("(999) 999-9999? x99999");
+    });
+
+    function cancelClick() {
+        $("#loading").fadeIn();
+        window.location.href = '@Url.Action("Index", "Lookups")'
+    };
+
+    function loading() {
+        $("#loading").fadeIn();
+    };
+
+
+    //doc.ready 
+    $(document).ready(function () {
+        $("#EditAgencyForm").validate();
+        $("#EditAgencyForm").removeData("validator");
+        $("#EditAgencyForm").removeData("unobtrusiveValidation");
+
+
+        $("#EditAgencyForm").validate({
+            rules: {
+                AGENCY_NAME: "required"
+            },
+            messages: {
+                AGENCY_NAME: "Required"
+            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                form.submit();
+            }
+
+        });
+    });
+</script>
+
+<style type="text/css">
+    #EditAgencyForm label.error {      
+        width: auto;
+        display: block;
+        color: Red;
+    }
+    
+</style>

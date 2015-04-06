@@ -1,0 +1,150 @@
+﻿@* Comments:
+04.15.14 - TR - added validation
+12.18.12 - TR - Created (Parial View)
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display edit of a PhotoFile 
+ */
+ *@
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using STNWeb.Models;
+
+@model STNWeb.Models.FileSourceModel
+
+   @using (Ajax.BeginForm("PhotoFileEdit", "Files", new { id = Model.FSM_File.FILE_ID }, new AjaxOptions() { HttpMethod = "POST", UpdateTargetId = "content", LoadingElementId = "loading" }, new { @id = "FileEditForm" }))
+   {
+       @*store values for each table not being populated here*@
+       <input type="hidden" name="FSM_File.FILE_ID" value="@Model.FSM_File.FILE_ID" /> 
+       <input type="hidden" name="FSM_File.PATH" value="@Model.FSM_File.PATH" />
+       <input type="hidden" name="FSM_File.HWM_ID" value="@Model.FSM_File.HWM_ID" />
+       <input type="hidden" name="FSM_File.SITE_ID" value="@Model.FSM_File.SITE_ID" /> 
+       <input type="hidden" name="FSM_File.FILETYPE_ID" value="@Model.FSM_File.FILETYPE_ID" />
+       <input type="hidden" name="FSM_File.SOURCE_ID" value="@Model.FSM_File.SOURCE_ID" />
+       <input type="hidden" name="FSM_File.INSTRUMENT_ID" value="@Model.FSM_File.INSTRUMENT_ID" />
+       
+       if (Model.FSM_Source != null)
+       {
+        <input type="hidden" name="FSM_Source.SOURCE_ID" value="@Model.FSM_Source.SOURCE_ID" />
+        <input type="hidden" name="FSM_Source.SOURCE_ACCURACY" value="@Model.FSM_Source.SOURCE_ACCURACY" />
+       }
+       <div class="fiftyPercColumn">
+
+            <div data-role="fieldcontain" style="margin-bottom:5px">
+                <span class="bold ui-label-a">@Html.Label(FileStrings.FileType_Label)</span>
+                <label>@ViewData["aFileType"]</label>
+            </div>
+
+             <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(FileStrings.FileURL_Label)</span>
+                <input type="text" class="margin stnTextInput ui-shadow-inset" name="FSM_File.FILE_URL" data-mini="true" value="@Model.FSM_File.FILE_URL" />
+            </div>
+            
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a required">@Html.Label(FileStrings.Photographer_Label)</span>
+                <input type="text" class="margin required stnTextInput ui-shadow-inset" name="FSM_Source.SOURCE_NAME" data-mini="true" value="@( (Model.FSM_Source != null) ? Model.FSM_Source.SOURCE_NAME : "" )" />
+            </div>
+
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a required">@Html.Label(FileStrings.Agency_Label)</span>
+                <select id="groupPlaceholder" class="selectmargin required stnTextInput ui-shadow-inset" name="FSM_Source.AGENCY_ID" data-native-menu="false" data-mini="true">
+                    <option value=""></option>
+                    @if (ViewData.ContainsKey("agencyList")) {
+                        foreach (AGENCY anAg in ViewData["AgencyList"] as List<AGENCY>)
+                        {
+                            <option @( (anAg.AGENCY_ID == Model.FSM_Source.AGENCY_ID) ? "selected" : "") value='@anAg.AGENCY_ID'>@anAg.AGENCY_NAME</option>
+                        }
+                     }
+                    
+                </select>
+                <br />
+            </div>
+    
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a required">@Html.Label(FileStrings.DateTaken_Label)</span>
+                <input type="text" class="margin datepicker required stnTextInput ui-shadow-inset" name="FSM_Source.SOURCE_DATE" data-mini="true" value="@( (Model.FSM_Source != null && Model.FSM_Source.SOURCE_DATE != null) ? ((DateTime)Model.FSM_Source.SOURCE_DATE).ToShortDateString() : "" )" />
+            </div>
+          
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a required">@Html.Label(FileStrings.DateUploaded_Label)</span>
+                <input type="text" class="margin required datepicker stnTextInput ui-shadow-inset" name="FSM_File.FILE_DATE" data-mini="true" value="@( Model.FSM_File.FILE_DATE != null ? ((DateTime)Model.FSM_File.FILE_DATE).ToShortDateString() : "")" />
+            </div>
+    
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a required">@Html.Label(FileStrings.FileDesc_Label)</span>
+                <textarea cols="30" class="margin required stnTextInput ui-shadow-inset" rows="4" name="FSM_File.DESCRIPTION" data-mini="true">@Model.FSM_File.DESCRIPTION</textarea>
+            </div>
+    
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(FileStrings.FilePhotoDir_Label)</span>
+                <input type="text" class="margin stnTextInput ui-shadow-inset" name="FSM_File.PHOTO_DIRECTION" data-mini="true" value="@Model.FSM_File.PHOTO_DIRECTION" />
+            </div>
+
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(FileStrings.PhotoLat_Label)</span>
+                <input type="text" class="margin stnTextInput ui-shadow-inset" name="FSM_File.LATITUDE_DD" data-mini="true" onkeypress="return isNumberKey(event)" value="@Model.FSM_File.LATITUDE_DD" />
+            </div>
+
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(FileStrings.PhotoLong_Label)</span>
+                <input type="text" class="margin stnTextInput ui-shadow-inset" name="FSM_File.LONGITUDE_DD" data-mini="true" id="longitude" value="@Model.FSM_File.LONGITUDE_DD" />
+            </div>
+    
+            @if (ViewData.ContainsKey("aHWM"))
+            {
+                <div data-role="fieldcontain">
+                    <span class="bold ui-label-a">@Html.Label(FileStrings.FileHWM_Label)</span>
+                    <label class="margin stnTextInput ui-shadow-inset" style="float:left">@ViewData["aHWM"]</label>
+                </div>
+            }
+
+            @if (ViewData.ContainsKey("aSite"))
+            {
+                <div data-role="fieldcontain">
+                    <span class="bold ui-label-a">@Html.Label(FileStrings.FileSite_Label)</span>
+                    <label class="margin" style="float:left">@ViewData["aSite"]</label>
+                </div>
+            }
+            
+              
+
+    <br />
+    
+	<div id="formSubmitDiv" class="formSection">
+        <div class="leftSideSubmit">
+            <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+            <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" class="submit" value="Save" /></div></div>
+        </div>
+    </div>     
+</div>            
+    
+   }
+
+<script type="text/javascript">
+    $().ready(function () {
+        $("#loading").fadeOut();
+        $('input').filter('.datepicker').datepicker({
+            changeMonth: true,
+            yearRange: '1965:2030',
+            changeYear: true
+        });
+
+    });
+
+    //number formatter (any number and decimal place)
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode != 46 && charCode > 31
+            && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+</script>

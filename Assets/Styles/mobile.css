@@ -1,0 +1,65 @@
+﻿body 
+{
+	background: #fff !important;
+	font-size: small;
+}
+
+.page 
+{
+	margin-top:0 !important;
+	width: auto !important;
+	border: 0px !important;
+}
+
+.header 
+{
+  display: none !important;	
+}
+
+#MainNavigationBar
+{
+    height:71px;
+}
+
+
+
+#CreateSiteBar
+{
+    float:left;
+    margin-top: 6px;
+    height: initial;
+    width: 34em;
+    margin-left:3px;
+}
+
+#HomeNotice
+{
+    font-family:'BryantBold';
+    font-size:medium;
+}
+    
+#commandBar a, #dataTitle .title 
+{	
+	font-size: 2em  !important;
+	margin-bottom: 0.2em;
+}
+
+.formSection
+{
+	height: 80px;
+	left:0;
+	padding-bottom:1em;
+}
+
+
+.leftSideSubmit 
+{
+	width:100%;
+	padding-top: 0.4em;
+}
+
+
+.ui-body-c, .ui-overlay-c 
+{
+	background: #fff !important;
+}

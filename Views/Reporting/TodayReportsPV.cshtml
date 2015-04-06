@@ -1,0 +1,39 @@
+﻿@using STNWeb.Models;
+
+@{ 
+    if (ViewData.ContainsKey("TodayReports")) 
+    { 
+        List<List<ReportingModel>> TodaysReports = ViewData["TodayReports"] as List<List<ReportingModel>>;
+                            
+        <table class="Sec1Reporting-table" style="border:none">
+            @foreach (List<ReportingModel> EventRepList in TodaysReports)
+            {
+                <tr><td colspan="3">@EventRepList[0].anEvent.EVENT_NAME</td></tr>
+                foreach (ReportingModel erl in EventRepList)
+                {
+                    if (erl.aReport.COMPLETE == 1)
+                    {
+                        <tr>
+                            <td style="color:Green; width:34%">@erl.aReport.STATE</td>
+                            <td>@Html.ActionLink("View", "ReportDetails", "Reporting", new { reportId = @erl.aReport.REPORTING_METRICS_ID, StateDetail = "true" }, new { @class = "STNButton", @style = "padding: 3px 10px; background-color: #F37A49", @target = "_blank" })</td>
+                            <td>@Html.ActionLink("Project Alert", "ProjectAlert", "Reporting", new { reportId = @erl.aReport.REPORTING_METRICS_ID }, new { @class = "STNButton", @style = "padding: 3px 10px; background-color: #F37A49", @target = "_blank" })</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td style="color:Red">@erl.aReport.STATE</td>
+                            <td>@Html.ActionLink("View", "ReportDetails", "Reporting", new { reportId = @erl.aReport.REPORTING_METRICS_ID, StateDetail = "true" }, new { @class = "STNButton", @style = "padding: 3px 10px; background-color: #F37A49", @target = "_blank" })</td>
+                            <td><a class="STNButton" style="width: 54%; padding: 3px; background-color: #F37A49" onclick="OpenReport(@(erl.aReport.REPORTING_METRICS_ID));">Complete</a></td>
+                        </tr>
+                    }
+                }
+            }
+        </table>
+    }
+    else 
+    {
+        <div>No Reports Completed Today.</div>
+    }
+                        
+}

@@ -1,0 +1,132 @@
+﻿@* Comments:
+05.16.13 - TR - Added new fields
+02.19.13 - TR - Created (Parial View)
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display Details page for Peak Summary 
+ */
+ *@
+@using STNServices;
+@using STNWeb.Assets.Resources;
+          
+@model STNServices.PEAK_SUMMARY
+               
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#loading").fadeOut();
+    });        
+</script>
+
+    <div style="display:inline-block;width:100%">
+        <div style="width:54%;float:left">
+	        <span class="bold">@Html.Label(globalStrings.PS_MemberID_Label)</span>
+	    </div>
+        <label>@ViewData["MemberUsername"]</label>
+	</div>
+                    
+    <div style="display:inline-block;width:100%">
+        <div style="width:54%;float:left">
+	        <span class="bold">@Html.Label(globalStrings.PS_PeakDate_Label)</span>
+	    </div>
+        <label>@( ((DateTime)Model.PEAK_DATE).ToString("d"))</label>
+	</div>
+                    
+    <div style="display:inline-block;width:100%">
+	    <div style="width:54%;float:left">
+            <span class="bold">@Html.Label(globalStrings.PS_PeakDateEst_Label)</span>
+        </div>
+	    <label>@( (Model.IS_PEAK_ESTIMATED == 0) ? "No" : "Yes") </label>
+	</div>
+
+    <div style="display:inline-block;width:100%">
+	    <div style="width:54%;float:left">
+            <span class="bold">@Html.Label(globalStrings.PS_PeakTime_Label)</span>
+	    </div>
+        <label>@(string.Format("{0}, {1}", ((DateTime)Model.PEAK_DATE).ToString("hh:mm tt"), Model.TIME_ZONE))</label>
+	</div>
+                    
+    <div style="display:inline-block;width:100%">
+        <div style="width:54%;float:left">
+	        <span class="bold">@Html.Label(globalStrings.PS_PeakTimeEst_Label)</span>
+	    </div>
+        <label>@( (@Model.IS_PEAK_TIME_ESTIMATED == 0) ? "No" : "Yes")</label>
+	</div>
+
+    <div style="display:inline-block;width:100%">   
+        <div style="width:54%;float:left">
+    	    <span class="bold">@Html.Label(globalStrings.PS_PeakStage_Label)</span>
+	    </div>
+        <label>@Model.PEAK_STAGE</label>
+	</div>
+                    
+    <div style="display:inline-block;width:100%">
+        <div style="width:54%;float:left">
+    	    <span class="bold">@Html.Label(globalStrings.PS_PeakStageEst_Label)</span>
+	    </div>
+        <label>@( (Model.IS_PEAK_STAGE_ESTIMATED == 0) ? "No" : "Yes")</label>
+	</div>
+
+    <div style="display:inline-block;width:100%">
+        <div style="width:54%;float:left">
+    	    <span class="bold">@Html.Label(globalStrings.VDatum_Label)</span>
+	    </div>
+        <label>@ViewData["VDType"]</label>
+	</div>
+
+    <div style="display:inline-block;width:100%">
+	    <div style="width:54%;float:left">
+            <span class="bold">@Html.Label(globalStrings.PS_PeakHAG_Label)</span><span>(Depth of Water)</span>
+        </div>
+	    <label>@Model.HEIGHT_ABOVE_GND</label>
+	</div>
+                    
+    <div style="display:inline-block;width:100%">
+        <div style="width:54%;float:left">
+	        <span class="bold">@Html.Label(globalStrings.PS_PeakHAGEst_Label)</span>
+	    </div>
+        <label>@( (Model.IS_HAG_ESTIMATED == 0) ? "No" : "Yes")</label>
+	</div>
+
+    <div style="display:inline-block;width:100%">
+        <div style="width:54%;float:left">
+    	    <span class="bold">@Html.Label(globalStrings.PS_PeakDischarge_Label)</span>
+	    </div>
+        <label>@Model.PEAK_DISCHARGE</label>
+	</div>
+                    
+    <div style="display:inline-block;width:100%">
+	    <div style="width:54%;float:left">
+            <span class="bold">@Html.Label(globalStrings.PS_PeakDischargeEst_Label)</span>
+	    </div>
+        <label>@( (Model.IS_PEAK_DISCHARGE_ESTIMATED == 0) ? "No" : "Yes")</label>
+	</div>
+    <br />
+    <div style="margin-top:2em"><a id="editPeakSummary" onclick="EditPeakSum();" class="STNButton">Edit Peak Summary</a></div>
+   
+
+    <script type="text/javascript">
+        //click EditPeakSum button --> get the PV, replace $("#PeakSum") with edit
+        function EditPeakSum() {
+            $("#loading").fadeIn();
+            var Pid = '@Model.PEAK_SUMMARY_ID';
+            $.ajax({
+                url: '@Url.Action("EditPeakSumPV", "PeakSummary")',
+                type: 'GET',
+                data: { id: Pid, FROM: '@ViewData["FROM"]', objID: '@ViewData["objID"]' },
+                success: function (response) {
+                    $("#loading").fadeOut();
+                    $("#PeakSum").html(response);
+                },
+                error: function (xhr) {
+                    alert("Can't get Peak Summary Edit partial view");
+                }
+            });
+            
+        }
+</script>

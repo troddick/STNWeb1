@@ -1,0 +1,95 @@
+﻿@*
+Comments:
+04.09.14 - TR - Created 
+
+*@
+
+@*
+/* Authors:
+*      Tonia Roddick (troddick@usgs.gov)
+* Copyright:
+*      2012 USGS - WiM
+* Purpose:
+*      Edit an Network Type 
+*/
+*@
+@using STNServices;
+
+@model STNServices.NETWORK_TYPE
+
+@{
+    ViewBag.Title = "Edit Site Location Type in Network";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+
+    <div id="dataTitle">
+        <div class="title">Edit Site Location Type in Network</div>
+    </div>
+    <br clear="all" />
+    <hr class="headerUnderline" />
+
+    @using (Ajax.BeginForm("NetworkTypeEdit", "Lookups", new { id = Model.NETWORK_TYPE_ID }, new AjaxOptions() { HttpMethod = "POST" }, new { @id = "EditNetworkTypeForm" }))
+    {
+        <div class="fiftyPercColumn">   
+            <input type="hidden" name="NETWORK_TYPE_ID" value="@Model.NETWORK_TYPE_ID" />
+                  
+            <div class="ui-grid-a">
+                <div class="ui-block-a" style="padding-top:6px"><span class="required">Site Location Type in the Network:</span></div>
+                <div class="ui-block-b">
+                    <input type="text" class="stnTextInput required ui-shadow-inset" name="NETWORK_TYPE_NAME" data-mini="true" value="@Model.NETWORK_TYPE_NAME" />
+                </div>
+            </div>    
+        </div>
+    
+         <div id="formSubmitDiv" class="formSection">
+            <div class="leftSideSubmit">
+                <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+                <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" class="submit" value="Submit" /></div></div>
+           </div>    
+        </div>    
+    }
+
+<script type="text/javascript">
+    function cancelClick() {
+        $("#loading").fadeIn();
+        window.location.href = '@Url.Action("Index", "Lookups")' 
+    };
+
+    function loading() {
+        $("#loading").fadeIn();
+    }
+
+    //doc.ready 
+    $(document).ready(function () {
+        $("#EditNetworkTypeForm").validate();
+        $("#EditNetworkTypeForm").removeData("validator");
+        $("#EditNetworkTypeForm").removeData("unobtrusiveValidation");
+        
+        $("#EditNetworkTypeForm").validate({
+            rules: {
+                'NETWORK_TYPE_NAME': "required"
+            },
+            messages: {
+                'NETWORK_TYPE_NAME': "Required"
+            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                form.submit();
+            }
+        });
+    });
+</script>
+
+<style type="text/css">
+    #EditNetworkTypeForm label.error {      
+        width: auto;
+        display: block;
+        color: Red;
+    }    
+</style>

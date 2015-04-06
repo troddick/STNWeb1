@@ -1,0 +1,456 @@
+@* Comments:
+10.24.13 - TR - Updated page with new template look and layout changes, added inset mapper
+05.31.13 - TR - Created 
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display page for public mapper sensor link click
+ */
+ *@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using STNWeb.Models;
+
+
+           
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <style type="text/css">
+            #header
+            {
+                background-color: #59595C;
+                color: #E7E4CE;
+                display:inline;
+                font-family: "BryantRegular";
+                font-size: 40px;
+                height: 65px;
+                left: 0;
+                position: absolute;
+                right:0;
+                top: 0;
+                z-index: 1;
+            }
+            #usgsLogoDiv
+            {
+                background-color: #000000;
+                float: left;
+                height: 50px;
+                padding: 10px 5px 5px 0;
+                text-align: center;
+                width: 150px;
+            }
+            #usgsLogo
+            {
+                cursor: pointer;
+                height: 45px;
+                vertical-align: middle;
+            }
+            #usgstitle
+            {
+                padding-top: 8px;
+            }
+            #peak-table-a td 
+            {
+                max-width: 300px !important;
+            }
+            body
+            {
+                font-family: "BryantRegular";
+                font-size: 10pt;
+            }
+            #usgsfooter
+            {
+                clear: both;
+                font-size:small;
+                margin:0;
+            }
+            #usgsfooterbar
+            {
+                background-color: #666666;
+                margin:0;
+                padding:4px;
+            }
+            #usgsfooterbar a:link, #usgsfooterbar a:visited
+            {
+                color: #ffffff;
+                margin-right: 40px;
+                text-decoration: none;
+            }
+            #usgsfootertext
+            {
+                margin:0;
+                padding:4px;
+            }
+            #usgsfootertext img 
+            {
+                border: medium none;
+                float:right;
+                margin-right:5px;
+            }
+        </style>
+        <title>Site Information and Data</title>
+        <meta name="description" content="USGS Hurricane Site information and data" />
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+        <meta name="publisher" content="USGS - U.S. Geological Survey" />
+        <meta name="created" content="20130513" />
+        @*<link href="http://www.usgs.gov/styles/common.css" rel="stylesheet" />*@
+        
+
+        @*<link href="@Url.Content("~/Assets/Styles/Site.css")" rel="stylesheet" type="text/css" />*@
+        <link href="@Url.Content("~/Assets/Styles/STN.css")" rel="stylesheet" type="text/css" /> 
+    </head>
+
+<body>
+<div id="header">
+    <div id="headerLogo">
+        <div id="usgsLogoDiv">
+            <img id="usgsLogo" title="USGS Links" src="@Url.Content("~/Assets/Images/logos/USGS.jpg")" alt="USGS Logo" />
+        </div>
+    </div>
+    <div id="usgstitle">Short Term Network Monitoring</div>
+</div>
+<br clear="all" />
+
+<div class="publicColumn">
+    <div>
+        <h2>Site Information</h2>
+        @{
+            SITE thisSite = ViewData["Site"] as SITE;
+            string HorizontalDatum = ViewData["HDatum"].ToString();
+        }
+        
+        <div>
+	        <span class="bold publicLabel">@Html.Label(SiteStrings.SiteNo_Label)</span>
+	        <label class="inline">@thisSite.SITE_NO</label>
+	    </div>
+  
+        <div>
+            <span class="bold publicLabel">@Html.Label(SiteStrings.Desc_Label)</span>
+	        <textarea class="PublicDetails inline" rows="6" cols="30" readonly="readonly">@thisSite.SITE_DESCRIPTION</textarea>
+	    </div>
+
+        <div>
+	        <span class="bold publicLabel">@Html.Label(SiteStrings.Latitude_Label)</span>
+	        <label class="inline">@thisSite.LATITUDE_DD</label>
+	    </div>
+   
+        <div>
+            <span class="bold publicLabel">@Html.Label(SiteStrings.Longitude_Label)</span>
+	        <label class="inline">@thisSite.LONGITUDE_DD</label>
+	    </div>
+  
+        <div>
+            <span class="bold publicLabel">@Html.Label(SiteStrings.HDatum_Label)</span>
+	        <label class="inline">@HorizontalDatum</label>
+	    </div>
+ 
+        <div>
+            <span class="bold publicLabel">@Html.Label(SiteStrings.Address_Label)</span>
+            <label class="inline">@thisSite.ADDRESS</label>
+        </div>
+
+        <div>
+            <span class="bold publicLabel">@Html.Label(SiteStrings.City_Label)</span>
+            <label class="inline">@thisSite.CITY</label>
+        </div>
+   
+        <div>
+            <span class="bold publicLabel">@Html.Label(SiteStrings.State_Label)</span>
+            <label class="inline">@thisSite.STATE</label>
+        </div>
+ 
+        <div>
+            <span class="bold publicLabel">@Html.Label(SiteStrings.Zip_Label)</span>
+            <label class="inline">@thisSite.ZIP</label>
+        </div>
+        
+        <div>
+            <span class="bold publicLabel">@Html.Label(SiteStrings.County_Label)</span>
+            <label class="inline">@thisSite.COUNTY</label>
+        </div>
+  
+        <div>
+            <span class="bold publicLabel">@Html.Label(SiteStrings.Waterbody_Label)</span>
+            <label class="inline">@thisSite.WATERBODY</label>
+        </div>
+     
+        <div>
+	        <span class="bold publicLabel">@Html.Label(SiteStrings.USGSStationID_Label)</span>
+	        <label class="inline">@thisSite.USGS_SID</label>
+        </div>
+        
+        <div>
+	        <span class="bold publicLabel">@Html.Label(SiteStrings.NOAAStationID_Label)</span>
+	        <label class="inline">@thisSite.NOAA_SID</label>
+        </div>
+
+        <div>
+	        <span class="bold publicLabel">@Html.Label(SiteStrings.OtherStationID_Label)</span>
+	        <label class="inline">@thisSite.OTHER_SID</label>
+        </div>
+        <br />
+    </div>
+
+    <br clear="all" />
+
+    @* ------------------------------------------------------------------------------------*@
+    <div>
+        <h2>Sensor Information</h2>
+        @{
+            INSTRUMENT thisInstr = ViewData["Instrument"] as INSTRUMENT;
+            INSTRUMENT_STATUS depInstrument = ViewData["DeployedStatus"] as INSTRUMENT_STATUS;
+
+
+            string SensorType = ViewData.ContainsKey("SensorType") ? ViewData["SensorType"].ToString() : "";
+            string DeplType = ViewData.ContainsKey("DeplType") ? ViewData["DeplType"].ToString() : "";
+            string depTeamName = ViewData.ContainsKey("depTeamName") ? ViewData["depTeamName"].ToString() : "";
+            
+            
+        }
+        <div class="bold" style="text-align:center;width:60%">Deployed:</div>
+        <div>
+	        <span class="bold publicLabel">@Html.Label(InstrumentsStrings.Event_Label)</span>
+	        <label class="inline">@ViewData["sensorEvent"]</label>
+		</div>
+
+        <div>
+	        <span class="bold publicLabel">@Html.Label(InstrumentsStrings.SensorType_Label)</span>
+	        <label class="inline">@SensorType</label>
+		</div>
+
+        <div>
+	        <span class="bold publicLabel">@Html.Label(InstrumentsStrings.SerialNo_Label)</span>
+	        <label class="inline">@thisInstr.SERIAL_NUMBER</label>
+		</div>
+                        
+        <div>
+	        <span class="bold publicLabel">@Html.Label(InstrumentsStrings.HousingSerialNo_Label)</span>
+	        <label class="inline">@thisInstr.HOUSING_SERIAL_NUMBER</label>
+		</div>
+        
+        <div>
+	        <span class="bold publicLabel">@Html.Label(InstrumentsStrings.DeploymentType_Label)</span>
+	        <label class="inline">@DeplType</label>
+		</div>
+                        
+        <div>
+	        <span class="bold publicLabel">@Html.Label(InstrumentsStrings.LocationDesc_Label)</span>
+	        <textarea class="PublicDetails inline" rows="6" cols="30" readonly="readonly">@thisInstr.LOCATION_DESCRIPTION</textarea>
+		</div>
+        
+        <div>
+	        <span class="bold publicLabel">@Html.Label(InstrumentsStrings.Interval_Label)</span>
+	        @if (thisInstr.INTERVAL != null)
+         {<label class="inline">@thisInstr.INTERVAL seconds</label> }
+         else
+         {<label class="inline"></label>}
+		</div>
+              
+        <div> @* *@
+	        <span class="bold publicLabel">@Html.Label(InstrumentsStrings.TimeStamp_Label)</span>
+	        <label class="inline">@depInstrument.TIME_STAMP</label> 
+		</div>
+                  
+        <div>
+	        <span class="bold publicLabel">@Html.Label(InstrumentsStrings.Notes_Label)</span>
+	        <label class="inline">@depInstrument.NOTES</label> 
+		</div>
+        
+        <div>
+	        <span class="bold publicLabel">@Html.Label(globalStrings.CollectTeam_Label)</span>
+	        <label class="inline">@depTeamName</label>
+		</div>
+        <br clear="all"/>
+        @{
+            INSTRUMENT_STATUS retInstrument = new INSTRUMENT_STATUS();
+            INSTRUMENT_STATUS lostInstrument = new INSTRUMENT_STATUS(); ;
+            if (ViewData.ContainsKey("RetrievedStatus"))
+            { retInstrument = ViewData["RetrievedStatus"] as INSTRUMENT_STATUS; }
+            if (ViewData.ContainsKey("LostStatus"))
+            { lostInstrument = ViewData["LostStatus"] as INSTRUMENT_STATUS; }
+            string retTeamName = ViewData.ContainsKey("retTeamName") ? ViewData["retTeamName"].ToString() : "";
+            string Condition = ViewData.ContainsKey("Condition") ? ViewData["Condition"].ToString() : "";
+        }
+
+        @if (retInstrument.INSTRUMENT_STATUS_ID != 0 && retInstrument.INSTRUMENT_STATUS_ID != null)
+        {
+        <div class="bold" style="text-align:center;width:60%;margin-top:15px">Retrieved:</div>
+        <div>
+	         <span class="bold publicLabel">@Html.Label(InstrumentsStrings.RecoveryDate_Label)</span>
+	        <label class="inline">@retInstrument.TIME_STAMP</label>
+		</div>
+
+        <div>
+	         <span class="bold publicLabel">@Html.Label(InstrumentsStrings.Conditions_Label)</span>
+	        <label class="inline">@Condition</label>
+		</div>
+        
+        <div>
+	        <span class="bold publicLabel">@Html.Label(InstrumentsStrings.RetrievalNote_Label)</span>
+	        <textarea class="PublicDetails inline" rows="6" cols="30" readonly="readonly">@retInstrument.NOTES</textarea>
+		</div>       
+
+        <div>
+            <span class="bold publicLabel">@Html.Label(globalStrings.CollectTeam_Label)</span>
+            <label class="inline">@retTeamName</label>
+        </div>
+
+        }
+        @if (lostInstrument.INSTRUMENT_STATUS_ID != 0 && lostInstrument.INSTRUMENT_STATUS_ID != null)
+        {
+        <div class="bold" style="text-align:center;width:60%">Lost:</div>
+        <div>
+	         <span class="bold publicLabel">@Html.Label(InstrumentsStrings.RecoveryDate_Label)</span>
+	        <label class="inline">@lostInstrument.TIME_STAMP</label>
+		</div>
+
+        <div>
+	         <span class="bold publicLabel">@Html.Label(InstrumentsStrings.Conditions_Label)</span>
+	        <label class="inline">@Condition</label>
+		</div>
+        
+        <div>
+	        <span class="bold publicLabel">@Html.Label(InstrumentsStrings.RetrievalNote_Label)</span>
+	        <textarea class="PublicDetails inline" rows="6" cols="30" readonly="readonly">@lostInstrument.NOTES</textarea>
+		</div>       
+
+        <div>
+            <span class="bold publicLabel">@Html.Label(globalStrings.CollectTeam_Label)</span>
+            <label class="inline">@retTeamName</label>
+        </div>
+
+        }
+        <br />
+    </div>
+    <br clear="all" />
+    
+    
+
+    <br clear="all" />
+    @{
+        List<PeakSummaryModel> PeakModel = ViewData["Peaks"] as List<PeakSummaryModel>; 
+     }
+            @if (PeakModel.Count >= 1)
+            {
+                <h2>Peak Summaries</h2>
+                <table id="peak-table-a">
+                    <thead>
+                        <tr>
+                            <th scope="col">Elevation (ft)</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Time</th>
+                            <th scope="col">Event</th>
+                            <th scope="col">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                     @foreach (PeakSummaryModel peak in PeakModel)
+                     {
+                        <tr>
+                            <td>@peak.PeakStage</td> 
+                            
+                            @if (peak.DateEstimated >= 1)
+                            { <td><i>@peak.PeakDate</i></td> }
+                            else
+                            { <td>@peak.PeakDate</td> }
+                            
+                            @if (peak.TimeEstimated >= 1)
+                            { <td><i>@peak.PeakTime</i></td> }
+                            else
+                            { <td>@peak.PeakTime</td> }
+                            
+                            <td>@peak.EventName</td>
+                            
+                            @if (peak.PeakHWMDesc != null)
+                            { <td>@peak.PeakHWMDesc</td> }
+                            @if (peak.PeakDataFileDesc != null)
+                            { <td>@peak.PeakDataFileDesc</td>}
+                            @if (peak.PeakHWMDesc == null && peak.PeakDataFileDesc == null)
+                            { <td></td> }
+                            
+                        </tr>
+                     }
+                   </tbody>
+                </table>
+            }
+    </div>
+    <br />
+    <div style="float:left;margin-top:40px;width:50%">     
+    <h2>File Information</h2>
+    @{
+        List<PhotoFileCaption> PhotoFiles = ViewData["PhotoCaptionList"] as List<PhotoFileCaption>;
+        List<FILE> DataFiles = ViewData["DataFiles"] as List<FILE>;
+    }
+    <h4>Data Files</h4>
+    @if (DataFiles.Count >= 1)
+    {
+    <ul>
+        @foreach (FILE df in DataFiles)
+        {
+            <li>@Html.ActionLink(string.Format("{0}: ({1})", df.FILE_DATE != null ? ((DateTime)df.FILE_DATE).ToShortDateString() : "No Date", df.PATH), "DownloadFile", "Files", new { id = df.FILE_ID }, new { target = "_blank" })</li>
+        }
+    </ul>
+    }
+    else
+    {
+        <div>There are no Data Files associated with this Sensor</div>
+    }     
+    <br />
+         
+   <h4>Photo Files</h4> 
+   <div>          
+   @{
+       if (PhotoFiles.Count >= 1)
+       {
+           foreach (PhotoFileCaption pf in PhotoFiles)
+           {
+                @Html.ActionLink(string.Format("Photo of {0} at {1}, {2}, {3}, {4}. Photograph by {5}, {6}.", pf.FileDesc, pf.SiteDescription, pf.County, pf.State, pf.Date, pf.MemberName, pf.MemberAgency), "DownloadFile", "Files", new { id = Convert.ToInt32(pf.FileID) }, new { target = "_blank" })
+                <div style="width:100px;height:100px">
+                    <img alt="" style="max-width:100%; max-height:100%; margin:auto; display:block" src="@Url.Action("DownloadFile", "Files", new { id = pf.FileID })" />
+                </div>
+                
+           }
+       }
+       else
+       {
+            <div>There are no Photo Files associated with this Sensor</div>
+        }
+    }
+
+    <br />
+    <br />
+    </div>
+    <iframe width="82%" frameborder="0" scrolling="no" marginheight="0" height="400" marginwidth="0" 
+    src="@(System.Configuration.ConfigurationManager.AppSettings["STNPublicInset"].ToString())?siteid=@(thisSite.SITE_ID)"></iframe>
+</div>
+
+
+@* BEGIN USGS Footer Template *@
+<div id="usgsfooter">
+	<p id="usgsfooterbar">
+		<a href="http://www.usgs.gov/laws/accessibility.html" title="Accessibility Policy (Section 508)">Accessibility</a>
+		<a href="http://www.usgs.gov/foia/" title="Freedom of Information Act">FOIA</a>
+		<a href="http://www.usgs.gov/laws/privacy.html" title="Privacy policies of the U.S. Geological Survey.">Privacy</a>
+		<a href="http://www.usgs.gov/laws/policies_notices.html" title="Policies and notices that govern information posted on USGS Web sites.">Policies and Notices</a>
+
+	</p>
+
+	<p id="usgsfootertext">
+		<a href="http://www.takepride.gov/"><img src="http://www.usgs.gov/images/footer_graphic_takePride.jpg" alt="Take Pride in America logo" title="Take Pride in America Home Page" width="60" height="58"></a>
+	    <a href="http://firstgov.gov/"><img src="http://www.usgs.gov/images/footer_graphic_usagov.jpg" alt="USA.gov logo" width="90" height="26" style="float: right; margin-right: 10px;" title="USAGov: Government Made Easy."></a>
+		<a href="http://www.doi.gov/">U.S. Department of the Interior</a> |
+		<a href="http://www.usgs.gov/">U.S. Geological Survey</a><br>
+         Page Contact Information: <a href="mailto:storm_team_leader@usgs.gov ">Storm Team Leader</a><br>
+        Page Last Modified: Monday, 24-October-2013 13:11:12 CST
+	</p>
+</div>
+@*-- END USGS Footer Template *@
+</body>
+</html>

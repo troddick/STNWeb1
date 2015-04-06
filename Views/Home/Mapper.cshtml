@@ -1,0 +1,84 @@
+﻿@*Comments:
+02.12.13 - TR - changed this page (dashboard) to be the Mapper view
+11.16.12 - TR - Changed event dropdown from all js script to using(Ajax.BeginForm)
+11.09.12 - TR - Added script to populate holderdiv with partialView of Sensors, People (filler for now) and HWMs related to event
+11.07.12 - TR - Removed HWM info and added Events Dropdown and holder div for partial class info related to event chosen
+09.28.12 - JB - Created from old web app *@
+
+@*
+/* Authors:
+ *      Jonathan Baier (jbaier@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display dashboard listing
+ */
+ *@
+@using STNServices;
+@using STNServices.Resources;
+@using STNWeb.Assets.Resources;
+@model STNServices.SITE
+
+@{
+    ViewBag.Title = "Mapper";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+    
+<style type="text/css">
+.page
+{
+    /*width: 1200px;*/
+    width: 100%;
+    height: 100%
+}
+#main
+{
+    padding:0;
+    height:100%;
+}
+section 
+{
+    height:100%;
+}
+</style>    
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+ @*<input type="button" onclick="CreateWithLatLong(42.1234, -88.6556);" />
+<script src="@Url.Content("~/Assets/Scripts/jquery.unobtrusive-ajax.min.js")" type="text/javascript"></script>
+ 
+   *@ 
+ @*  <input type="button" value="test" onclick=" />
+ dev version url: STNFieldDev/
+ non-dev version url: STNField/
+ *@
+
+ <div id="theFrame">
+    @{
+        if (ViewData.ContainsKey("SiteId"))
+    {
+        Int32 sID = Convert.ToInt32(ViewData["siteId"]);
+        <iframe width="100%" height="1000px" frameborder="0" id="siteZoomIframe" scrolling="no" marginheight="0" marginwidth="0" 
+        src="@(System.Configuration.ConfigurationManager.AppSettings["STNFieldMapper"].ToString())?siteid=@ViewData["siteId"]"></iframe>
+    }
+    else
+    { 
+        <iframe width="100%" height="1000px" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" 
+        src="@(System.Configuration.ConfigurationManager.AppSettings["STNFieldMapper"].ToString())"></iframe>
+    }
+}
+ </div>
+ <input type="hidden" id="latitude" />
+ <input type="hidden" id="longitude" />
+
+<script type="text/javascript">
+    function loading() {
+        $("#loading").fadeIn();
+    }
+    function CreateWithLatLong(Latitude, Longitude) {
+        $("#loading").fadeIn();
+        var link = '@Html.Raw(@Url.Action("Create", "Sites", new {@latitude=-1, @longitude=-2}))';
+        link = link.replace("-1", Latitude);
+        link = link.replace("-2", Longitude);
+        window.location.href = link;
+    }
+    
+</script>

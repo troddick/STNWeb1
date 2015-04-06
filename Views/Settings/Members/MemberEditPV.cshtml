@@ -1,0 +1,183 @@
+﻿@* Comments:
+11.27.12 - TR - changed labels to html helper
+11.20.12 - TR - Created 
+*@
+
+@*
+/* Authors:
+*      Tonia Roddick (troddick@usgs.gov)
+* Copyright:
+*      2012 USGS - WiM
+* Purpose:
+*      Edit a member (Partial View)
+*/
+*@
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model STNServices.MEMBER
+
+<script src="@Url.Content("~/Assets/Scripts/jquery.maskedinput.min.js")" type="text/javascript"></script>
+
+
+    @using (Ajax.BeginForm("MemberEdit", "Members", new { id = Model.MEMBER_ID }, new AjaxOptions() { HttpMethod = "POST", UpdateTargetId = "content" }, new { @id = "memberEditForm" }))
+    {
+        <input type="hidden" name="MEMBER_ID" value="@Model.MEMBER_ID" />
+        //one version for admin, another for manager and field members
+        if (ViewData["Role"] == "Admin")
+        {
+            <div class="fiftyPercColumn">
+        
+                <div data-role="fieldcontain">
+                    <span class="required bold ui-label-a">@Html.Label(MemberStrings.FirstName_Label)</span>
+                    <input type="text" id="FNAME" class="margin stnTextInput ui-shadow-inset" name="FNAME" data-mini="true" value="@Model.FNAME" />
+                </div>
+
+                <div data-role="fieldcontain">
+                    <span class="required bold ui-label-a">@Html.Label(MemberStrings.LastName_Label)</span>
+                    <input type="text" class="margin stnTextInput ui-shadow-inset" id="LNAME" name="LNAME" data-mini="true" value="@Model.LNAME" />
+                </div>
+    
+                <div data-role="fieldcontain" style="margin-top:3px;margin-bottom:5px">
+                    <span class="bold ui-label-a">@Html.Label(MemberStrings.UserName_Label)</span>
+                    <input type="hidden" value="@Model.USERNAME" name="USERNAME" />
+                    <label class="margin">@Model.USERNAME</label>
+                </div>
+          
+                <div data-role="fieldcontain">
+                    <span class="required bold ui-label-a">@Html.Label(MemberStrings.Agency_Label)</span>
+                    <select id="AGENCY_ID" class="selectmargin stnTextInput ui-shadow-inset" name="AGENCY_ID" data-native-menu="false" data-mini="true">
+					    <option value=""></option>
+                        @foreach (STNServices.AGENCY anAgency in ViewData["AllAgencies"] as List<AGENCY>)
+                        {
+                            <option @( (anAgency.AGENCY_ID == Model.AGENCY_ID) ? "selected" : "") value='@anAgency.AGENCY_ID'>@anAgency.AGENCY_NAME</option> 
+                        }
+                    </select>
+                    <br />	
+                </div>
+
+                <div data-role="fieldcontain" style="margin-bottom:8px;margin-top:5px" >
+                    <span class="bold ui-label-a">@Html.Label(MemberStrings.Role_Label)</span>
+                    <input type="hidden" name="ROLE_ID" id="ROLE_ID" value="@Model.ROLE_ID" />
+					<label class="margin">@( ViewData.ContainsKey("MemberRole") ? ViewData["MemberRole"] : "")</label>                
+                </div>
+
+                <div data-role="fieldcontain">
+                    <span class="required bold ui-label-a">@Html.Label(MemberStrings.Phone_Label)</span>
+                    <input type="text" class="margin stnTextInput ui-shadow-inset" id="MemberPhone" name="PHONE" data-mini="true" value="@Model.PHONE" />
+                </div>
+
+                <div data-role="fieldcontain">
+                    <span class="required bold ui-label-a">@Html.Label(MemberStrings.Email_Label)</span>
+                    <input type="text" class="margin stnTextInput ui-shadow-inset" id="EMAIL" name="EMAIL" data-mini="true" value="@Model.EMAIL" />
+                </div>
+            
+                <div data-role="fieldcontain">
+                    <span class="bold ui-label-a">@Html.Label(MemberStrings.RSSFeed_Label)</span>
+                    <input type="text" class="margin stnTextInput ui-shadow-inset" id="RSSFEED" name="RSSFEED" data-mini="true" value="@Model.RSSFEED" />
+                </div>
+            
+                <div data-role="fieldcontain">
+                    <span class="bold ui-label-a">@Html.Label(MemberStrings.EmergencyContactName_Label)</span>
+                    <input type="text" class="margin stnTextInput ui-shadow-inset" name="EMERGENCY_CONTACT_NAME" data-mini="true" value="@Model.EMERGENCY_CONTACT_NAME" />
+                </div>
+            
+                <div data-role="fieldcontain">
+                    <span class="bold ui-label-a">@Html.Label(MemberStrings.EmergencyContactPhone_Label)</span>
+                    <input type="text" class="margin stnTextInput ui-shadow-inset" name="EMERGENCY_CONTACT_PHONE" id="EmerPhone" data-mini="true" value="@Model.EMERGENCY_CONTACT_PHONE" />
+                </div>
+            </div>
+        }
+        else if (Model.USERNAME == User.Identity.Name)
+        {
+            //user editing their own info
+            <div class="fiftyPercColumn">
+            @{string agencyname = string.Empty;
+              string rolename = string.Empty;
+              }
+                <div data-role="fieldcontain">
+                    <span class="bold ui-label-a">@Html.Label(MemberStrings.FirstName_Label)</span>
+                    <input type="hidden" name="FNAME" id="FNAME" value="@Model.FNAME" />
+                    <label>@Model.FNAME</label>
+                </div>
+
+                <div data-role="fieldcontain">
+                    <span class="bold ui-label-a">@Html.Label(MemberStrings.LastName_Label)</span>
+                    <input type="hidden" name="LNAME" id="LNAME" value="@Model.LNAME" />
+                    <label>@Model.LNAME</label>
+                </div>
+    
+                <div data-role="fieldcontain" style="margin-top:5px;margin-bottom:5px">
+                    <span class="bold ui-label-a">@Html.Label(MemberStrings.UserName_Label)</span>
+                    <input type="hidden" name="USERNAME" id="USERNAME" value="@Model.USERNAME" />
+                    <label>@Model.USERNAME</label>
+                </div>
+          
+                <div data-role="fieldcontain">
+                    <span class="bold ui-label-a">@Html.Label(MemberStrings.Agency_Label)</span>
+                    <input type="hidden" name="AGENCY_ID" id="AGENCY_ID" value="@Model.AGENCY_ID" />                    
+                    @foreach (STNServices.AGENCY anAgency in ViewData["AllAgencies"] as List<AGENCY>)
+                    {
+                         @( agencyname = anAgency.AGENCY_ID == Model.AGENCY_ID ? anAgency.AGENCY_NAME : "")
+                    }    
+                    <label>@agencyname</label>  
+                </div>
+
+                <div data-role="fieldcontain">
+                    <span class="bold ui-label-a">@Html.Label(MemberStrings.Role_Label)</span>
+                    <input type="hidden" name="ROLE_ID" id="ROLE_ID" value="@Model.ROLE_ID" />
+					@foreach (STNServices.ROLE aRole in ViewData["AllRoles"] as List<ROLE>)
+     {
+                        @( rolename = aRole.ROLE_ID == Model.ROLE_ID ? aRole.ROLE_NAME : "") 
+     }
+                    <label>@rolename</label>
+                </div>
+
+                <div data-role="fieldcontain">
+                    <span class="required bold ui-label-a">@Html.Label(MemberStrings.Phone_Label)</span>
+                    <input type="text" class="margin" name="PHONE" id="MemberPhone" data-mini="true" value="@Model.PHONE" />
+                 </div>
+
+                <div data-role="fieldcontain">
+                    <span class="bold ui-label-a">@Html.Label(MemberStrings.Email_Label)</span>
+                    <input type="text" class="margin" name="EMAIL" data-mini="true" id="EMAIL" value="@Model.EMAIL" />
+                </div>
+            
+                <div data-role="fieldcontain">
+                    <span class="bold ui-label-a">@Html.Label(MemberStrings.RSSFeed_Label)</span>
+                    <input type="text" class="margin" name="RSSFEED" data-mini="true" value="@Model.RSSFEED" />
+                </div>
+            
+                <div data-role="fieldcontain">
+                    <span class="bold ui-label-a">@Html.Label(MemberStrings.EmergencyContactName_Label)</span>
+                    <input type="text" class="margin" name="EMERGENCY_CONTACT_NAME" data-mini="true" value="@Model.EMERGENCY_CONTACT_NAME" />
+                </div>
+            
+                <div data-role="fieldcontain">
+                    <span class="bold ui-label-a">@Html.Label(MemberStrings.EmergencyContactPhone_Label)</span>
+                    <input type="text" class="margin" id="EmerPhone" name="EMERGENCY_CONTACT_PHONE" data-mini="true" value="@Model.EMERGENCY_CONTACT_PHONE" />
+                </div>
+            </div>
+            
+        }
+    <br clear="all" />
+    <br />
+    
+    <div id="formSubmitDiv" class="formSection">
+        <div class="leftSideSubmit">
+            <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+            <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" class="submit" value="Save" /></div></div>
+
+            <asp:Button ID="SaveSiteButton" runat="server" Text="Save" />
+        </div>
+    
+    </div>
+    }
+
+    <script type="text/javascript">
+        $().ready(function () {
+            $("#loading").fadeOut();
+            $("#MemberPhone").mask("(999) 999-9999? x99999");
+            $("#EmerPhone").mask("(999) 999-9999? x99999");
+        });
+    </script>

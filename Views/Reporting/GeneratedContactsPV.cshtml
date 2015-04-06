@@ -1,0 +1,248 @@
+@*
+02.26.14 - TR - Created 
+*@ @*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2014 USGS - WiM
+ * Purpose:
+ *      Generated Contacts page 
+ */
+ *@
+@using System.Configuration;
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using STNWeb.Models;
+
+@model STNServices.REPORTING_METRICS
+           
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <style type="text/css">
+            button:focus 
+            {
+                outline:0;
+            }
+            #header
+            {
+                background-color: #59595C;
+                color: #E7E4CE;
+                display:inline;
+                font-family: "BryantRegular";
+                font-size: 40px;
+                height: 65px;
+                left: 0;
+                position: absolute;
+                right:0;
+                top: 0;
+                z-index: 1;
+            }
+            #usgsLogoDiv
+            {
+                background-color: #000000;
+                float: left;
+                height: 50px;
+                padding: 10px 5px 5px 0;
+                text-align: center;
+                width: 150px;
+            }
+            #usgsLogo
+            {
+                cursor: pointer;
+                height: 45px;
+                vertical-align: middle;
+            }
+            #usgstitle
+            {
+                padding-top: 8px;
+            }
+            #peak-table-a td 
+            {
+                max-width: 300px !important;
+            }
+            body
+            {
+                font-family: "BryantRegular";
+                font-size: 10pt;
+            }
+            #usgsfooter
+            {
+                clear: both;
+                font-size:small;
+                margin:0;
+            }
+            #usgsfooterbar
+            {
+                background-color: #666666;
+                margin:0;
+                padding:4px;
+            }
+            #usgsfooterbar a:link, #usgsfooterbar a:visited
+            {
+                color: #ffffff;
+                margin-right: 40px;
+                text-decoration: none;
+            }
+            #usgsfootertext
+            {
+                margin:0;
+                padding:4px;
+            }
+            #usgsfootertext img 
+            {
+                border: medium none;
+                float:right;
+                margin-right:5px;
+            }
+        </style>
+        
+        <title>Report Contacts Summary</title>
+        <meta name="description" content="USGS Hurricane Site information and data" />
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+        <meta name="publisher" content="USGS - U.S. Geological Survey" />
+        <meta name="created" content="20130513" />
+        @*<link href="http://www.usgs.gov/styles/common.css" rel="stylesheet" />        *@
+        <link href="@Url.Content("~/Assets/Styles/STN.css")" rel="stylesheet" type="text/css" /> 
+    </head>
+
+<body>
+<div id="header">
+    <div id="headerLogo">
+        <div id="usgsLogoDiv">
+            <img id="usgsLogo" title="USGS Links" src="@Url.Content("~/Assets/Images/logos/USGS.jpg")" alt="USGS Logo" />
+        </div>
+    </div>
+    <div id="usgstitle">USGS Flood Operations Monitoring</div>
+</div>
+
+<br clear="all" />
+
+@{
+    if (ViewData.ContainsKey("ReportList"))
+    {
+        List<ReportingModel> ReportList = ViewData["ReportList"] as List<ReportingModel>;
+        EVENT thisEvent = ViewData["Event"] as EVENT;
+        ReportMember thisReportCoord = ViewData["EventCoord"] as ReportMember;
+        
+        <div style="margin-top:5em">
+            <div style="font-size: x-large; font-family: 'BryantBold'">USGS @(thisEvent.EVENT_NAME) Contacts Report for @(((DateTime)ReportList[0].aReport.REPORT_DATE).ToShortDateString())</div> 
+            <br />
+            <table>
+                <tr><td>Event Description:</td><td>@(thisEvent.EVENT_DESCRIPTION)</td></tr>
+                <tr><td>Event Type:</td><td>@(ViewData["EventType"])</td></tr>
+                <tr><td>Event Status:</td><td>@(ViewData["EventStatus"])</td></tr>
+                <tr><td>Event Coordinator:</td><td>@(thisReportCoord.MemberName), @(thisReportCoord.OfficeName), @(thisReportCoord.Email)</td></tr>
+            </table>
+        </div>
+
+    @********************* Contacts section of the report ****************************@
+    
+        
+        <br />
+        <table class="Generated-table" style="float:left;border-right:none">
+            <tr>  <td style="height:31px"></td></tr>
+            <tr>  <td style="text-align:left;font-family:'BryantBold';font-size:12px;border-bottom: 1px solid #EEEEEE">Submitter</td></tr>
+            <tr>  <td style="padding-left:2em;text-align:left;border-bottom: 1px solid #EEEEEE">Name</td></tr>
+            <tr>  <td style="padding-left:2em;text-align:left;border-bottom: 1px solid #EEEEEE">Phone</td></tr>
+            <tr>  <td style="padding-left:2em;text-align:left;border-bottom: 1px solid #EEEEEE">Email</td></tr>
+            <tr>  <td style="padding-left:2em;text-align:left;border-bottom: 1px solid #EEEEEE">Office Name</td></tr>
+            <tr>  <td style="padding-left:2em;text-align:left;padding-top:6px;padding-bottom:5px">Office Address</td></tr>
+            <tr style="background-color:#F8F8F8">  <td style="text-align:left;font-family:'BryantBold';font-size:12px;border-bottom: 1px solid #EEEEEE">Deployer</td></tr>
+            <tr style="background-color:#F8F8F8">  <td style="padding-left:2em;text-align:left;border-bottom: 1px solid #EEEEEE">Name</td></tr>
+            <tr style="background-color:#F8F8F8">  <td style="padding-left:2em;text-align:left;border-bottom: 1px solid #EEEEEE">Phone</td></tr>
+            <tr style="background-color:#F8F8F8">  <td style="padding-left:2em;text-align:left;border-bottom: 1px solid #EEEEEE">Alt Phone</td></tr>
+            <tr style="background-color:#F8F8F8">  <td style="padding-left:2em;text-align:left">Email</td></tr>
+            <tr>  <td style="text-align:left;font-family:'BryantBold';font-size:12px;border-bottom: 1px solid #EEEEEE">General</td></tr>
+            <tr>  <td style="padding-left:2em;text-align:left;border-bottom: 1px solid #EEEEEE">Name</td></tr>
+            <tr>  <td style="padding-left:2em;text-align:left;border-bottom: 1px solid #EEEEEE">Phone</td></tr>
+            <tr>  <td style="padding-left:2em;text-align:left;border-bottom: 1px solid #EEEEEE">Alt Phone</td></tr>
+            <tr>  <td style="padding-left:2em;text-align:left">Email</td></tr>
+            <tr style="background-color:#F8F8F8">  <td style="text-align:left;font-family:'BryantBold';font-size:12px;border-bottom: 1px solid #EEEEEE">Inland Flood</td></tr>
+            <tr style="background-color:#F8F8F8">  <td style="padding-left:2em;text-align:left;border-bottom: 1px solid #EEEEEE">Name</td></tr>
+            <tr style="background-color:#F8F8F8">  <td style="padding-left:2em;text-align:left;border-bottom: 1px solid #EEEEEE">Phone</td></tr>
+            <tr style="background-color:#F8F8F8">  <td style="padding-left:2em;text-align:left;border-bottom: 1px solid #EEEEEE">Alt Phone</td></tr>
+            <tr style="background-color:#F8F8F8">  <td style="padding-left:2em;text-align:left">Email</td></tr>
+            <tr>  <td style="text-align:left;font-family:'BryantBold';font-size:12px;border-bottom: 1px solid #EEEEEE">Coastal Flood</td></tr>
+            <tr>  <td style="padding-left:2em;text-align:left;border-bottom: 1px solid #EEEEEE">Name</td></tr>
+            <tr>  <td style="padding-left:2em;text-align:left;border-bottom: 1px solid #EEEEEE">Phone</td></tr>
+            <tr>  <td style="padding-left:2em;text-align:left;border-bottom: 1px solid #EEEEEE">Alt Phone</td></tr>
+            <tr>  <td style="padding-left:2em;text-align:left">Email</td></tr>
+            <tr style="background-color:#F8F8F8">  <td style="text-align:left;font-family:'BryantBold';font-size:12px;border-bottom: 1px solid #EEEEEE">Water Quality</td></tr>
+            <tr style="background-color:#F8F8F8">  <td style="padding-left:2em;text-align:left;border-bottom: 1px solid #EEEEEE">Name</td></tr>
+            <tr style="background-color:#F8F8F8">  <td style="padding-left:2em;text-align:left;border-bottom: 1px solid #EEEEEE">Phone</td></tr>
+            <tr style="background-color:#F8F8F8">  <td style="padding-left:2em;text-align:left;border-bottom: 1px solid #EEEEEE">Alt Phone</td></tr>
+            <tr style="background-color:#F8F8F8">  <td style="padding-left:2em;text-align:left">Email</td></tr>
+        </table>
+
+        
+        foreach (ReportingModel rm in ReportList)
+        {
+            <table class="Generated-table" style="float:left; margin-left:-2px">
+                <tr>  <td style="font-family:'BryantBold'; border:none; height:31px;font-size:12px">@(rm.aReport.STATE)</td></tr>
+                <tr>  <td style="border-bottom: 1px solid #EEEEEE"></td></tr>
+                <tr>  <td style="border-bottom: 1px solid #EEEEEE">@(rm.submitter.MemberName)</td></tr>
+                <tr>  <td style="border-bottom: 1px solid #EEEEEE">@(rm.submitter.Phone)</td></tr>
+                <tr>  <td style="border-bottom: 1px solid #EEEEEE">@(rm.submitter.Email)</td></tr>
+                <tr>  <td style="border-bottom: 1px solid #EEEEEE">@(rm.submitter.OfficeName)</td></tr>
+                <tr style="height:29px">  <td>@(rm.submitter.OfficeAddress1)<br />@(rm.submitter.OfficeAddress2)</td></tr>
+                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE"></td></tr>
+                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.DeplContact.FNAME) @(rm.DeplContact.LNAME)</td></tr>
+                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.DeplContact.PHONE)</td></tr>
+                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.DeplContact.ALT_PHONE)</td></tr>
+                <tr style="background-color:#F8F8F8">  <td>@(rm.DeplContact.EMAIL)</td></tr>
+                <tr>  <td style="border-bottom: 1px solid #EEEEEE"></td></tr>
+                <tr>  <td style="border-bottom: 1px solid #EEEEEE">@(rm.GenContact != null ? rm.GenContact.FNAME : "") @(rm.GenContact != null ? rm.GenContact.LNAME : "")</td></tr>
+                <tr>  <td style="border-bottom: 1px solid #EEEEEE">@(rm.GenContact != null ? rm.GenContact.PHONE : "")</td></tr>
+                <tr>  <td style="border-bottom: 1px solid #EEEEEE">@(rm.GenContact != null ? rm.GenContact.ALT_PHONE : "")</td></tr>
+                <tr>  <td>@(rm.GenContact != null ? rm.GenContact.EMAIL : "")</td></tr>
+                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE"></td></tr>
+                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.InlandContact != null ? rm.InlandContact.FNAME : "") @(rm.InlandContact != null ? rm.InlandContact.LNAME : "")</td></tr>
+                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.InlandContact != null ? rm.InlandContact.PHONE : "")</td></tr>
+                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.InlandContact != null ? rm.InlandContact.ALT_PHONE : "")</td></tr>
+                <tr style="background-color:#F8F8F8">  <td>@(rm.InlandContact != null ? rm.InlandContact.EMAIL : "")</td></tr>
+                <tr>  <td style="border-bottom: 1px solid #EEEEEE"></td></tr>
+                <tr>  <td style="border-bottom: 1px solid #EEEEEE">@(rm.CoastContact != null ? rm.CoastContact.FNAME : "") @(rm.CoastContact != null ? rm.CoastContact.LNAME : "")</td></tr>
+                <tr>  <td style="border-bottom: 1px solid #EEEEEE">@(rm.CoastContact != null ? rm.CoastContact.PHONE : "")</td></tr>
+                <tr>  <td style="border-bottom: 1px solid #EEEEEE">@(rm.CoastContact != null ? rm.CoastContact.ALT_PHONE : "")</td></tr>
+                <tr>  <td>@(rm.CoastContact != null ? rm.CoastContact.EMAIL : "")</td></tr>
+                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE"></td></tr>
+                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.WaterContact != null ? rm.WaterContact.FNAME : "") @(rm.WaterContact != null ? rm.WaterContact.LNAME : "")</td></tr>
+                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.WaterContact != null ? rm.WaterContact.PHONE : "")</td></tr>
+                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.WaterContact != null ? rm.WaterContact.ALT_PHONE : "")</td></tr>
+                <tr style="background-color:#F8F8F8">  <td>@(rm.WaterContact != null ? rm.WaterContact.EMAIL : "")</td></tr>
+                
+            </table>
+        }
+    }
+    else
+    {
+        <div style="margin-top:6em;font-size:large">There are no Contacts that match these parameters.</div>
+    }
+    
+}
+<br clear="all" />
+
+
+@* BEGIN USGS Footer Template *@
+    <div id="usgsfooter" style="margin-top:10px;bottom:0;width:100%">
+	    <p id="usgsfooterbar">
+		    <a href="http://www.usgs.gov/laws/accessibility.html" title="Accessibility Policy (Section 508)">Accessibility</a>
+		    <a href="http://www.usgs.gov/foia/" title="Freedom of Information Act">FOIA</a>
+		    <a href="http://www.usgs.gov/laws/privacy.html" title="Privacy policies of the U.S. Geological Survey.">Privacy</a>
+		    <a href="http://www.usgs.gov/laws/policies_notices.html" title="Policies and notices that govern information posted on USGS Web sites.">Policies and Notices</a>
+
+	    </p>
+
+	    <p id="usgsfootertext">
+		    <a href="http://www.takepride.gov/"><img src="http://www.usgs.gov/images/footer_graphic_takePride.jpg" alt="Take Pride in America logo" title="Take Pride in America Home Page" width="60" height="58"></a>
+	        <a href="http://firstgov.gov/"><img src="http://www.usgs.gov/images/footer_graphic_usagov.jpg" alt="USA.gov logo" width="90" height="26" style="float: right; margin-right: 10px;" title="USAGov: Government Made Easy."></a>
+		    <a href="http://www.doi.gov/">U.S. Department of the Interior</a> |
+		    <a href="http://www.usgs.gov/">U.S. Geological Survey</a><br>
+            Page Contact Information: <a href="mailto:storm_team_leader@usgs.gov ">Storm Team Leader</a><br />
+            Page Last Modified: Monday, 03-March-2014 13:11:12 CST
+	    </p>
+    </div>
+@*-- END USGS Footer Template *@
+</body>
+</html>

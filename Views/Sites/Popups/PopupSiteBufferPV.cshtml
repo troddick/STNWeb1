@@ -1,0 +1,41 @@
+﻿
+@using STNServices;
+@using STNServices.Resources;
+
+
+           
+@{
+    int NumberSites = 0;
+    if (ViewData.ContainsKey("NumSites"))
+    {
+        NumberSites = Convert.ToInt32(ViewData["NumSites"]);
+    }
+    decimal latitude = Convert.ToDecimal(@ViewData["lat"]);
+    decimal longitude = Convert.ToDecimal(@ViewData["long"]);
+}
+<div class="subSection softHeader">
+    <span style="font-weight:bold">Existing Sites</span>
+
+    <div>
+        You have input @latitude, @longitude.
+    </div>
+    <div>
+        There are @NumberSites site(s) nearby. 
+        
+        @{ if (NumberSites != 0)
+           {
+               <div>Click Site Number to view details, or continue with Create new Site.</div>
+               <ul>
+               @foreach(var s in @ViewData["SiteList"] as List<STNServices.Resources.SiteBase>)
+               {
+                   <li>@Html.ActionLink(s.SITE_NO, "Details", "Sites", new { id = s.SITE_ID }, null)</li> 
+               }  
+                </ul>
+           }
+        } 
+    </div>
+</div>
+<div style="margin-top:2em">
+    <iframe width="115%" frameborder="0" scrolling="no" marginheight="0" height="384" marginwidth="0" 
+        src="@(System.Configuration.ConfigurationManager.AppSettings["STNFieldInset"].ToString())?lat=@(latitude)&lng=@(longitude)"></iframe>
+</div>

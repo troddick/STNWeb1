@@ -1,0 +1,59 @@
+﻿@* Comments:
+04.29.13 - TR - only admin can create event
+01.29.13 - TR - added loading logo
+10.18.12 - TR - Changed from Events.cshtml to Index.cshtml within Events folder
+10.01.12 - TR - Added loop to display Events *@
+
+@*
+/* Authors:
+ *      Jonathan Baier (jbaier@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display an EVENT and link to it's parts 
+ */
+ *@
+ 
+ 
+@using STNServices;
+
+@model List<EVENT>
+     
+           
+@{
+    ViewBag.Title = "Events";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+<div id="dataTitle">
+    <div class="title">Events</div>
+</div>
+<br clear="all" />
+<hr class="headerUnderline" />
+
+@if (ViewData["Role"] == "Admin")
+{
+    <div>
+        @Html.ActionLink("Create Event", "EventCreate", "Events", null, new { @class = "STNButton", onclick="loading();" })
+    </div>
+ }
+<br clear="all" />
+
+<div>    
+        <ul>
+        @foreach (EVENT anEvent in Model)
+        {         
+            <li>
+                @Html.ActionLink(anEvent.EVENT_NAME, "EventDetails", "Events", new { id = anEvent.EVENT_ID }, new { onclick = "loading();" })                                                        
+            </li>                                                 
+        }                    
+        </ul>            
+</div>
+
+<script type="text/javascript">
+    function loading() {
+        $("#loading").fadeIn();
+    }
+</script>

@@ -1,0 +1,224 @@
+﻿@*
+02.11.13 - TR - Changed this view (Safety) to be the index page (entry point)
+01.25.13 - TR - updated ajax call on dropdown list change to empty div if sel val is 0
+01.24.13 - TR - added loading spinning logo
+01.23.13 - TR - Updated to be Safety page containing Current Event with it's info
+09.29.12 - JB - Created *@
+
+@*
+/* Authors:
+ *      Jonathan Baier (jbaier@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display a SITE and link to it's parts 
+ */
+ *@
+
+@using System.Data.Objects.DataClasses; 
+@using STNServices;
+@using STNServices.Resources;
+@using Microsoft.CSharp;
+@using STNWeb.Assets.Resources;
+
+@{
+    ViewBag.Title = "Home";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int evId = Convert.ToInt32(Session["EventId"]);
+    
+}
+
+<script src="@Url.Content("~/Assets/Scripts/jquery.unobtrusive-ajax.js")" type="text/javascript"></script>
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+<div id="dataTitle">
+        <div class="title">Home</div>
+    </div>
+    <br clear="all" />
+
+    <hr class="headerUnderline" />
+    @*<input type="button" onclick="testPopup(4346)" value="TEST" />*@
+    
+    <div style="border:red 1px solid;width:90%;padding:5px;margin-bottom:10px">
+        <span id="HomeNotice">Important usage notes and instructions</span>
+        <div style="margin:5px">
+            
+            <p>Many of the supplemental GIS data layers found in the map tab are from a range of sources and are not maintained by WiM. We offer 
+            these map layers as a  decision-support supplement to the main STN sites layer, but we cannot guarantee their performance and availability. 
+            Many of these externally maintained layers are large datasets and may load slowly depending on network 
+            conditions, and in some cases may fail to load when bandwidth is low.</p>
+        </div>
+    </div>
+    @if (Session["TeamId"] == null) 
+            { <div>Please choose your Event and Team before creating a Quick HWM, a HWM, or deploying a Sensor.</div> }
+    
+    <br />
+     <div class="fiftyPercColumn" id="load"> 
+
+        <div class="subSection">
+            <div class="subSectionHeader"><span class="bold">@Html.Label(HomeStrings.ChooseEvent_Label)</span></div>
+            <div class="subSectionContent">
+                <div class="ui-grid-a">
+                    <div data-role="fieldcontain">
+                        <div class="ui-block-a" style="padding-left:7%;padding-top:2%;width:16%;">Event:</div>
+                        <div class="ui-block-b" style="width:73%">
+                            <select id="EventSelect" class="stnSelectInput ui-shadow-inset" name="EVENT_ID" data-native-menu="false" data-mini="true">
+					            <option value="0">Choose Event</option>
+                                @foreach (EVENT aET in ViewData["EventList"] as List<EVENT>)
+                                {
+                                    <option @( (aET.EVENT_ID == evId) ? "selected" : "") value='@aET.EVENT_ID'>@aET.EVENT_NAME</option> 
+                                }
+                            </select>
+                        <br />	
+                        </div>
+                    </div>
+                </div>
+                <br />
+@*-----------this is where info will populate based on event chosen------------------*@
+             
+            @* Sensors, People and HWMs for this event*@ 
+            <div id="EventPropertiesTotals"></div> 
+            
+@*-----------end added info from event selection-------------------------------------*@
+        </div>
+    </div>
+</div>
+
+     <input type="hidden" id="return2Url" value='@ViewData["returnUrl"]' />
+
+<div class="fiftyPercColumn">        
+    <div class="subSection">
+        <div class="subSectionHeader"><span class="bold">@Html.Label(HomeStrings.ChooseTeam_Label)</span></div>
+        <div id="collectTeams" class="subSectionContent">  
+               
+        </div> 
+    </div> 
+    
+</div> 
+<br clear="all" />
+
+@* script to get partial views*@
+@* load the page with event and teams populated from session storage *@
+<script type="text/javascript">
+    var rdURL = $("#return2Url").val()
+    $(document).ready(function () {
+        var sessionEvent = '@Session["EventId"]';
+        //see if a new team was made and brought back to Index - should just redirect to whereever they came from if it's a redirect
+        var sessionTeam = '@Session["TeamName"]';
+        if (sessionTeam != null && sessionTeam != "") {
+            if (rdURL != "") {
+                $("#loading").fadeIn();
+                window.location.href = rdURL;
+            }
+        }
+        if (sessionEvent != null && sessionEvent != "") {
+            var evProps = false;
+            var teams = false;
+            $("#loading").fadeIn();
+            $.ajax({
+                url: '@Url.Action("ShowEventProperties", "Home")',
+                type: 'GET',
+                data: { evId: sessionEvent },
+                success: function (response) {
+                    evProps = true;
+                    $("#EventPropertiesTotals").html(response);
+                    if (evProps == true && teams == true) {
+                        $("#loading").fadeOut();
+                    }
+                },
+                error: function (xhr) {
+                    alert("Event Properties didn't come back");
+                }
+            });
+            $.ajax({
+                url: '@Url.Action("CollectionTeams", "Home")',
+                type: 'GET',
+                data: { id: sessionEvent, RDurl: rdURL },
+                success: function (response1) {
+                    teams = true;
+                    $("#collectTeams").html(response1);
+                    if (evProps == true && teams == true) {
+                        $("#loading").fadeOut();
+                    }
+                }
+            });
+        }
+    })
+
+    //team radio button was clicked from TeamsPV page
+    function selectThisOne(ct) {
+        var Cid = ct.id;
+        var answer = confirm("Is this your collection team for today?");
+        if (answer) {
+            var returnUrl = top.$("#return2Url").val();
+            $.ajax({
+                url: '@Url.Action("SetCollectTeam", "Home")',
+                type: 'POST',
+                data: { teamId: Cid },
+                success: function (response) {
+                    $("#TeamName").text("Your current Collection Team is: " + response);
+                                
+                    if (returnUrl != "") {
+                        $("#loading").fadeIn();
+                        window.location.href = returnUrl;
+                    }
+//                                else {
+//                                    window.location.href = 'Url.Action("Mapper", "Home")';
+//                                }
+                }
+            });
+        }
+    }
+               
+    $("#EventSelect").change(function () {
+        $("#loading").fadeIn();
+        var id = $(this).val();
+        evId = id;
+        var CTresponse;
+        var eventProps;
+        var evProps = false;
+        var teams = false;
+
+        $("#EventPropertiesTotals").html("");
+        $("#collectTeams").html("");
+        $("#loading").fadeIn();
+        $.ajax({
+            url: '@Url.Action("ShowEventProperties", "Home")',
+            type: 'GET',
+            data: { evId: id },
+            success: function (response) {
+                evProps = true;
+                eventProps = response;
+                if (evProps == true && teams == true) {
+                    $("#EventPropertiesTotals").html(eventProps);
+                    $("#collectTeams").html(CTresponse);
+                    $("#loading").fadeOut();
+                }
+            },
+            error: function (xhr) {
+                alert("Event Properties didn't come back");
+            }
+        });
+        $.ajax({
+            url: '@Url.Action("CollectionTeams", "Home")',
+            type: 'GET',
+            data: { id: id, RDurl: rdURL },
+            success: function (response1) {
+                teams = true;
+                CTresponse = response1;
+                if (evProps == true && teams == true) {
+                    $("#collectTeams").html(CTresponse);
+                    $("#EventPropertiesTotals").html(eventProps);
+                    $("#loading").fadeOut();
+                }
+            }
+        });
+    })
+
+    function testPopup(siteId) {
+        var url = '@Url.Action("PopupSitesDetailsPV", "Sites")' + "/" + siteId;
+        window.location.href = url;
+        
+    }        
+</script>

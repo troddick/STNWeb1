@@ -1,0 +1,64 @@
+﻿@* Comments:
+01.30.13 - TR - Coordinator is now manager member
+01.29.13 - TR - added loading logo
+12.11.12 - TR - Created Partial view
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display details of an EVENT and link to it's parts 
+ */
+ *@
+ 
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model STNServices.EVENT
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#loading").fadeOut();
+    });        
+</script>
+
+    <div class="fiftyPercColumn">    
+
+        <div>
+            <span class="bold ui-label-a">@Html.Label(EventStrings.Name_Label)</span>
+            <label class="inline">@Model.EVENT_NAME</label>
+        </div>
+
+        <div>
+            <span class="bold ui-label-a">@Html.Label(EventStrings.StartDate_Label)</span>
+            <label class="inline">@(Model.EVENT_START_DATE != null ? ((DateTime)Model.EVENT_START_DATE).ToShortDateString() : "" )</label>
+        </div>
+
+        <div>
+            <span class="bold ui-label-a">@Html.Label(EventStrings.EndDate_Label)</span>
+            <label class="inline">@( Model.EVENT_END_DATE != null ? ((DateTime)Model.EVENT_END_DATE).ToShortDateString() : "" )</label>
+        </div>
+
+        <div>
+            <span class="bold ui-label-a">@Html.Label(EventStrings.Description_Label)</span>
+            <textarea class="textAreaDetails inline" rows="4" cols="30" readonly="readonly">@Model.EVENT_DESCRIPTION</textarea>
+        </div>
+
+        <div>
+            <span class="bold ui-label-a">@Html.Label(EventStrings.Type_Label)</span>
+            <label class="inline">@( ViewData.ContainsKey("EventType") ? ViewData["EventType"] : "")</label>
+        </div>
+
+        <div>
+            <span class="bold ui-label-a">@Html.Label(EventStrings.Status_Label)</span>
+            <label class="inline">@( ViewData.ContainsKey("EventStatus") ? ViewData["EventStatus"] : "")</label>
+        </div>
+
+        <div>
+            <span class="bold ui-label-a">@Html.Label(EventStrings.Coordinator_Label)</span>
+            <label class="inline">@( ViewData.ContainsKey("MemUsername") ? ViewData["MemUsername"] : "")</label>
+        </div>
+    </div>

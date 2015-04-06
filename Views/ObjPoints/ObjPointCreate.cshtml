@@ -1,0 +1,511 @@
+﻿@* Comments: 
+05.14.14 - TR - Changed from RP to OP
+04.14.14 - TR - validate
+11.28.12 -TR - labels converted to html.Labels
+10.25.12 - TR - Fixed Cancel button
+10.23.12 - TR - Created 
+
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+  * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Create a Site's Objective Point 
+ */
+ *@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using STNWeb.Models;
+
+@model STNWeb.Models.OPModel
+           
+@{
+    ViewBag.Title = "Create Objective Point";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+<script src="@Url.Content("~/Assets/Scripts/jquery.maskedinput.min.js")" type="text/javascript"></script>
+
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img alt="loading" src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+<div id="dataTitle">
+    <div class="title">Create Objective Point</div>
+</div>
+<br clear="all" />
+<hr class="headerUnderline" />
+@{ 
+    SITE thisSite = ViewData["aSite"] as SITE;
+}
+
+@using (Ajax.BeginForm("ObjPointCreate", "ObjPoints", null, new AjaxOptions() { HttpMethod = "POST" }, new { @id = "CreateObjPtForm" }))
+{
+    <input type="hidden" id="SiteId" name="SITE_ID" value='@thisSite.SITE_ID' />
+    
+    <div class="fiftyPercColumn">
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">@Html.Label(ObjPointsStrings.OPType_Label)</span></div>
+                <div class="ui-block-b">
+                    <select id="opTypeDD" class="stnSelectInput required ui-shadow-inset" name="OP_TYPE_ID" data-native-menu="false" id="opType" data-mini="true">
+					    <option value="">Choose Objective Point Type</option>
+                         @foreach (OBJECTIVE_POINT_TYPE opT in ViewData["OPTypes"] as List<OBJECTIVE_POINT_TYPE>)
+                         {
+                             <option value='@opT.OBJECTIVE_POINT_TYPE_ID'>@opT.OP_TYPE</option> 
+                         }
+                    </select>
+                    <br />	
+                </div>
+            </div>
+        </div>
+        
+        <div class="ui-grid-a">
+                <div data-role="fieldcontain">
+                    <div class="ui-block-a"><span class="required">@Html.Label(ObjPointsStrings.Name_Label)</span></div>
+                    <div class="ui-block-b"><input type="text" class="required stnTextInput ui-shadow-inset" name="NAME" data-mini="true" /></div>
+                </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">@Html.Label(ObjPointsStrings.Description_Label)</span></div>
+                <div class="ui-block-b"><textarea rows="4" cols="30" class="required stnTextInput ui-shadow-inset" name="DESCRIPTION" data-mini="true"></textarea></div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(ObjPointsStrings.OPControlIdentifier_Label)</div>
+                <div class="ui-block-b"><input type="button" value="Add New Identifier" onclick="AddNewIdentifierRow();" /></div>                
+            </div>
+        </div>
+
+        <div id="OPControlTableDiv" class="hidden" style="width:100%">
+            <div class="ui-grid-a">
+                <div data-role="fieldcontain">
+                    <div class="ui-block-a">&nbsp;</div>
+                    <div class="ui-block-b">
+                        <table id="controlTable">
+                            <thead>
+                                <tr>
+                                    <td style="width:50%">Identifier</td><td style="text-align:center;width:50%">Type</td>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        @*lat/long*@
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                 <div class="ui-block-a"></div>
+                    <div class="ui-block-b" style="margin-bottom:0">
+                        <span>
+                            <input type="radio" name="IntervalUnit" id="dd_radio" checked="checked" value="DecDeg" />Dec Deg
+                            <input type="radio" name="IntervalUnit" id="dms_radio" value="DMS" />DMS
+                        </span>
+                    </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(SiteStrings.Latitude_Label)</div>
+                <div class="ui-block-b hidden"  id="Lat_dmc">
+                    <input type="text" style="width:20%" class="stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" id="Latdec" name="LATITUDE_D" data-mini="true" />&nbsp;°&nbsp;&nbsp;
+                    <input  type="text" style="width:20%" class="stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" id="Latmin" name="LATITUDE_M" data-mini="true" />&nbsp;′&nbsp;&nbsp;
+                    <input  type="text" style="width:20%" class="stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" id="Latsec" name="LATITUDE_S" data-mini="true" />&nbsp;″
+                </div>
+                <div class="ui-block-b" id="Lat_dd"><input type="text" class="stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" id="latitude" name="LATITUDE_DD" data-mini="true" value="@( Math.Round(thisSite.LATITUDE_DD, 6) )" /></div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(SiteStrings.Longitude_Label)</div>
+                <div class="ui-block-b hidden"  id="Long_dmc">
+                    <input type="text" style="width:20%" class="stnTextInput ui-shadow-inset" id="Longdec" name="LONGITUDE_D" data-mini="true" />&nbsp;°&nbsp;&nbsp;
+                    <input  type="text" style="width:20%" class="stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" id="Longmin" name="LONGITUDE_M" data-mini="true" />&nbsp;′&nbsp;&nbsp;
+                    <input  type="text" style="width:20%" class="stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" id="Longsec" name="LONGITUDE_S" data-mini="true" />&nbsp;″
+                </div>
+                <div class="ui-block-b" id="Long_dd"><input type="text" class="stnTextInput ui-shadow-inset" id="longitude" name="LONGITUDE_DD" data-mini="true" value="@( Math.Round(thisSite.LONGITUDE_DD, 6) )" /></div>
+            </div>
+        </div>
+        
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(SiteStrings.HDatum_Label)</div>
+                <div class="ui-block-b">
+                    <select id="groupPlaceholder" class="stnSelectInput ui-shadow-inset" name="HDATUM_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Horizontal Datum</option>
+                        @foreach (HORIZONTAL_DATUMS hDatum in ViewData["HorizontalDatum"] as List<HORIZONTAL_DATUMS>)
+                        {
+                            <option @(hDatum.DATUM_ID == thisSite.HDATUM_ID ? "selected" : "") value='@hDatum.DATUM_ID'>@hDatum.DATUM_NAME</option> 
+                        }
+                    </select><br />	
+                </div>
+            </div>
+        </div>
+
+         <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(HWMStrings.HCollectMethod_Label)</div>
+                <div class="ui-block-b">
+                    <select id="gpsTypeDD" class="stnSelectInput ui-shadow-inset" name="HCOLLECT_METHOD_ID" data-native-menu="false" data-mini="true">
+					    <option value="">Choose Horizontal Collection Method</option>
+                         @foreach (HORIZONTAL_COLLECT_METHODS hcm in ViewData["hColMethodList"] as List<HORIZONTAL_COLLECT_METHODS>)
+                         {
+                             <option @(hcm.HCOLLECT_METHOD_ID == thisSite.HCOLLECT_METHOD_ID ? "selected" : "") value='@hcm.HCOLLECT_METHOD_ID'>@hcm.HCOLLECT_METHOD</option> 
+                         }
+                    </select>
+                    <br />	
+                </div>
+            </div>
+        </div>
+        
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+               <div class="ui-block-a"></div>
+               <div class="ui-block-b" style="margin-bottom:0">
+                   <span>
+                        <input type="radio" name="ElevationUnit" id="ft_radio" checked="checked" value="ft" />ft
+                        <input type="radio" name="ElevationUnit" id="mtr_radio" value="meter" />meter
+                   </span>
+               </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(ObjPointsStrings.Elevation_Label)</div>
+                <div class="ui-block-b"><input type="text" onkeypress="return isNegNumberKey(event)" id="elevation" class="stnTextInput ui-shadow-inset" name="ELEV_FT" data-mini="true" /></div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(globalStrings.VDatum_Label)</div>
+                <div class="ui-block-b">
+                    <select id="vdatumDD" class="stnSelectInput ui-shadow-inset" name="VDATUM_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Vertical Datum</option>
+                        @foreach (STNServices.VERTICAL_DATUMS aDatum in ViewData["VerticalDatum"] as List<VERTICAL_DATUMS>)
+                        {
+                            <option value='@aDatum.DATUM_ID'>@aDatum.DATUM_NAME</option> 
+                        }
+                    </select><br />	
+                </div>
+            </div>
+        </div>
+            
+        @* Vertical collection method *@
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(HWMStrings.VCollectMethod_Label)</div>
+                <div class="ui-block-b">
+                    <select id="VcollectMethodDD" class="stnSelectInput ui-shadow-inset" name="VCOLLECT_METHOD_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Vertical Collection Method</option>
+                        @foreach (VERTICAL_COLLECT_METHODS aVCM in ViewData["VcollectMethodList"] as List<VERTICAL_COLLECT_METHODS>)
+                        {
+                            <option value='@aVCM.VCOLLECT_METHOD_ID'>@aVCM.VCOLLECT_METHOD</option> 
+                        }
+                    </select><br />	
+                </div>
+            </div>
+        </div>
+        
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+               <div class="ui-block-a"></div>
+               <div class="ui-block-b" style="margin-bottom:0">
+                   <span>
+                        <input type="radio" name="UncertainUnit" id="ft2_radio" checked="checked" value="ft" />+/- ft
+                        <input type="radio" name="UncertainUnit" id="cm_radio" value="cm" />+/- cm
+                   </span>
+               </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(ObjPointsStrings.Uncertainty_Label)</div>
+                <div class="ui-block-b">
+                    <input type="text" onkeypress="return isNegNumberKey(event)" style="width:66px" id="uncertainty" class="stnTextInput ui-shadow-inset" name="UNCERTAINTY" data-mini="true" />
+                    <span style="margin-left: 22px; margin-right:9px; text-decoration:underline">OR</span>
+                    <input type="checkbox" id="checkUnquantified" name="UNQUANTIFIED" value="1" />Unquantified
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(ObjPointsStrings.Quality_label)</div>
+                <div class="ui-block-b">
+                    <select id="qualityDD" class="stnSelectInput ui-shadow-inset" name="OP_QUALITY_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose an OP Quality</option>
+                        @foreach (OP_QUALITY aQ in ViewData["Qualities"] as List<OP_QUALITY>)
+                        {
+                            <option value='@aQ.OP_QUALITY_ID'>@aQ.QUALITY</option> 
+                        }
+                    </select><br />	
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(ObjPointsStrings.ElevationNotes_Label)</div>
+                <div class="ui-block-b"><textarea rows="4" cols="30" class="stnTextInput ui-shadow-inset" name="OP_NOTES" data-mini="true"></textarea></div>
+            </div>
+        </div>
+        
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">@Html.Label(ObjPointsStrings.DateEstablished_Label)</span></div>
+                <div class="ui-block-b"><input type="text" class="required stnTextInput datepicker ui-shadow-inset" name="DATE_ESTABLISHED" data-mini="true" value="@DateTime.Now.ToShortDateString()" /></div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(ObjPointsStrings.DateRecovered_Label)</div>
+                <div class="ui-block-b"><input type="text" class="stnTextInput datepicker ui-shadow-inset" name="DATE_RECOVERED" data-mini="true" /></div>
+            </div>
+        </div>
+    </div>
+    
+    <br clear="all" />
+    <br />
+    
+    <div id="formSubmitDiv" class="formSection">
+        <div class="leftSideSubmit">
+            <div class="cancelDiv" style="width:134px"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel&#10; " onclick="cancelClick();" /></div></div>
+            <div class="submitDiv" style="width:134px"><div class="darkButtonBorder"><input type="submit" name="Create" class="submit" value="Submit&#10; " /></div></div>
+            <div class="submitDiv" style="width:134px"><div class="darkButtonBorder"><input type="submit" name="Create" class="submit" value="Submit &&#10;Add Another OP" /></div></div>
+            <div class="submitDiv" style="width:134px"><div class="darkButtonBorder"><input type="submit" name="Create" class="submit" value="Submit &&#10;Add Upload File" /></div></div>
+            <div class="submitDiv" style="width:134px"><div class="darkButtonBorder"><input type="submit" name="Create" class="submit" value="Submit &&#10;Deploy Sensor" /></div></div>
+            <div class="submitDiv" style="width:134px"><div class="darkButtonBorder"><input type="submit" name="Create" class="submit" value="Submit&#10;& Add HWM" /></div></div>
+            <asp:Button ID="SaveSiteButton" runat="server" Text="Save" />
+        </div>
+    
+    </div>
+}
+
+<style type="text/css">
+    #CreateObjPtForm label.error {
+        width: auto;
+        display: block;
+        color: Red;
+    }
+    label.error {
+        width: auto;
+        display: block;
+        color: Red;
+    } 
+</style>
+<script type="text/javascript">
+    window.onload = function () {
+        var txtbox = document.getElementById("opType");
+        txtbox.focus();
+    }
+
+    //masked requirements for certain fields
+    jQuery(function ($) {
+        
+        $("#Longdec").mask("-9?99");
+        //$("#longitude").mask("-999.?99999");
+    });
+
+    //number formatter (any number and decimal place)
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode != 46 && charCode > 31
+            && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+    function isNegNumberKey(evt) {
+        //this allows only numbers and negative sign
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode > 31 && (charCode < 45 || charCode > 57)) {
+            return false;
+        }
+
+        return true;
+    }
+    $(function () {
+        //datepicker 
+        $('input').filter('.datepicker').datepicker({
+            changeMonth: true,
+            yearRange: '1965:2030',
+            changeYear: true
+        });
+    });
+
+    function cancelClick() {
+        $("#loading").fadeIn();
+        var sID = $("#SiteId").val();
+        window.location.href = '@Url.Action("Details", "Sites")' + "/" + sID; 
+    }
+
+    $(document).ready(function () {
+        $("#CreateObjPtForm").validate();
+        $("#CreateObjPtForm").removeData("validator");
+        $("#CreateObjPtForm").removeData("unobtrusiveValidation");
+
+        $("#CreateObjPtForm").validate({
+            rules: {
+                'OP_TYPE_ID': "required",
+                'NAME': "required",
+                'DESCRIPTION': "required",
+                'DATE_ESTABLISHED': "required"
+                },
+            messages: {
+                'OP_TYPE_ID': "Required",
+                'NAME': "Required",
+                'DESCRIPTION': "Required",
+                'DATE_ESTABLISHED': "Required"
+                },                
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                form.submit();
+            }
+        });
+
+        //if they check unquantifid, clear out the certainty value and make it disabled, else enable it
+        $("#checkUnquantified").change(function () {
+            if ($("#checkUnquantified").prop('checked')) {
+
+                $("#uncertainty").val("");
+                $("#uncertainty").removeClass("ui-shadow-inset");
+
+                $("#uncertainty").prop('disabled', true);
+                $("#uncertainty").css('background-color', 'gainsboro');
+            }
+            else {
+                $("#uncertainty").addClass("ui-shadow-inset");
+                $("#uncertainty").prop('disabled', false);
+                $("#uncertainty").css('background-color', 'white');
+            }
+        });
+
+        //radio button change going from dec degrees to degree minute seconds show/hides lat/long input texts
+        $("#dd_radio").change(function () {
+            $("#Lat_dmc").hide();
+            $("#Long_dmc").hide();
+            if ($("#Latsec").val() != "") {
+                var degLa = $("#Latdec").val();
+                var minLa = $("#Latmin").val();
+                var secLa = $("#Latsec").val();
+                var decDegLat = azimuth(degLa, minLa, secLa);
+                $("#latitude").val(decDegLat);
+
+            }
+            if ($("#Longdec").val() != "") {
+                var degLo = $("#Longdec").val();
+                var minLo = $("#Longmin").val();
+                var secLo = $("#Longsec").val();
+                var decDegLong = azimuth(degLo, minLo, secLo);
+                $("#longitude").val(decDegLong);
+            }
+
+            $("#Lat_dd").show();
+            $("#Long_dd").show();
+        });
+
+        $("#dms_radio").change(function () {
+            $("#Lat_dd").hide();
+            $("#Long_dd").hide();
+
+            if ($("#latitude").val() != "") {
+                var La_dms = deg_to_dms($("#latitude").val());
+                var La_dmsArray = La_dms.split(":");
+                $("#Latdec").val(La_dmsArray[0]);
+                $("#Latmin").val(La_dmsArray[1]);
+                $("#Latsec").val(La_dmsArray[2]);
+            }
+            if ($("#longitude").val() != "") {
+                var Lo_dms = deg_to_dms($("#longitude").val());
+                var Lo_dmsArray = Lo_dms.split(":");
+                $("#Longdec").val("-" + Lo_dmsArray[0]);
+                $("#Longmin").val(Lo_dmsArray[1]);
+                $("#Longsec").val(Lo_dmsArray[2]);
+            }
+
+            $("#Lat_dmc").show();
+            $("#Long_dmc").show();
+        });
+    });
+
+    //convert and store lat long correctly for db
+    function LatLongConvert() {
+        var ddRadio = document.getElementById("dd_radio");
+        var dmsRadio = document.getElementById("dms_radio");
+        var lat = 0; var longi = 0;
+        if (dmsRadio.checked == true) {
+            var Latdec = document.getElementById("Latdec").value;
+            var Latmin = document.getElementById("Latmin").value;
+            var Latsec = document.getElementById("Latsec").value;
+            lat = azimuth(Latdec, Latmin, Latsec);
+            $('#latitude').val(lat);
+            var Longdec = document.getElementById("Longdec").value;
+            var Longmin = document.getElementById("Longmin").value;
+            var Longsec = document.getElementById("Longsec").value;
+            longi = azimuth(Longdec, Longmin, Longsec);
+            $('#longitude').val(longi);
+        }
+    }
+    //convert dms to dec deg
+    function azimuth(deg, min, sec) {
+        if (deg < 0) {
+            azi = -1.0 * deg + 1.0 * min / 60.0 + 1.0 * sec / 3600.0;
+            return (-1.0 * azi).toFixed(5);
+        }
+        else {
+            azi = 1.0 * deg + 1.0 * min / 60.0 + 1.0 * sec / 3600.0;
+            return (azi).toFixed(5);
+        }
+    }
+
+    //convert dec degrees to dms
+    function deg_to_dms(deg) {
+        if (deg.substring(0, 1) == "-") {
+            deg = deg.substring(1);
+        }
+        var d = Math.floor(deg);
+        var minfloat = (deg - d) * 60;
+        var m = Math.floor(minfloat);
+        var s = ((minfloat - m) * 60).toFixed(3);
+
+        return ("" + d + ":" + m + ":" + s);
+    }
+
+    //adding OP_CONTROL_IDENTIFIERS TO this OP
+    function AddNewIdentifierRow() {
+        //how many rows are there
+        var ind = $('#controlTable >tbody:last >tr').length;
+        //append tr to the tbody with the rowID and index all op_control_identifiers
+        $("#controlTable tbody").append('<tr id="' + ind + '">' + 
+            '<td><input style="width:92%" type="text" name="OPIdentifiers[' + ind + '].IDENTIFIER" class="stnTextInput ui-shadow-inset" /></td>' +
+            '<td><input type="radio" class="ui-shadow-inset" name="OPIdentifiers[' + ind + '].IDENTIFIER_TYPE" value="PID" />PID' +
+            '<input type="radio" class="ui-shadow-inset" name="OPIdentifiers[' + ind + '].IDENTIFIER_TYPE" value="Other" />Other'        
+        );
+        //show the hidden header row
+
+        $(OPControlTableDiv).css("display", "inline-table");
+    }
+
+    
+
+</script>

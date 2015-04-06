@@ -1,0 +1,167 @@
+@* Comments:
+04.02.14 - TR - Created (Parial View)
+
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *     Paragraph for Project Alert for a Flood Event
+ */
+ *@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using STNWeb.Models;
+
+@model STNServices.REPORTING_METRICS
+
+           
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <style type="text/css">
+            #header
+            {
+                background-color: #59595C;
+                color: #E7E4CE;
+                display:inline;
+                font-family: "BryantRegular";
+                font-size: 40px;
+                height: 65px;
+                left: 0;
+                position: absolute;
+                right:0;
+                top: 0;
+                z-index: 1;
+            }
+            #usgsLogoDiv
+            {
+                background-color: #000000;
+                float: left;
+                height: 50px;
+                padding: 10px 5px 5px 0;
+                text-align: center;
+                width: 150px;
+            }
+            #usgsLogo
+            {
+                cursor: pointer;
+                height: 45px;
+                vertical-align: middle;
+            }
+            #usgstitle
+            {
+                padding-top: 8px;
+            }
+            #peak-table-a td 
+            {
+                max-width: 300px !important;
+            }
+            body
+            {
+                font-family: "BryantRegular";
+                font-size: 10pt;
+            }
+            #usgsfooter
+            {
+                clear: both;
+                font-size:small;
+                margin:0;
+            }
+            #usgsfooterbar
+            {
+                background-color: #666666;
+                margin:0;
+                padding:4px;
+            }
+            #usgsfooterbar a:link, #usgsfooterbar a:visited
+            {
+                color: #ffffff;
+                margin-right: 40px;
+                text-decoration: none;
+            }
+            #usgsfootertext
+            {
+                margin:0;
+                padding:4px;
+            }
+            #usgsfootertext img 
+            {
+                border: medium none;
+                float:right;
+                margin-right:5px;
+            }
+        </style>
+        
+        <title>Project Alert Flood Event</title>
+        <meta name="description" content="USGS Hurricane Site information and data" />
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+        <meta name="publisher" content="USGS - U.S. Geological Survey" />
+        <meta name="created" content="20130513" />
+        @*<link href="http://www.usgs.gov/styles/common.css" rel="stylesheet" />        *@
+        <link href="@Url.Content("~/Assets/Styles/STN.css")" rel="stylesheet" type="text/css" /> 
+    </head>
+
+<body style="font-size:11pt;margin-left:3em;margin-top:3em;width:80%">
+    <div id="header">
+        <div id="headerLogo">
+            <div id="usgsLogoDiv">
+                <img id="usgsLogo" title="USGS Links" src="@Url.Content("~/Assets/Images/logos/USGS.jpg")" alt="USGS Logo" />
+            </div>
+        </div>
+        <div id="usgstitle">Short Term Network Monitoring</div>
+    </div>
+
+    <br clear="all" />
+       
+   
+    
+        @{
+            REPORTING_METRICS thisReport = ViewData["Report"] as REPORTING_METRICS;
+            EVENT thisEvent = ViewData["Event"] as EVENT;
+        }
+        <h2>Project Alert Paragraph for a Flood Event</h2>
+        <div>
+            Flooding has or is occurring in @(thisReport.STATE) and is considered {MAJOR, MODERATE OR MINOR}. The areas with the most significant 
+            flooding are {AREAS OF FLOODING}. @(thisEvent.EVENT_DESCRIPTION), {DAMAGES AND FATALITIES}. The USGS @(thisReport.STATE) Office has dispatched 
+            @(ViewData["YesterdayField"]) field staff to support high water data collection.  In addition, @(ViewData["YesterdayOffice"]) 
+            office staff are supporting the flood response.  Numerous contacts have been made with {EVENT CONTACTS}. These contacts were 
+            primarily to give streamgage status updates and {OTHER REASONS}. @(ViewData["MeasurementCts"]) additional streamflow measurements 
+            have been made in the {OTHER AREAS MEASUREMENTS TAKEN} area. @(thisReport.GAGE_PEAK_RECORD) streamgages have exceeded 
+            previous period of record highs. Peaks at {NUMBER OF GAGES} streamgages rank in the top 5 for the period of record.  Preliminary 
+            flood frequency estimates indicate {NUMBER OF GAGES} streamgages had Annual Exceedance Probabilities (AEP) less than 1% and 
+            {NUMBER OF GAGES} streamgages had AEP between 2% and 1%.  
+        </div>
+        
+        <div style="margin-top:2em">Click <a href="http://water.usgs.gov/project_alert/alert_form.html" target="_blank">here</a> to open Project Alert in a new tab.</div>
+        <br clear="all" />
+
+
+@* BEGIN USGS Footer Template *@
+    <div id="usgsfooter" style="margin-top:10px;bottom:0;width:100%">
+	    <p id="usgsfooterbar">
+		    <a href="http://www.usgs.gov/laws/accessibility.html" title="Accessibility Policy (Section 508)">Accessibility</a>
+		    <a href="http://www.usgs.gov/foia/" title="Freedom of Information Act">FOIA</a>
+		    <a href="http://www.usgs.gov/laws/privacy.html" title="Privacy policies of the U.S. Geological Survey.">Privacy</a>
+		    <a href="http://www.usgs.gov/laws/policies_notices.html" title="Policies and notices that govern information posted on USGS Web sites.">Policies and Notices</a>
+
+	    </p>
+
+	    <p id="usgsfootertext">
+		    <a href="http://www.takepride.gov/"><img src="http://www.usgs.gov/images/footer_graphic_takePride.jpg" alt="Take Pride in America logo" title="Take Pride in America Home Page" width="60" height="58"></a>
+	        <a href="http://firstgov.gov/"><img src="http://www.usgs.gov/images/footer_graphic_usagov.jpg" alt="USA.gov logo" width="90" height="26" style="float: right; margin-right: 10px;" title="USAGov: Government Made Easy."></a>
+		    <a href="http://www.doi.gov/">U.S. Department of the Interior</a> |
+		    <a href="http://www.usgs.gov/">U.S. Geological Survey</a><br>
+            Page Contact Information: <a href="mailto:storm_team_leader@usgs.gov ">Storm Team Leader</a><br>
+            Page Last Modified: Monday, 03-March-2014 13:11:12 CST
+	    </p>
+    </div>
+@*-- END USGS Footer Template *@
+        
+    </body>
+
+</html>

@@ -1,0 +1,117 @@
+﻿@*
+Comments:
+01.30.13 - TR - adding loading logo and fixed from var to obj type for loop
+11.28.12 - TR - changed labels to html helper
+10.25.12 - TR - Fixed cancel button
+10.12.12 - TR - Removed "main" div and only have it in _Layout
+10.10.12 - TR - Added "main" div for css formatting
+10.09.12 - TR - Formatting done
+10.04.12 - TR - Created
+
+*@
+
+@*
+/* Authors:
+*      Tonia Roddick (troddick@usgs.gov)
+* Copyright:
+*      2012 USGS - WiM
+* Purpose:
+*      Create Sensor Type
+*/
+*@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model System.Collections.Generic.List<STNServices.SENSOR_TYPE>
+
+@{
+    ViewBag.Title = "Create Sensor Type";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+<div id="dataTitle">
+    <div class="title">Sensor Types</div>
+</div>
+<br clear="all" />
+<hr class="headerUnderline" />
+
+@using (Ajax.BeginForm("SensorTypeCreate", "Lookups", null, new AjaxOptions() { HttpMethod = "POST" }, new { @id = "CreateSensorTypeForm" }))
+{
+    <div class="fiftyPercColumn">
+        <div class="ui-grid-a">
+            <div class="ui-block-b">
+                @{
+                    foreach (SENSOR_TYPE t in Model)
+                    {    
+                        @t.SENSOR
+                        <br />
+                    }
+                    }
+            </div>
+            <div class="ui-block-a"><span class="required bold">@Html.Label(LookupsStrings.SensorType_createNew)</span></div>
+            <div class="ui-block-b"><input type="text" class="required stnTextInput ui-shadow-inset" id="sensor" name="SENSOR" data-mini="true" /></div>
+        </div>
+    </div>
+    
+    <div id="formSubmitDiv" class="formSection">
+        <div class="leftSideSubmit">
+            <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+            <div class="submitDiv">
+                <div class="darkButtonBorder"><input type="submit" class="submit" value="Submit" /></div>
+            </div>
+            <asp:Button ID="SaveSiteButton" runat="server" Text="Save" />
+        </div>    
+    </div>
+}
+
+<script type="text/javascript">
+    window.onload = function () {
+        var txtbox = document.getElementById("sensor");
+        txtbox.focus();
+    }
+
+    function cancelClick() {
+        $("#loading").fadeIn();
+        window.location.href = '@Url.Action("Index", "Lookups")'
+    };
+
+    function loading() {
+        $("#loading").fadeIn();
+    };
+
+    //doc.ready 
+    $(document).ready(function () {
+        $("#CreateSensorTypeForm").validate();
+        $("#CreateSensorTypeForm").removeData("validator");
+        $("#CreateSensorTypeForm").removeData("unobtrusiveValidation");
+        
+        $("#CreateSensorTypeForm").validate({
+            rules: {
+                'SENSOR': "required"
+            },
+            messages: {
+                'SENSOR': "Required"
+            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                form.submit();
+            }
+
+        });
+    });
+</script>
+
+<style type="text/css">
+    #CreateSensorTypeForm label.error {      
+        width: auto;
+        display: block;
+        color: Red;
+    }
+    
+</style>

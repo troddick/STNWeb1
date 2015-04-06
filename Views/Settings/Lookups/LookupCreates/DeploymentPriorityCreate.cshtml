@@ -1,0 +1,112 @@
+﻿@*
+Comments:
+04.09.14 - TR - Created
+
+*@
+
+@*
+/* Authors:
+*      Tonia Roddick (troddick@usgs.gov)
+* Copyright:
+*      2012 USGS - WiM
+* Purpose:
+*      Create Deployment Priority
+*/
+*@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model System.Collections.Generic.List<STNServices.DEPLOYMENT_PRIORITY>
+
+@{
+    ViewBag.Title = "Create Deployment Priority";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+<div id="dataTitle">
+    <div class="title">Deployment Priorities</div>
+</div>
+<br clear="all" />
+<hr class="headerUnderline" />
+
+@using (Ajax.BeginForm("DeploymentPriorityCreate", "Lookups", null, new AjaxOptions() { HttpMethod = "POST" }, new { @id = "CreateDepPriorityForm" }))
+{
+    <div class="fiftyPercColumn">
+        <div class="ui-grid-a">
+            <div class="ui-block-b">
+                @{
+                    foreach (DEPLOYMENT_PRIORITY t in Model)
+                    {    
+                        @t.PRIORITY_NAME
+                        <br />
+                    }
+                }
+            </div>
+            <div class="ui-block-a"><span class="bold required">@Html.Label(LookupsStrings.DeploymentPriority_createNew)</span></div>
+            <div class="ui-block-b"><input type="text" class="stnTextInput ui-shadow-inset required" id="name" name="PRIORITY_NAME" data-mini="true" /></div>
+        </div>
+    </div>
+    
+    <div id="formSubmitDiv" class="formSection">
+        <div class="leftSideSubmit">
+            <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+            <div class="submitDiv">
+                <div class="darkButtonBorder"><input type="submit" class="submit" value="Submit" /></div>
+            </div>
+        </div>    
+    </div>
+    }
+
+
+<script type="text/javascript">
+    window.onload = function () {
+        var txtbox = document.getElementById("name");
+        txtbox.focus();
+    }
+
+    function cancelClick() {
+        $("#loading").fadeIn();
+        window.location.href = '@Url.Action("Index", "Lookups")'
+    }
+
+    function loading() {
+        $("#loading").fadeIn();
+    };
+
+    //doc.ready 
+    $(document).ready(function () {
+        $("#CreateDepPriorityForm").validate();
+        $("#CreateDepPriorityForm").removeData("validator");
+        $("#CreateDepPriorityForm").removeData("unobtrusiveValidation");
+
+
+        $("#CreateDepPriorityForm").validate({
+            rules: {
+                'PRIORITY_NAME': "required"
+            },
+            messages: {
+                'PRIORITY_NAME': "Required"
+            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                form.submit();
+            }
+
+        });
+    });
+</script>
+
+<style type="text/css">
+    #CreateDepPriorityForm label.error {      
+        width: auto;
+        display: block;
+        color: Red;
+    }
+    
+</style>

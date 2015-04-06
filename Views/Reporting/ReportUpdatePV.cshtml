@@ -1,0 +1,951 @@
+﻿@* Comments:
+02.20.14 - TR - Created (Parial View)
+
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display Create of Report 
+ */
+ *@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using STNWeb.Models;
+
+@model STNWeb.Models.ReportingModel
+
+<script src="@Url.Content("~/Assets/Scripts/jquery-1.8.3.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery-ui-1.10.4.js")" type="text/javascript"></script>           
+<script src="@Url.Content("~/Assets/Scripts/jquery.maskedinput.min.js")" type="text/javascript"></script>
+
+@using (Ajax.BeginForm("UpdateReport", "Reporting", null, new AjaxOptions() { UpdateTargetId = "content", HttpMethod = "POST" }, new { @id = "UpdateReportForm" }))
+{
+    <div>
+    <input type="hidden" name="aReport.REPORTING_METRICS_ID" id="ReportID" value="@Model.aReport.REPORTING_METRICS_ID" />
+
+        <table class="Sec1Reporting-table" style="width: 100%">
+            @* Section 1: Date, Event, State selection *@
+            <tr>
+                <td colspan="8" style="border-bottom: 1px solid #59595C">
+                    <span style="font-size: x-large; font-family: 'BryantBold'">Section 1: Start Report</span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="8"></td>
+            </tr>
+            <tr>                        
+                <td style="width: 19%">
+                    <span class="required" style="font-size: 18px">Date being reported:</span>
+                </td>
+                <td style="width: 11%">
+                    <input type="text" id="aDate" class="required stnTextInput ui-shadow-inset datepicker" name="aReport.REPORT_DATE" data-mini="true" value='@(((DateTime)Model.aReport.REPORT_DATE).ToShortDateString())' />
+                </td>
+                <td style="width: 4%">
+                </td>
+                <td style="width: 6%">
+                    <span class="required" style="font-size: 18px">Event:</span>
+                </td>
+                <td style="width: 20%">
+                    <select id="eventList" class="required stnSelectInput ui-shadow-inset" name="aReport.EVENT_ID" data-native-menu="false" data-mini="true">
+                        <option value="0">Choose an Event</option>
+                        @foreach (EVENT anEvent in ViewData["EventList"] as List<EVENT>)
+                        {
+                            <option @(anEvent.EVENT_ID == Model.aReport.EVENT_ID ? "selected" : "") value='@anEvent.EVENT_ID'>@anEvent.EVENT_NAME</option> 
+                        }
+                    </select>
+                    <br />
+                </td>
+                <td style="width: 4%">
+                </td>
+                <td style="width: 6%">
+                    <span class="required" style="font-size: 18px">State:</span>
+                </td>
+                <td style="width: 21%">
+                    <select id="stateList" class="required stnSelectInput ui-shadow-inset" name="aReport.STATE" data-native-menu="false" data-mini="true">
+                        <option value="0">Choose a State</option>
+                        @foreach (STATES aState in ViewData["StateList"] as List<STATES>)
+                        {
+                            <option @(aState.STATE_ABBREV == Model.aReport.STATE ? "selected" : "") value='@aState.STATE_ABBREV'>@aState.STATE_NAME</option> 
+                        }
+                    </select>
+                    <br />
+                </td>
+            </tr>
+            <tr style="height: 30px">
+                <td colspan="8"></td>
+            </tr>
+           <tr>
+                <td colspan="8">
+                    <a id="populateButton" class="STNButton" style="padding: 3px; background-color: #F37A49" onclick="getValues();">Populate Totals</a>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="8"></td>
+            </tr>
+        </table>
+        @* End of step 1 *@
+    </div>
+    <br />
+    
+    <div class="fiftyPercColumn">
+        @* Section 2: Personnel and Vehicle Counts *@
+        <table style="float: left" class="Reporting-table">                    
+            <tr>
+                <td colspan="4">
+                    <span style="font-size: x-large; font-family: 'BryantBold'">Section 2: Personnel and Vehicle Counts</span>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td style="text-align: center; font-family: 'BryantBold';">Surfacewater</td>
+                <td style="text-align: center; font-family: 'BryantBold';">Water Quality<br />and Other</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width: 21%">
+                    <span class="required">Employees not accounted for</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px">
+                    <input type="text" id="SW_empl" class="stnTextInput ui-shadow-inset required" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.SW_FIELDPERS_NOTACCT" data-mini="true" value="@Model.aReport.SW_FIELDPERS_NOTACCT"/>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px">
+                    <input type="text" id="WQ_empl" class="stnTextInput ui-shadow-inset required" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.WQ_FIELDPERS_NOTACCT" data-mini="true" value="@Model.aReport.WQ_FIELDPERS_NOTACCT"/>
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="3" style="width: 12%">
+                    <span>Personnel in <br />the field</span>
+                </td>
+                <td>
+                    <span class="required">Yesterday</span>
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInFieldYestSurf" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.SW_YEST_FIELDPERS" data-mini="true" value="@Model.aReport.SW_YEST_FIELDPERS"/>
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInFieldYestWQ" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.WQ_YEST_FIELDPERS" data-mini="true" value="@Model.aReport.WQ_YEST_FIELDPERS" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="required">Today</span>
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInFieldTodaySurf" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.SW_TOD_FIELDPERS" data-mini="true" value="@Model.aReport.SW_TOD_FIELDPERS" />
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInFieldTodayWQ" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.WQ_TOD_FIELDPERS" data-mini="true" value="@Model.aReport.WQ_TOD_FIELDPERS" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="required">Tomorrow</span>
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInFieldTomorrowSurf" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.SW_TMW_FIELDPERS" data-mini="true" value="@Model.aReport.SW_TMW_FIELDPERS" />
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInFieldTomorrowWQ" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.WQ_TMW_FIELDPERS" data-mini="true" value="@Model.aReport.WQ_TMW_FIELDPERS" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="3">
+                    <span>Personnel in <br />the office</span>
+                </td>
+                <td>
+                    <span class="required">Yesterday</span>
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInOfficeYestSurf" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.SW_YEST_OFFICEPERS" data-mini="true" value="@Model.aReport.SW_YEST_OFFICEPERS" />
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInOfficeYestWQ" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.WQ_YEST_OFFICEPERS" data-mini="true" value="@Model.aReport.WQ_YEST_OFFICEPERS" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="required">Today</span>
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInOfficeTodaySurf" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.SW_TOD_OFFICEPERS" data-mini="true" value="@Model.aReport.SW_TOD_OFFICEPERS" />
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInOfficeTodayWQ" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.WQ_TOD_OFFICEPERS" data-mini="true" value="@Model.aReport.WQ_TOD_OFFICEPERS" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="required">Tomorrow</span>
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInOfficeTomorrowSurf" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.SW_TMW_OFFICEPERS" data-mini="true" value="@Model.aReport.SW_TMW_OFFICEPERS" />
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInOfficeTomorrowWQ" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.WQ_TMW_OFFICEPERS" data-mini="true" value="@Model.aReport.WQ_TMW_OFFICEPERS" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="3">
+                    <span>Vehicles <br /> deployed</span>
+                </td>
+                <td>
+                    <span class="required">Trucks & Cars</span>
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="trNcarsSurf" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.SW_AUTOS_DEPL" data-mini="true" value="@Model.aReport.SW_AUTOS_DEPL" />
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="trNcarsWQ" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.WQ_AUTOS_DEPL" data-mini="true" value="@Model.aReport.WQ_AUTOS_DEPL" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="required">Boats</span>
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="boatsSurf" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.SW_BOATS_DEPL" data-mini="true" value="@Model.aReport.SW_BOATS_DEPL" />
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="boatsWQ" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.WQ_BOATS_DEPL" data-mini="true" value="@Model.aReport.WQ_BOATS_DEPL" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="required">Other</span>
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="otherVehSurf" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.SW_OTHER_DEPL" data-mini="true" value="@Model.aReport.SW_OTHER_DEPL" />
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="otherVehWQ" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.WQ_OTHER_DEPL" data-mini="true" value="@Model.aReport.WQ_OTHER_DEPL" />
+                </td>
+            </tr>
+        </table>
+                
+        @* Section 3: Instrumentation and Sampling Counts *@
+        <table style="float: left; margin-top: 20px; margin-bottom: 20px" class="Reporting-table">                    
+            <tr>
+                <td colspan="4">
+                    <span style="font-size: x-large; font-family: 'BryantBold'">Section 3: Instrumentation<br />& Sampling Counts</span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width: 21%">
+                    <span class="required">Gage visits (cumulative)</span>
+                </td>
+                <td colspan="2" style="width: 17%; padding: 5px 7px 5px 7px">
+                    <input type="text" id="gageVisits" class="stnTextInput ui-shadow-inset required" onkeypress="return isNumberKey(event)" style="width: 55%" name="aReport.GAGE_VISIT" data-mini="true" value="@Model.aReport.GAGE_VISIT" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width: 21%">
+                    <span class="required">Gages down at present</span>
+                </td>
+                <td colspan="2" style="width: 17%; padding: 5px 7px 5px 7px">
+                    <input type="text" id="gagesDown" class="stnTextInput ui-shadow-inset required" onkeypress="return isNumberKey(event)" style="width: 55%" name="aReport.GAGE_DOWN" data-mini="true" value="@Model.aReport.GAGE_DOWN" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="2" style="width: 12%">
+                    <span>Discharge<br />measurements</span>
+                </td>
+                <td>
+                    <span class="required">To date</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="dischMeasToDate" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%" name="aReport.TOT_DISCHARGE_MEAS" data-mini="true" value="@Model.aReport.TOT_DISCHARGE_MEAS" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="required">Planned</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="dischMeasPlanned" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%" name="aReport.PLAN_DISCHARGE_MEAS" data-mini="true" value="@Model.aReport.PLAN_DISCHARGE_MEAS" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="2">
+                    <span>Check<br />measurements</span>
+                </td>
+                <td>
+                    <span class="required">To Date</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="chkMeasToDate" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%" name="aReport.TOT_CHECK_MEAS" data-mini="true" value="@Model.aReport.TOT_CHECK_MEAS" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="required">Planned</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="chkMeasPlanned" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%" name="aReport.PLAN_CHECK_MEAS" data-mini="true" value="@Model.aReport.PLAN_CHECK_MEAS" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width: 21%">
+                    <span class="required">Indirect measurements planned</span>
+                </td>
+                <td colspan="2" style="width: 17%; padding: 5px 7px 5px 7px">
+                    <input type="text" id="indMeasPlan" class="stnTextInput ui-shadow-inset required" onkeypress="return isNumberKey(event)" style="width: 55%" name="aReport.PLAN_INDIRECT_MEAS" data-mini="true" value="@Model.aReport.PLAN_INDIRECT_MEAS" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width: 21%">
+                    <span class="required">Rating extensions</span>
+                </td>
+                <td colspan="2" style="width: 17%; padding: 5px 7px 5px 7px">
+                    <input type="text" id="rateExt" class="stnTextInput ui-shadow-inset required" onkeypress="return isNumberKey(event)" style="width: 55%" name="aReport.RATING_EXTENS" data-mini="true" value="@Model.aReport.RATING_EXTENS" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width: 21%">
+                    <span class="required">Peaks of record on gages<br />to date ( > 20 years of record)</span>
+                </td>
+                <td colspan="2" style="width: 17%; padding: 5px 7px 5px 7px">
+                    <input type="text" id="peaks" class="stnTextInput ui-shadow-inset required" onkeypress="return isNumberKey(event)" style="width: 55%" name="aReport.GAGE_PEAK_RECORD" data-mini="true" value="@Model.aReport.GAGE_PEAK_RECORD" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="4">
+                    <span>Rapid Deployment<br />gages, to date</span>
+                </td>
+                <td>
+                    <span class="required">Planned</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="rdgPlanned" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%" name="aReport.PLAN_RAPDEPL_GAGE" data-mini="true" value="@Model.aReport.GAGE_PEAK_RECORD" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Deployed</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_rdgDeployed" style="color:#696969">@Model.aReport.DEP_RAPDEPL_GAGE</span></div>
+                    <input type="hidden" id="rdgDeployed" name="aReport.DEP_RAPDEPL_GAGE" value="@Model.aReport.DEP_RAPDEPL_GAGE" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Recovered</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_rdgRecovered" style="color:#696969">@Model.aReport.REC_RAPDEPL_GAGE</span></div>
+                    <input type="hidden" id="rdgRecovered" name="aReport.REC_RAPDEPL_GAGE" value="@Model.aReport.REC_RAPDEPL_GAGE" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Lost</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_rdgLost" style="color:#696969">@Model.aReport.LOST_RAPDEPL_GAGE</span></div>
+                    <input type="hidden" id="rdgLost" name="aReport.LOST_RAPDEPL_GAGE" value="@Model.aReport.LOST_RAPDEPL_GAGE" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="4">
+                    <span>Water Level<br />Sensors, to date</span>
+                </td>
+                <td>
+                    <span class="required">Planned</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="wlsPlanned" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%" name="aReport.PLAN_WTRLEV_SENSOR" data-mini="true" value="@Model.aReport.PLAN_WTRLEV_SENSOR" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Deployed</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_wlsDeployed" style="color:#696969">@Model.aReport.DEP_WTRLEV_SENSOR</span></div>
+                    <input type="hidden" id="wlsDeployed" name="aReport.DEP_WTRLEV_SENSOR" value="@Model.aReport.DEP_WTRLEV_SENSOR" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Recovered</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_wlsRecovered" style="color:#696969">@Model.aReport.REC_WTRLEV_SENSOR</span></div>
+                    <input type="hidden" id="wlsRecovered" name="aReport.REC_WTRLEV_SENSOR" value="@Model.aReport.REC_WTRLEV_SENSOR" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Lost</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_wlsLost" style="color:#696969">@Model.aReport.LOST_WTRLEV_SENSOR</span></div>
+                    <input type="hidden" id="wlsLost" name="aReport.LOST_WTRLEV_SENSOR" value="@Model.aReport.LOST_WTRLEV_SENSOR" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="4">
+                    <span>Wave Sensors,<br />to date</span>
+                </td>
+                <td>
+                    <span class="required">Planned</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="wsPlanned" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%" name="aReport.PLAN_WV_SENS" data-mini="true" value="@Model.aReport.PLAN_WV_SENS" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Deployed</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_wsDeployed" style="color:#696969">@Model.aReport.DEP_WV_SENS</span></div>
+                    <input type="hidden" id="wsDeployed" name="aReport.DEP_WV_SENS" value="@Model.aReport.DEP_WV_SENS" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Recovered</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_wsRecovered" style="color:#696969">@Model.aReport.REC_WV_SENS</span></div>
+                    <input type="hidden" id="wsRecovered" name="aReport.REC_WV_SENS" value="@Model.aReport.REC_WV_SENS" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Lost</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_wsLost" style="color:#696969">@Model.aReport.LOST_WV_SENS</span></div>
+                    <input type="hidden" id="wsLost" name="aReport.LOST_WV_SENS" value="@Model.aReport.LOST_WV_SENS" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="4">
+                    <span>Barometers,<br /> to date</span>
+                </td>
+                <td>
+                    <span class="required">Planned</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="barPlanned" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%" name="aReport.PLAN_BAROMETRIC" data-mini="true" value="@Model.aReport.PLAN_BAROMETRIC" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Deployed</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_barDeployed" style="color:#696969">@Model.aReport.DEP_BAROMETRIC</span></div>
+                    <input type="hidden" id="barDeployed" name="aReport.DEP_BAROMETRIC" value="@Model.aReport.DEP_BAROMETRIC" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Recovered</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_barRecovered" style="color:#696969">@Model.aReport.REC_BAROMETRIC</span></div>
+                    <input type="hidden" id="barRecovered" name="aReport.REC_BAROMETRIC" value="@Model.aReport.REC_BAROMETRIC" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Lost</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_barLost" style="color:#696969">@Model.aReport.LOST_BAROMETRIC</span></div>
+                    <input type="hidden" id="barLost" name="aReport.LOST_BAROMETRIC" value="@Model.aReport.LOST_BAROMETRIC" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="4">
+                    <span>Meteorological<br /> Sensors, to date</span>
+                </td>
+                <td>
+                    <span class="required">Planned</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="msPlanned" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%" name="aReport.PLAN_METEOROLOGICAL" data-mini="true" value="@Model.aReport.PLAN_METEOROLOGICAL" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Deployed</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_msDeployed" style="color:#696969">@Model.aReport.DEP_METEOROLOGICAL</span></div>
+                    <input type="hidden" id="msDeployed" name="aReport.DEP_METEOROLOGICAL" value="@Model.aReport.DEP_METEOROLOGICAL" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Recovered</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_msRecovered" style="color:#696969">@Model.aReport.REC_METEOROLOGICAL</span></div>
+                    <input type="hidden" id="msRecovered" name="aReport.REC_METEOROLOGICAL" value="@Model.aReport.REC_METEOROLOGICAL" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Lost</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_msLost" style="color:#696969">@Model.aReport.LOST_METEOROLOGICAL</span></div>
+                    <input type="hidden" id="msLost" name="aReport.LOST_METEOROLOGICAL" value="@Model.aReport.LOST_METEOROLOGICAL" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="2">
+                    <span>Highwater Mark,<br /> to date</span>
+                </td>
+                <td>
+                    <span>Flagged</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_hwmFlagged" style="color:#696969">@Model.aReport.HWM_FLAGGED</span></div>
+                    <input type="hidden" id="hwmFlagged" name="aReport.HWM_FLAGGED" value="@Model.aReport.HWM_FLAGGED" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Collected</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_hwmCollected" style="color:#696969">@Model.aReport.HWM_COLLECTED</span></div>
+                    <input type="hidden" id="hwmCollected" name="aReport.HWM_COLLECTED" value="@Model.aReport.HWM_COLLECTED" />
+                </td>
+            </tr>
+                    
+            <tr>
+                <td colspan="2" style="width: 21%">
+                    <span class="required">QW Gage visits (cumulative)</span>
+                </td>
+                <td colspan="2" style="width: 17%; padding: 5px 7px 5px 7px">
+                    <input type="text" id="qwGageVisit" class="stnTextInput ui-shadow-inset required" onkeypress="return isNumberKey(event)" style="width: 55%" name="aReport.QW_GAGE_VISIT" data-mini="true" value="@Model.aReport.QW_GAGE_VISIT" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width: 21%">
+                    <span class="required">Continuous QW Gages visited</span>
+                </td>
+                <td colspan="2" style="width: 17%; padding: 5px 7px 5px 7px">
+                    <input type="text" id="contQwGageVisit" class="stnTextInput ui-shadow-inset required" onkeypress="return isNumberKey(event)" style="width: 55%" name="aReport.QW_CONT_GAGEVISIT" data-mini="true" value="@Model.aReport.QW_CONT_GAGEVISIT" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width: 21%">
+                    <span class="required">Continuous QW Gages down</span>
+                </td>
+                <td colspan="2" style="width: 17%; padding: 5px 7px 5px 7px">
+                    <input type="text" id="qwGagesDown" class="stnTextInput ui-shadow-inset required" onkeypress="return isNumberKey(event)" style="width: 55%" name="aReport.QW_GAGE_DOWN" data-mini="true" value="@Model.aReport.QW_GAGE_DOWN" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width: 21%">
+                    <span class="required">Discrete QW samples collected</span>
+                </td>
+                <td colspan="2" style="width: 17%; padding: 5px 7px 5px 7px">
+                    <input type="text" id="qwSamplesCol" class="stnTextInput ui-shadow-inset required" onkeypress="return isNumberKey(event)" style="width: 55%" name="aReport.QW_DISCR_SAMPLES" data-mini="true" value="@Model.aReport.QW_DISCR_SAMPLES" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width: 21%">
+                    <span class="required">Sediment samples collected</span>
+                </td>
+                <td colspan="2" style="width: 17%; padding: 5px 7px 5px 7px">
+                    <input type="text" id="sedSamplesCol" class="stnTextInput ui-shadow-inset required" onkeypress="return isNumberKey(event)" style="width: 55%" name="aReport.COLL_SEDSAMPLES" data-mini="true" value="@Model.aReport.COLL_SEDSAMPLES" />
+                </td>
+            </tr>
+        </table>
+        <br />
+    </div>
+    
+    <div class="fiftyPercColumn">
+        @*Notes table*@
+        <table class="Sec1Reporting-table" style="width: 98%; float: right">
+            <tr>
+                <td style="border-bottom: 1px solid #59595C">
+                    <span style="font-size: x-large; font-family: 'BryantBold'">Section 4: Notes</span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Notes detailing the day's field activities (optional)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <textarea id="notesText" rows="10" cols="30" class="stnTextInput ui-shadow-inset" name="aReport.NOTES" data-mini="true">@Model.aReport.NOTES</textarea>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-top: 0px">
+                    *Limit 2000 characters
+                </td>
+            </tr>
+        </table>
+               
+        @{ ReportMember loggedInMember = ViewData["Submitter"] as ReportMember; }
+
+        <input type="hidden" name="aReport.MEMBER_ID" value="@loggedInMember.MemberID" />
+                
+        @* Section 5: Contact Info*@
+        <table class="Sec1Reporting-table" style="width: 98%; float: right; margin-top: 20px">
+            <tr>
+                <td colspan="2" style="border-bottom: 1px solid #59595C">
+                    <span style="font-size: x-large; font-family: 'BryantBold'">Section 5: Contact Information</span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <span style="font-size: large; font-family: 'BryantBold'">Submitter</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-left: 40px; width: 4%">
+                    <span>Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px">
+                    <span>@loggedInMember.MemberName</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-left: 40px">
+                    <span>Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px">
+                    <span>@loggedInMember.Phone</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-left: 40px">
+                    <span>Email</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px">
+                    <span>@loggedInMember.Email</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-left: 40px">
+                    <span>Office Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px">
+                    <span>@loggedInMember.OfficeName</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-left: 40px">
+                    <span>Office Address</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px">
+                    <span>@loggedInMember.OfficeAddress1</span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <span style="font-size: x-large; font-family: 'BryantBold'">Event Contacts</span>
+                </td>
+            </tr>
+            <tr>
+                @* Deployed Staff *@
+                <td colspan="2">
+                    <span style="font-size: large; font-family: 'BryantBold'">Deployed Staff (required)</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span class="required">First Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="depStaffFName" class="stnTextInput ui-shadow-inset required" style="width: 55%" name="DeplContact.FNAME" data-mini="true" value="@Model.DeplContact.FNAME" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span class="required">Last Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="depStaffLName" class="required stnTextInput ui-shadow-inset" style="width: 55%" name="DeplContact.LNAME" data-mini="true" value="@Model.DeplContact.LNAME" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span class="required">Email</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="depStaffEmail" class="required stnTextInput ui-shadow-inset" style="width: 55%" name="DeplContact.EMAIL" data-mini="true" value="@Model.DeplContact.EMAIL" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span class="required">Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <input type="text" id="RdepStaffPhone" class="required stnTextInput ui-shadow-inset" style="width: 55%" name="DeplContact.PHONE" data-mini="true" value="@Model.DeplContact.PHONE" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Alternate Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <input type="text" id="RdepStaffAltPhone" class="stnTextInput ui-shadow-inset" style="width: 55%" name="DeplContact.ALT_PHONE" data-mini="true" value="@Model.DeplContact.ALT_PHONE" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="border: 0px none">
+                </td>
+            </tr>
+            <tr>@* General *@
+                <td colspan="2" style="border-bottom: 0px none">
+                    <span style="font-size: large; font-family: 'BryantBold'">General (optional)</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>First Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="genStaffFName" class="stnTextInput ui-shadow-inset" style="width: 55%" name="GenContact.FNAME" data-mini="true" value="@(Model.GenContact != null ? Model.GenContact.FNAME : "")" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>Last Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="genStaffLName" class="stnTextInput ui-shadow-inset" style="width: 55%" name="GenContact.LNAME" data-mini="true" value="@(Model.GenContact != null ? Model.GenContact.LNAME : "")" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Email</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="genStaffEmail" class="stnTextInput ui-shadow-inset" style="width: 55%" name="GenContact.EMAIL" data-mini="true" value="@(Model.GenContact != null ? Model.GenContact.EMAIL : "")" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <input type="text" id="RgenStaffPhone" class="stnTextInput ui-shadow-inset" style="width: 55%" name="GenContact.PHONE" data-mini="true" value="@(Model.GenContact != null ? Model.GenContact.PHONE : "")" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Alternate Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <input type="text" id="RgenStaffAltPhone" class="stnTextInput ui-shadow-inset" style="width: 55%" name="GenContact.ALT_PHONE" data-mini="true" value="@(Model.GenContact != null ? Model.GenContact.ALT_PHONE : "")" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="border: 0px none">
+                </td>
+            </tr>
+            <tr>
+                @* Inland Flood *@
+                <td colspan="2" style="border-bottom: 0px none">
+                    <span style="font-size: large; font-family: 'BryantBold'">Inland Flood (optional)</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>First Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="inFlStaffFName" class="stnTextInput ui-shadow-inset" style="width: 55%" name="InlandContact.FNAME" data-mini="true" value="@(Model.InlandContact != null ? Model.InlandContact.FNAME : "")" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>Last Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="inFlStaffLName" class="stnTextInput ui-shadow-inset" style="width: 55%" name="InlandContact.LNAME" data-mini="true" value="@(Model.InlandContact != null ? Model.InlandContact.LNAME : "")" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Email</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="inFlStaffEmail" class="stnTextInput ui-shadow-inset" style="width: 55%" name="InlandContact.EMAIL" data-mini="true" value="@(Model.InlandContact != null ? Model.InlandContact.EMAIL : "")" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <input type="text" id="RinFlStaffPhone" class="stnTextInput ui-shadow-inset" style="width: 55%" name="InlandContact.PHONE" data-mini="true" value="@(Model.InlandContact != null ? Model.InlandContact.PHONE : "")" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Alternate Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <input type="text" id="RinFlStaffAltPhone" class="stnTextInput ui-shadow-inset" style="width: 55%" name="InlandContact.ALT_PHONE" data-mini="true" value="@(Model.InlandContact != null ? Model.InlandContact.ALT_PHONE : "")" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="border: 0px none">
+                </td>
+            </tr>
+            <tr>
+                @* Coastal Staff *@
+                <td colspan="2" style="border-bottom: 0px none">
+                    <span style="font-size: large; font-family: 'BryantBold'">Coastal Flood (optional)</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>First Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="coaFlStaffFName" class="stnTextInput ui-shadow-inset" style="width: 55%" name="CoastContact.FNAME" data-mini="true" value="@(Model.CoastContact != null ? Model.CoastContact.FNAME : "")" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>Last Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="coaFlStaffLName" class="stnTextInput ui-shadow-inset" style="width: 55%" name="CoastContact.LNAME" data-mini="true" value="@(Model.CoastContact != null ? Model.CoastContact.LNAME : "")" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Email</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="coaFlStaffEmail" class="stnTextInput ui-shadow-inset" style="width: 55%" name="CoastContact.EMAIL" data-mini="true" value="@(Model.CoastContact != null ? Model.CoastContact.EMAIL : "")" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <input type="text" id="RcoaFlStaffPhone" class="stnTextInput ui-shadow-inset" style="width: 55%" name="CoastContact.PHONE" data-mini="true" value="@(Model.CoastContact != null ? Model.CoastContact.PHONE : "")" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Alternate Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <input type="text" id="RcoaFlStaffAltPhone" class="stnTextInput ui-shadow-inset" style="width: 55%" name="CoastContact.ALT_PHONE" data-mini="true" value="@(Model.CoastContact != null ? Model.CoastContact.ALT_PHONE : "")" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="border: 0px none">
+                </td>
+            </tr>
+            <tr>
+                @* Water Quality Staff *@
+                <td colspan="2" style="border-bottom: 0px none">
+                    <span style="font-size: large; font-family: 'BryantBold'">Water Quality (optional)</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>First Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="watQualStaffFName" class="stnTextInput ui-shadow-inset" style="width: 55%" name="WaterContact.FNAME" data-mini="true" value="@(Model.WaterContact != null ? Model.WaterContact.FNAME : "")" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>Last Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="watQualStaffLName" class="stnTextInput ui-shadow-inset" style="width: 55%" name="WaterContact.LNAME" data-mini="true" value="@(Model.WaterContact != null ? Model.WaterContact.LNAME : "")" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Email</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="watQualStaffEmail" class="stnTextInput ui-shadow-inset" style="width: 55%" name="WaterContact.EMAIL" data-mini="true" value="@(Model.WaterContact != null ? Model.WaterContact.EMAIL : "")" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <input type="text" id="RwatQualStaffPhone" class="stnTextInput ui-shadow-inset" style="width: 55%" name="WaterContact.PHONE" data-mini="true" value="@(Model.WaterContact != null ? Model.WaterContact.PHONE : "")" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Alternate Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <input type="text" id="RwatQualStaffAltPhone" class="stnTextInput ui-shadow-inset" style="width: 55%" name="WaterContact.ALT_PHONE" data-mini="true" value="@(Model.WaterContact != null ? Model.WaterContact.ALT_PHONE : "")" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="border: 0px none">
+                </td>
+            </tr>
+        </table>
+    </div>
+      
+    <div id="formSubmitDiv" class="formSection">
+        <div class="leftSideSubmit" style="text-align: left">                    
+            <div style="width:33%;float:left">
+                <div style="width:21px;float:left; margin:10px 5px"><input type="checkbox" name="aReport.COMPLETE" value="1" /></div>
+                <div>Check if this Report is Complete. <br />(If left unchecked, you may come back<br />later to finish it)</div>
+            </div>
+            <div class="submitDiv" style="height: 40px; padding-left:27px">
+                <div class="darkButtonBorder">
+                            
+                    <input type="submit" name="Create" class="submit" value="Submit" />
+                            
+                </div> 
+                
+            </div>
+        </div>
+    </div>
+    
+    <br clear="all" />
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+       
+        //section 5 Contacts
+        $("#RdepStaffPhone").mask("(999) 999-9999? x99999"); $("#RdepStaffAltPhone").mask("(999) 999-9999? x99999");
+        $("#RgenStaffPhone").mask("(999) 999-9999? x99999"); $("#RgenStaffAltPhone").mask("(999) 999-9999? x99999");
+        $("#RinFlStaffPhone").mask("(999) 999-9999? x99999"); $("#RinFlStaffAltPhone").mask("(999) 999-9999? x99999");
+        $("#RcoaFlStaffPhone").mask("(999) 999-9999? x99999"); $("#RcoaFlStaffAltPhone").mask("(999) 999-9999? x99999");
+        $("#RwatQualStaffPhone").mask("(999) 999-9999? x99999"); $("#RwatQualStaffAltPhone").mask("(999) 999-9999? x99999");
+        
+        $('input').filter('.datepicker').datepicker({
+            changeMonth: true,
+            yearRange: '1965:2030',
+            changeYear: true
+        });
+        
+    });
+
+
+</script>

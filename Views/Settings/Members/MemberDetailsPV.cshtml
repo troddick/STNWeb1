@@ -1,0 +1,83 @@
+﻿@* Comments:
+11.27.12 - TR - changed labels to html helper
+11.20.12 - TR - Created (Parial View)
+
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display details of a member 
+ */
+ *@
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model STNServices.MEMBER
+           
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#loading").fadeOut();
+    });        
+</script>
+
+<div class="fiftyPercColumn">
+
+    @{if (ViewData.ContainsKey("Error"))
+      {
+          <div style="color:Red">There was an error. The password was not updated. Please contact the administrator for assistance.</div>
+    }}
+    <div>
+        <span class="bold ui-label-a">@Html.Label(MemberStrings.FirstName_Label)</span>
+        <label class="inline">@Model.FNAME</label>
+    </div>
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(MemberStrings.LastName_Label)</span>
+        <label class="inline">@Model.LNAME</label>
+    </div>
+    
+    <div>
+        <span class="bold ui-label-a">@Html.Label(MemberStrings.UserName_Label)</span>
+        <label class="inline">@Model.USERNAME</label>
+    </div>
+    
+    <div>
+        <span class="bold ui-label-a">@Html.Label(MemberStrings.Agency_Label)</span>
+        <label class="inline">@( ViewData.ContainsKey("Agency") ? ViewData["Agency"] : "")</label>
+    </div>
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(MemberStrings.Role_Label)</span>
+        <label class="inline">@( ViewData.ContainsKey("Role") ? ViewData["Role"] : "")</label>
+    </div>
+    
+    <div>
+        <span class="bold ui-label-a">@Html.Label(MemberStrings.Phone_Label)</span>
+        <label class="inline">@Model.PHONE</label>
+    </div>
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(MemberStrings.Email_Label)</span>
+        <label class="inline">@Model.EMAIL</label>
+    </div>
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(MemberStrings.RSSFeed_Label)</span>
+        <label class="inline">@Model.RSSFEED</label>
+    </div>
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(MemberStrings.EmergencyContactName_Label)</span>
+        <label class="inline">@Model.EMERGENCY_CONTACT_NAME</label>
+    </div>
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(MemberStrings.EmergencyContactPhone_Label)</span>
+        <label class="inline">@Model.EMERGENCY_CONTACT_PHONE</label>
+    </div>
+</div>

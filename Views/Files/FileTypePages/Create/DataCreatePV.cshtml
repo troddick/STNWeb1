@@ -1,0 +1,127 @@
+﻿@* Comments: 
+04.14.14 - TR - validate
+12.12.12 - TR - Created 
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+  * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Partial view for create when file type DATA is chosen 
+ */
+ *@
+
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using STNWeb.Models;
+ 
+@model STNWeb.Models.FileDataFileModel
+
+
+    <input type="hidden" name="FDFM_DataFile.PROCESSOR" value='@User.Identity.Name' />
+
+    <div class="ui-grid-a">
+        <div data-role="fieldcontain">
+            <div class="ui-block-a">@Html.Label(FileStrings.FileURL_Label)</div>
+            <div class="ui-block-b"><input type="text" class="stnTextInput ui-shadow-inset" name="FDFM_File.FILE_URL" data-mini="true" /></div>
+        </div>
+    </div>
+
+    <div class="ui-grid-a">
+        <div data-role="fieldcontain">
+            <div class="ui-block-a">@Html.Label(FileStrings.FileProcessor_Label)</div>
+            <div class="ui-block-b"><label>@Context.User.Identity.Name</label></div>
+        </div>
+    </div>
+
+    <div class="ui-grid-a">
+        <div data-role="fieldcontain">
+            <div class="ui-block-a"><span class="required">@Html.Label(FileStrings.DateCollected_Label)</span></div>
+            <div class="ui-block-b"><input type="text" class="required datepicker stnTextInput ui-shadow-inset" name="FDFM_DataFile.COLLECT_DATE" data-mini="true" value="@DateTime.Now.ToShortDateString()"/></div>
+        </div>
+    </div>
+
+    <div class="ui-grid-a">
+        <div data-role="fieldcontain">
+            <div class="ui-block-a"><span class="required">@Html.Label(FileStrings.DateUploaded_Label)</span></div>
+            <div class="ui-block-b"><input type="text" class="required datepicker stnTextInput ui-shadow-inset" name="FDFM_File.FILE_DATE" data-mini="true" value="@DateTime.Now.ToShortDateString()"/></div>
+        </div>
+    </div>
+
+    <div class="ui-grid-a">
+        <div data-role="fieldcontain">
+            <div class="ui-block-a"><span class="required">@Html.Label(FileStrings.FileDesc_Label)</span></div>
+            <div class="ui-block-b"><textarea rows="4" cols="30" class="required stnTextInput ui-shadow-inset" name="FDFM_File.DESCRIPTION" data-mini="true"></textarea></div>
+        </div>
+    </div>
+         
+    <div class="ui-grid-a">
+        <div data-role="fieldcontain">
+            <div class="ui-block-a"><span class="required">@Html.Label(FileStrings.FileGoodStart_Label)</span></div>
+            <div class="ui-block-b" style="margin-bottom:0"><input type="text" class="required stnTextInput ui-shadow-inset" id="goodStart" name="FDFM_DataFile.GOOD_START" data-mini="true" /></div>
+            <div style="margin-left:41%;color:gray;display:inline">mm/dd/yyyy hh:mm AM/PM</div>
+        </div>
+    </div>
+         
+    <div class="ui-grid-a">
+        <div data-role="fieldcontain">
+            <div class="ui-block-a"><span class="required">@Html.Label(FileStrings.FileGoodEnd_Label)</span></div>
+            <div class="ui-block-b" style="margin-bottom:0"><input type="text" class="required datetimepicker stnTextInput ui-shadow-inset" id="goodEnd" name="FDFM_DataFile.GOOD_END" data-mini="true" /></div>
+            <div style="margin-left:41%;color:gray;display:inline">mm/dd/yyyy hh:mm AM/PM</div>
+        </div>
+    </div>
+    
+    <div class="ui-grid-a">
+        <div data-role="fieldcontain">
+            <div class="ui-block-a">Time Zone:</div> 
+            <div class="ui-block-b">
+                <select id="timeZoneDD" class="stnSelectInput" name="FDFM_DataFile.TIME_ZONE" data-native-menu="false" data-mini="true">
+					@foreach (string tz in ViewData["TimeZones"] as List<string>)
+     {
+                        <option value='@tz'>@tz</option>
+     }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                 <div class="ui-block-a">@Html.Label(FileStrings.FileElevation_Label)</div>
+                <div class="ui-block-b">
+                    <span>
+                        <input type="radio" name="ELEVATION_STATUS" value="Final" />Final
+                        <input type="radio" name="ELEVATION_STATUS" value="Arbitrary" />Arbitrary
+                    </span>
+                </div>
+            </div>
+        </div>
+
+<br  />
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#loading").fadeOut();
+
+        $(function () {
+            //datepicker 
+            $('input').filter('.datepicker').datepicker({
+                changeMonth: true,
+                yearRange: '1965:2030',
+                changeYear: true
+            });
+
+            jQuery('.datetimepicker').datetimepicker({
+                format: 'm/d/Y  H:i'
+            });
+        });
+
+        $.mask.definitions['h'] = "[A-Pa-p]"
+        $("#goodStart").mask("99/99/9999 99:99 hh");
+        $("#goodEnd").mask("99/99/9999 99:99 hh");
+    });
+    
+</script>

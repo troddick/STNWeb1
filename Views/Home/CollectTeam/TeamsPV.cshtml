@@ -1,0 +1,60 @@
+﻿@* 
+Comments:
+02.11.13 - TR - Created (Parial View)
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display partial view containing the collection teams for this event 
+ */
+ *@
+@using STNServices;
+
+
+@{
+     var i = 0;}
+     @if (ViewData["TESTCollTeam"] != null)
+     {
+          foreach (COLLECT_TEAM colTeam in ViewData["TESTCollTeam"] as List<COLLECT_TEAM>)
+          {   
+              <div>
+                  <table>
+                      <tr>
+                          <td>@Html.RadioButton("ColTeam", false, new { id = colTeam.COLLECT_TEAM_ID, onclick = "selectThisOne(this);" })
+                              @Html.Hidden("ColTeam[" + i.ToString() + "]") 
+                          </td>
+                          <td>
+                              <label>@Html.ActionLink(colTeam.DESCRIPTION, "TeamDetails", "Home", new { id = colTeam.COLLECT_TEAM_ID }, new { @style = "float:left; vertical-align: middle" })</label>
+                          </td>
+                      </tr>
+                  </table>
+              </div>
+              i++;              
+          } 
+      }
+      else
+      {
+          if ( Session["TeamName"] == null)
+          {
+              <div>No Collection Teams for this event.</div>   
+          }
+      }    
+      
+      <div id="TeamName">
+      @{ var collTeam = Session["TeamName"] != null ? Session["TeamName"] : null;
+        if (collTeam != null && collTeam != "")
+        {
+            <span>Your current Collection Team is: @(collTeam).</span>
+        }                     
+      }
+       </div>
+
+      <br />
+      <div>@Html.ActionLink("Add Collection Team", "CreateCollectTeam", "Home", new { rdURL = ViewData["RedirectURL"] }, new { @class = "STNButton", onclick = "loading();" })</div>
+      <br />
+       
+      

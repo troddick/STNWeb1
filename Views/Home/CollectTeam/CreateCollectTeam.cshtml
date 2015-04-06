@@ -1,0 +1,92 @@
+﻿@* Comments:
+02.09.13 - TR - Created 
+*@
+
+@*
+/* Authors:
+*      Tonia Roddick (troddick@usgs.gov)
+* Copyright:
+*      2012 USGS - WiM
+* Purpose:
+*      Create a collectio team 
+*/
+
+*@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model STNServices.COLLECT_TEAM
+
+@{
+    ViewBag.Title = "Create Collection Team";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+<div id="dataTitle">
+    <div class="title">Create Collection Team</div>
+</div>
+<br clear="all" />    
+<hr class="headerUnderline" />
+
+    @using (Ajax.BeginForm("CreateCollectTeam", "Home", FormMethod.Post, null))
+    {
+        <input type="hidden" name="thisUserName" value="@User.Identity.Name" />
+        <div class="fiftyPercColumn">
+        
+            <div class="ui-grid-a">
+                <div data-role="fieldcontain">
+                    <div class="ui-block-a required">@Html.Label(MemberStrings.CollectTeamWho_Label)</div>
+                    <div class="ui-block-b"><input type="text" id="userName" onchange="checkMember();" class="required stnTextInput ui-shadow-inset" name="WhoRUwith" data-mini="true" /></div>
+                </div>
+            </div>
+
+            <div class="ui-grid-a">
+                <div data-role="fieldcontain">
+                    <div class="ui-block-a required">@Html.Label(MemberStrings.TeamName_Label)</div>
+                    <div class="ui-block-b"><input type="text" class="required stnTextInput ui-shadow-inset" name="TeamName" data-mini="true" /></div>
+                </div>
+            </div>
+
+        </div>
+        <input type="hidden" name="RedirectURL" value="@ViewData["RedirectURL"]" />
+        <br clear="all" />
+        <br />
+    
+        <div id="formSubmitDiv" class="formSection">
+            <div class="leftSideSubmit">
+                <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+                <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" class="submit" value="Submit" /></div></div>
+            </div>    
+        </div>
+    }
+
+<script type="text/javascript">
+    function cancelClick() {
+        $("#loading").fadeIn();
+        window.location.href = '@Url.Action("Index", "Home")'
+    };
+
+    function loading() {
+        $("#loading").fadeIn();
+    }
+
+    //check username entered to ensure this is a member's username
+    function checkMember() {
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("CheckMember", "Members")',
+            data: { userName: $("#userName").val() },
+            success: function (response) {
+                if (response.dir == "") {
+                    alert("User name does not exist");
+                }
+                else {
+                    alert("Member: " + response);
+                }
+            }
+        });
+    }
+</script>

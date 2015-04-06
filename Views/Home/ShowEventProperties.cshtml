@@ -1,0 +1,109 @@
+﻿@* Comments:
+
+11.07.12 - TR - Created 
+*@
+
+@*
+/* Authors:
+*      Tonia Roddick (troddick@usgs.gov)
+* Copyright:
+*      2012 USGS - WiM
+* Purpose:
+*      Partial View for properties of Event selected from Dropdown 
+*/
+*@
+
+@using STNServices;
+
+@{ int totalPeople = 0;
+   int totalSensors = 0; 
+   int deployed = 0;
+   int retrieved = 0; 
+   int totalHWMs = 0;
+   
+   if (Convert.ToInt32(Session["EventId"]) != 0)
+   {
+       totalPeople = Convert.ToInt32(ViewData["TotPeople"]);
+       totalSensors = Convert.ToInt32(ViewData["TotSensors"]);
+       deployed = Convert.ToInt32(ViewData["Deployed"]);
+       retrieved = Convert.ToInt32(ViewData["Retrieved"]);
+       totalHWMs = Convert.ToInt32(ViewData["TotHWM"]);
+   }
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#loading").fadeOut();
+    });        
+</script>
+
+@{ 
+    if (Convert.ToInt32(Session["EventId"]) != 0)
+    {
+        <div id="NumberOfSensors"> 
+            <h1>Sensors:</h1>
+            @if (totalSensors == 0)
+            {
+                <div><label>There are no Sensors for this event.</label></div> 
+            }
+            else if (totalSensors == 1)
+            {
+                <div><label>There is @totalSensors Sensor for this event.</label></div>
+            }
+            else
+            {
+                <div><label>There are @totalSensors Sensors for this event.</label></div>
+            }
+         
+            @if (totalSensors > 0)
+            {
+                if (deployed == 1)
+                {
+                    <div><label>-- @deployed sensor is deployed.</label></div>
+                }
+                else if (deployed > 1)
+                {
+                    <div><label>-- @deployed sensors are deployed.</label></div>
+                }
+
+                if (retrieved == 1)
+                {
+                     <div><label>-- @retrieved sensor has been retrieved.</label></div>
+                }
+                else if (retrieved > 1)
+                {
+                     <div><label>-- @retrieved sensors have been retrieved.</label></div>
+                }
+            }
+        </div>
+
+        <div id="NumberOfPeople"> 
+            <h1>People:</h1>
+            @{if (totalPeople == 0)
+              {
+                <div><label>There are @totalPeople people in the field for this event.</label></div>
+              }
+              if (totalPeople == 1)
+              {
+                    <div><label>There is @totalPeople person in the field for this event.</label></div>
+              }
+              if (totalPeople > 1)
+              {
+                    <div><label>There is @totalPeople people in the field for this event.</label></div>
+              }
+    }    
+        </div>
+
+        <div id="NumberOfHWMs"> 
+            <h1>HWMs</h1>
+            @if (totalHWMs > 1)
+            {
+                <div><label>There are @totalHWMs HWMs for this event.</label></div>
+            }
+            else
+            {
+                <div><label>There is @totalHWMs HWM for this event.</label></div>
+            }
+        </div>
+   }
+}

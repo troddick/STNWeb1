@@ -1,0 +1,106 @@
+﻿@*
+Comments:
+05.02.13 - TR - Created
+
+*@
+
+@*
+/* Authors:
+*      Tonia Roddick (troddick@usgs.gov)
+* Copyright:
+*      2012 USGS - WiM
+* Purpose:
+*      Edit Horizontal Datum
+*/
+*@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model STNServices.HORIZONTAL_DATUMS
+
+@{
+    ViewBag.Title = "Edit Horizontal Datums";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+    <div id="dataTitle">
+        <div class="title">Edit Horizontal Datums</div>
+    </div>
+    <br clear="all" />
+    <hr class="headerUnderline" />
+    
+    @using (Ajax.BeginForm("HDatumEdit", "Lookups", new { id = Model.DATUM_ID }, new AjaxOptions() { HttpMethod = "POST" }, new { @id = "EditHorizDatumForm" }))
+    {
+        <div class="fiftyPercColumn">   
+            <input type="hidden" name="DATUM_ID" value="@Model.DATUM_ID" />
+                  
+            <div class="ui-grid-a">
+                <div class="ui-block-a"><span class="required">@Html.Label(LookupsStrings.HDatumName_createNew)</span></div>
+                <div class="ui-block-b">
+                    <input type="text" class="stnTextInput ui-shadow-inset required" name="DATUM_NAME" data-mini="true" value="@Model.DATUM_NAME" />
+                </div>
+            </div>
+                
+             <div class="ui-grid-a">
+                <div class="ui-block-a"><span class="required">@Html.Label(LookupsStrings.HDatumAbbr_createNew)</span></div>
+                <div class="ui-block-b">
+                    <input type="text" class="stnTextInput ui-shadow-inset required" name="DATUM_ABBREVIATION" data-mini="true" value="@Model.DATUM_ABBREVIATION" />
+                </div>
+            </div>
+        </div>
+    
+         <div id="formSubmitDiv" class="formSection">
+            <div class="leftSideSubmit">
+                <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+                <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" class="submit" value="Submit" /></div></div>
+            </div>
+    
+        </div>
+    }
+
+<script type="text/javascript">
+    function cancelClick() {
+        $("#loading").fadeIn();
+        window.location.href = '@Url.Action("Index", "Lookups")' 
+    };
+
+    function loading() {
+        $("#loading").fadeIn();
+    };
+
+    //doc.ready 
+    $(document).ready(function () {
+        $("#EditHorizDatumForm").validate();
+        $("#EditHorizDatumForm").removeData("validator");
+        $("#EditHorizDatumForm").removeData("unobtrusiveValidation");
+
+        $("#EditHorizDatumForm").validate({
+            rules: {
+                'DATUM_NAME': "required",
+                'DATUM_ABBREVIATION': "required"
+            },
+            messages: {
+                'DATUM_NAME': "Required",
+                'DATUM_ABBREVIATION': "Required"
+            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                form.submit();
+            }
+        });
+    });
+</script>
+
+<style type="text/css">
+    #EditHorizDatumForm label.error {      
+        width: auto;
+        display: block;
+        color: Red;
+    }    
+</style>

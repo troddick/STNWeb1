@@ -1,0 +1,200 @@
+﻿@* Comments:
+04.18.14 - TR - validation and masking
+02.16.13 - TR - Created (Parial View)
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display Edit page for Peak Summary 
+ */
+ *@
+@using STNServices;
+@using STNWeb.Assets.Resources;
+          
+@model STNServices.PEAK_SUMMARY
+               
+               
+@*<script src="@Url.Content("~/Assets/Scripts/jquery-1.8.3.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery-ui-1.10.4.js")" type="text/javascript"></script>*@
+<script src="@Url.Content("~/Assets/Scripts/jquery.maskedinput.min.js")" type="text/javascript"></script>
+  
+@using (Ajax.BeginForm("EditPeakSum", "PeakSummary", new { id = Model.PEAK_SUMMARY_ID }, new AjaxOptions() { LoadingElementId="loading", HttpMethod = "POST", UpdateTargetId = "PeakSum" }, new {@id = "PeakEditForm" }))
+{
+
+    <input type="hidden" name="peakID" value="@Model.PEAK_SUMMARY_ID" />
+    
+    <input type="hidden" name="memberID" value="@Model.MEMBER_ID" />
+    
+     <div data-role="fieldcontain">
+	    <span class="bold ui-label-a" style="width:54%">@Html.Label(globalStrings.PS_MemberID_Label)</span>
+	    <label>@ViewData["MemberUsername"]</label>
+    </div>
+                    
+    <div data-role="fieldcontain">
+	    <span class="bold ui-label-a required" style="width:54%">@Html.Label(globalStrings.PS_PeakDate_Label)</span>
+	    <input type="text" class="peakmargin datepicker required" name="PeakDate" data-mini="true" value="@( ((DateTime)Model.PEAK_DATE).ToString("d"))" />
+    </div>
+                    
+    <div data-role="fieldcontain">
+	    <span class="bold ui-label-a" style="width:54%">@Html.Label(globalStrings.PS_PeakDateEst_Label)</span>
+        @if (Model.IS_PEAK_ESTIMATED == 1)
+        {
+            <input type="checkbox" class="peakmargin" style="width:14px" name="DateEstimated" checked="checked" value="@Model.IS_PEAK_ESTIMATED" />
+        }
+        else
+        {
+            <input type="checkbox" class="peakmargin" style="width:14px" name="DateEstimated" value="1" />
+        }
+    </div>
+
+    <div data-role="fieldcontain">
+	    <span class="bold ui-label-a" style="width:54%">@Html.Label(globalStrings.PS_PeakTime_Label)</span>
+	    <input type="text" class="peakmargin" id="peakTime" name="PeakTime" data-mini="true" value="@( ((DateTime)Model.PEAK_DATE).ToString("hh:mm tt"))" />
+    </div>    
+    
+    <div data-role="fieldcontain">
+        <span class="bold ui-label-a required" style="width:54%">Peak Recorded In:</span>
+        <select style="width:42%" id="TimezoneDD" class="required peakmargin" name="TimeZone" data-native-menu="false" data-mini="true">
+			<option value="">Choose Time Zone</option> 
+            @foreach (string tz in ViewData["TimeZones"] as List<string>)
+            {
+                <option @( (tz == Model.TIME_ZONE) ? "selected" : "") value='@tz'>@tz</option>
+            }
+        </select>
+    </div>  
+                    
+    <div data-role="fieldcontain">
+	    <span class="bold ui-label-a" style="width:54%">@Html.Label(globalStrings.PS_PeakTimeEst_Label)</span>
+         @if (Model.IS_PEAK_TIME_ESTIMATED == 1)
+         {
+            <input type="checkbox" class="peakmargin" style="width:14px" name="TimeEstimated" checked="checked" value="@Model.IS_PEAK_TIME_ESTIMATED" />
+         }
+         else
+         {
+            <input type="checkbox" class="peakmargin" style="width:14px" name="TimeEstimated" value="1" />
+         }
+    </div>
+
+    <div data-role="fieldcontain">
+	    <span class="bold ui-label-a" style="width:54%">@Html.Label(globalStrings.PS_PeakStage_Label)</span>
+	    <input type="text" class="peakmargin" onkeypress="return isNumberKey(event)" name="PeakStage" data-mini="true" value="@Model.PEAK_STAGE" />
+    </div>
+                    
+    <div data-role="fieldcontain">
+	    <span class="bold ui-label-a" style="width:54%">@Html.Label(globalStrings.PS_PeakStageEst_Label)</span>
+        @if (Model.IS_PEAK_STAGE_ESTIMATED == 1)
+         {
+            <input type="checkbox" class="peakmargin" style="width:14px" name="StageEstimated" checked="checked" value="@Model.IS_PEAK_STAGE_ESTIMATED" />
+         }
+         else
+         {
+            <input type="checkbox" class="peakmargin" style="width:14px" name="StageEstimated" value="1" />
+         }
+    </div>
+
+    <div data-role="fieldcontain">
+        <span class="bold ui-label-a" style="width:54%">@Html.Label(globalStrings.VDatum_Label)</span>
+        <select id="vDatumDD" style="width:42%" class="peakmargin" name="VdatumID" data-native-menu="false" data-mini="true">
+			<option value=""></option>
+            @foreach (VERTICAL_DATUMS aVDatum in ViewData["VDType"] as List<VERTICAL_DATUMS>)
+            {
+                <option @( (aVDatum.DATUM_ID == Model.VDATUM_ID) ? "selected" : "") value='@aVDatum.DATUM_ID'>@aVDatum.DATUM_NAME</option> 
+            }				            
+        </select>
+        <br />	
+    </div>
+    
+    <div data-role="fieldcontain">
+	    <div style="width:54%;float:left">
+            <span class="bold ui-label-a" style="width:88%">@Html.Label(globalStrings.PS_PeakHAG_Label)</span><br /><span>(Depth of Water)</span>
+        </div>
+	    <input type="text" class="peakmargin" onkeypress="return isNegNumberKey(event)" name="HeightAboveGround" data-mini="true" value="@Model.HEIGHT_ABOVE_GND" />
+    </div>
+                    
+    <div data-role="fieldcontain">
+	    <span class="bold ui-label-a" style="width:54%">@Html.Label(globalStrings.PS_PeakHAGEst_Label)</span>
+         @if (Model.IS_HAG_ESTIMATED == 1)
+         {
+            <input type="checkbox" style="width:14px" class="peakmargin" name="HAGEstimated" checked="checked" value="@Model.IS_HAG_ESTIMATED" />
+         }
+         else
+         {
+            <input type="checkbox" style="width:14px" class="peakmargin" name="HAGEstimated" value="1" />
+         }
+    </div>
+    
+    <div data-role="fieldcontain">
+	    <span class="bold ui-label-a" style="width:54%">@Html.Label(globalStrings.PS_PeakDischarge_Label)</span>
+	    <input type="text" class="peakmargin" onkeypress="return isNumberKey(event)" name="PeakDischarge" data-mini="true" value="@Model.PEAK_DISCHARGE" />
+    </div>
+                    
+    <div data-role="fieldcontain">
+	    <span class="bold ui-label-a" style="width:54%">@Html.Label(globalStrings.PS_PeakDischargeEst_Label)</span> 
+        @if (Model.IS_PEAK_DISCHARGE_ESTIMATED == 1)
+         {
+            <input type="checkbox" class="peakmargin" style="width:14px" name="DischargeEstimated" checked="checked" value="@Model.IS_PEAK_DISCHARGE_ESTIMATED" />
+         }
+         else
+         {
+            <input type="checkbox" class="peakmargin" style="width:14px" name="DischargeEstimated" value="1" />
+         }
+    </div>
+
+    <div class="leftSideSubmit">   
+        <div style="float:left;margin-left:46px"><input type="submit" class="submit" onclick="loading();" value="Save" /></div>
+        <div style="float:left;margin-left:15px"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelPeakEdit();" /></div>
+    </div>
+}
+<script type="text/javascript">
+    function loading() {
+        $("#loading").fadeIn();
+    }
+
+    
+    function cancelPeakEdit() {
+        $("#loading").fadeIn();
+        if ('@ViewData["FROM"]' == "HWM") {
+            window.location.href = '@Url.Action("Details", "HWMs", new { id = ViewData["objID"] })'
+        }
+        if ('@ViewData["FROM"]' == "FILE") {
+            window.location.href = '@Url.Action("FileDetails", "Files", new { id = ViewData["objID"] })'
+        }
+    }
+
+    //number formatter (any number and decimal place)
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode != 46 && charCode > 31
+            && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+    function isNegNumberKey(evt) {
+        //this allows only numbers and negative sign
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode > 31 && (charCode < 45 || charCode > 57)) {
+            return false;
+        }
+
+        return true;
+    }
+    $(document).ready(function () {
+        $("#loading").fadeOut();
+        $("#PeakEditForm").validate();
+        $('input').filter('.datepicker').datepicker({
+            changeMonth: true,
+            yearRange: '1965:2030',
+            changeYear: true
+        });
+
+        $.mask.definitions['h'] = "[A-Pa-p]"
+        $("#peakTime").mask("99:99 hh");
+        
+
+    });        
+</script>

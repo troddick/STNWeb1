@@ -1,0 +1,142 @@
+﻿@* 
+11.04.13 - TR - Created 
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display a proposed Instrument details page 
+ */
+ *@
+@using System.Configuration;
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using STNWeb.Models;
+
+@model STNWeb.Models.InstrumentModel
+
+@{
+    ViewBag.Title = "Sensor";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<script src="@Url.Content("~/Assets/Scripts/jquery.unobtrusive-ajax.min.js")" type="text/javascript"></script>
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+<div id="dataTitle"> 
+    <div class="title">
+        @Html.ActionLink(String.Format("Site: {0} ", ViewData["SiteNo"]), "Details", "Sites", new { id = Model.Instr.SITE_ID }, new { onclick = "loading();" }) 
+        | Sensor: @Model.Instr.SERIAL_NUMBER &nbsp;&nbsp;
+    </div>
+    <div style="float:left">
+        @Html.ActionLink("Delete", "Delete", new { id = Model.Instr.INSTRUMENT_ID, siteID = Model.Instr.SITE_ID }, new { onclick = "return confirm('Are you sure you want to delete instrument id " + Model.Instr.INSTRUMENT_ID + "?');", @class = "STNButton" })
+    </div>
+    
+    <div>&nbsp;&nbsp;
+        @Html.ActionLink("Go to this site on the map", "ZoomToOnMap", "Home", new { id = Model.Instr.SITE_ID }, new { @class = "STNButton" })
+     </div>
+</div>
+<br clear="all" />    
+
+<hr class="headerUnderline" />
+<div class="fiftyPercColumn"> 
+        
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.Event_Label)</span>
+	        <label class="inline">@(ViewData.ContainsKey("anEvent") ? ViewData["anEvent"] : "")</label>
+		</div>
+        
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.SensorType_Label)</span>
+	        <label class="inline">@(ViewData.ContainsKey("SensorType") ? ViewData["SensorType"] : "")</label>
+		</div>
+
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.SerialNo_Label)</span>
+	        <label class="inline">@Model.Instr.SERIAL_NUMBER</label>
+		</div>
+                        
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.HousingSerialNo_Label)</span>
+	        <label class="inline">@Model.Instr.HOUSING_SERIAL_NUMBER</label>
+		</div>
+        
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.DeploymentType_Label)</span>
+	        <label class="inline">@(ViewData.ContainsKey("DeplType") ? ViewData["DeplType"] : "")</label>
+		</div>
+                        
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.LocationDesc_Label)</span>
+	        <textarea class="textAreaDetails inline" cols="30" readonly="readonly">@Model.Instr.LOCATION_DESCRIPTION</textarea>
+		</div>
+        
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.Interval_Label)</span>
+	        @if (Model.Instr.INTERVAL != null) 
+            {<label class="inline">@Model.Instr.INTERVAL seconds</label> } 
+            else {<label class="inline"></label>}
+		</div>
+              
+        <div> @* *@
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.TimeStamp_Label)</span>
+	        <label class="inline">@Model.PropInstrStatus.TIME_STAMP</label> 
+		</div>
+                 
+        <div>
+	        <span class="bold ui-label-a">Time Zone:</span>
+	        <label class="inline">@Model.PropInstrStatus.TIME_ZONE</label> 
+		</div>
+         
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.Notes_Label)</span>
+	        <label class="inline">@Model.PropInstrStatus.NOTES</label> 
+		</div>
+        
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.Status_Label)</span>
+	        <label class="inline">Proposed</label> 
+		</div>
+
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(globalStrings.SiteNo_Label)</span>
+	        <label class="inline">@ViewData["SiteNo"]</label>
+		</div>
+                        
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(globalStrings.ProposeMember_Label)</span>
+	        <label class="inline">@( ViewData["proposedBy"])</label>
+		</div>
+
+        <br clear="all" />
+        <br />
+        <div id="formSubmitDiv" class="formSection">
+            <div class="leftSideSubmit">
+                <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+                <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" name="Create" class="submit" value="Deploy" onclick="DeployClick();" /></div></div>
+            </div>
+        </div>
+
+    </div> 
+   
+<script type="text/javascript">
+    function loading() {
+        $("#loading").fadeIn();
+    };
+
+    function DeployClick() {
+         $("#loading").fadeIn();
+         window.location.href = '@Url.Action("DeployProposedSensor", "Instruments", new { id = Model.Instr.INSTRUMENT_ID, siteId = Model.Instr.SITE_ID })'
+    }
+
+    function cancelClick() {
+        $("#loading").fadeIn();
+        window.location.href = '@Url.Action("Details", "Sites", new { id = Model.Instr.SITE_ID })'
+    };
+
+</script>

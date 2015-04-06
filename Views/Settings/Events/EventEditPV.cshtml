@@ -1,0 +1,119 @@
+﻿@* Comments:
+01.30.13 - TR - dropdown list of manager members for Coordinator
+01.29.13 - TR - added loading logo
+12.11.12 - TR - Created PV
+*@ @*
+/* Authors:
+*      Tonia Roddick (troddick@usgs.gov)
+* Copyright:
+*      2012 USGS - WiM
+* Purpose:
+*      Edit an Event 
+*/
+*@
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model STNServices.EVENT
+           
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#loading").fadeOut();
+    });        
+</script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.unobtrusive-ajax.min.js")" type="text/javascript"></script>
+@*<script src="@Url.Content("~/Assets/Scripts/jquery-1.8.3.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery-ui-1.10.4.js")" type="text/javascript"></script>
+*@
+
+@if (ViewData.ContainsKey("Role"))
+{
+    <div>You are not authorized to edit an event.</div>
+}
+else
+{
+    using (Ajax.BeginForm("EventEdit", "Events", new { id = Model.EVENT_ID }, new AjaxOptions() { HttpMethod = "POST", UpdateTargetId = "content" }, new { @id = "eventEditForm" }))
+    {
+        <input type="hidden" name="EVENT_ID" value="@Model.EVENT_ID" />
+    
+        <div class="fiftyPercColumn">
+
+            <div data-role="fieldcontain">
+                <span class="required bold ui-label-a">@Html.Label(EventStrings.Name_Label)</span>
+                <input type="text" class="required margin stnTextInput ui-shadow-inset" name="EVENT_NAME" data-mini="true" value="@Model.EVENT_NAME" />
+            </div>
+
+            <div data-role="fieldcontain">
+                <span class="required bold ui-label-a">@Html.Label(EventStrings.Description_Label)</span>
+                <textarea cols="30" class="required margin stnTextInput ui-shadow-inset" rows="4" name="EVENT_DESCRIPTION" data-mini="true">@Model.EVENT_DESCRIPTION</textarea>
+            </div>
+
+            <div data-role="fieldcontain">
+                <span class="required bold ui-label-a">@Html.Label(EventStrings.StartDate_Label)</span>
+                <input type="text" class="required datepicker stnTextInput ui-shadow-inset margin" name="EVENT_START_DATE" data-mini="true" value="@( Model.EVENT_START_DATE != null ? ((DateTime)Model.EVENT_START_DATE).ToShortDateString() : "")" />
+            </div>
+        
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(EventStrings.EndDate_Label)</span>
+                <input type="text" class="datepicker margin stnTextInput ui-shadow-inset" name="EVENT_END_DATE" data-mini="true" value="@( Model.EVENT_END_DATE != null ? ((DateTime)Model.EVENT_END_DATE).ToShortDateString() : "")" />
+            </div>
+
+            <div data-role="fieldcontain">
+                <span class="required bold ui-label-a">@Html.Label(EventStrings.Type_Label)</span>
+                <select id="eventTypeDD" class="required selectmargin stnTextInput ui-shadow-inset" name="EVENT_TYPE_ID" data-native-menu="false" data-mini="true">
+                    <option value=""></option>
+                    @foreach (STNServices.EVENT_TYPE anET in ViewData["EventType"] as List<EVENT_TYPE>)
+                    {
+                        <option @( (anET.EVENT_TYPE_ID == Model.EVENT_TYPE_ID) ? "selected" : "") value='@anET.EVENT_TYPE_ID'>@anET.TYPE</option> 
+                    }
+                </select>
+                <br />
+            </div>
+
+            <div data-role="fieldcontain">
+                <span class="required bold ui-label-a">@Html.Label(EventStrings.Status_Label)</span>
+                <select id="eventStatDD" class="selectmargin required stnTextInput ui-shadow-inset" name="EVENT_STATUS_ID" data-native-menu="false" data-mini="true">
+                    <option value=""></option>
+                    @foreach (STNServices.EVENT_STATUS anES in ViewData["EventStatus"] as List<EVENT_STATUS>)
+                    {
+                        <option @( (anES.EVENT_STATUS_ID == Model.EVENT_STATUS_ID) ? "selected" : "") value='@anES.EVENT_STATUS_ID'>@anES.STATUS</option> 
+                    }
+                </select>
+                <br />
+            </div>
+
+            <div data-role="fieldcontain">
+                <span class="required bold ui-label-a">@Html.Label(EventStrings.Coordinator_Label)</span>
+                <select id="eventCoordDD" class="selectmargin required stnTextInput ui-shadow-inset" name="EVENT_COORDINATOR" data-native-menu="false" data-mini="true">
+                    <option value=""></option>
+                    @foreach (STNServices.MEMBER aMem in ViewData["ManagerMemberList"] as List<MEMBER>)
+                    {
+                        <option @( (aMem.MEMBER_ID == Model.EVENT_COORDINATOR) ? "selected" : "") value='@aMem.MEMBER_ID'>@aMem.USERNAME</option> 
+                    }
+                </select>
+                <br />
+            </div>
+        </div>
+        <br clear="all" />
+        <br />
+    
+        <div id="formSubmitDiv" class="formSection">
+            <div class="leftSideSubmit">
+                <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+                <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" class="submit" value="Save" /></div></div>
+            </div>   
+        </div>  
+
+    }
+}
+
+<script type="text/javascript">
+$(function () {
+        //datepicker 
+        $('input').filter('.datepicker').datepicker({
+            changeMonth: true,
+            yearRange: '1965:2030',
+            changeYear: true
+        });
+    });
+</script>

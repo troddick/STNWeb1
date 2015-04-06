@@ -1,0 +1,1400 @@
+﻿@*
+Comments:
+05.15.14 - TR - added Objective Point Type
+04.29.13 - TR - Only admin can add/delete, field people can edit
+04.26.13 - TR - Redoing all the lookups to be dropdowns rather than lists
+01.30.13 - TR - fixed ActionLinks for Edit and create so they wouldn't add ?length=8 to end of url
+01.25.13 - TR - Added loading spinning logo
+10.26.12 - JB - Fixed Delete button styling
+10.25.12 - TR - Added Delete actions for every lookup
+10.17.12 - TR - Fixed ActionLink so alert window opens onClick
+10.12.12 - TR - Removed "main" div and only have it in _Layout
+10.10.12 - TR - Added "main" div with height for css formatting
+10.09.12 - TR - Formatting done on create/edit buttons
+09.28.12 - JB - Created from old web app 
+
+*@
+
+@*
+/* Authors:
+ *      Jonathan Baier (jbaier@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display lookup table listing
+ */
+ *@
+
+@using STNWeb.Assets.Resources;
+@using STNServices;
+
+@{
+    ViewBag.Title = "Lookups";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+<div id="dataTitle">
+    <div class="title">Lookups</div>    
+</div>
+<br clear="all" />
+
+<hr class="headerUnderline" />
+
+<div class="fiftyPercColumn">
+
+    <div class="subSection">
+        @* Agency Lookup A1*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_Agency_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("Agency", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="agDrop" class="stnSelectInput" name="AGENCY_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Agency to Edit or Delete</option>
+                        @foreach (AGENCY ag in ViewData["Agencies"] as List<AGENCY>)
+                        {
+                            <option value='@ag.AGENCY_ID'>@ag.AGENCY_NAME</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveAG();" class="STNButton" value="Delete" />          
+                }
+            }
+            else
+            { 
+                <select id="agDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+			        @foreach (AGENCY ag in ViewData["Agencies"] as List<AGENCY>)
+           {
+                        <option>@ag.AGENCY_NAME</option> 
+           }
+                </select>
+                <br />	<br />
+            }
+           <script type="text/javascript">
+               function RemoveAG() {
+                   var answer = confirm("Are you sure you want to delete this Agency?");
+                   if (answer == true) {
+                       $("#loading").fadeIn();
+                       var toDelete = $("#agDrop").val();
+                       $.ajax({
+                           url: '@Url.Action("AgencyDelete", "Lookups")',
+                           data: { id: toDelete },
+                           success: function (response) {
+                               if (response == "True") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                               }
+                               else if (response == "False") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                                   alert("Delete was unsuccessful");
+                               }
+                           }
+                       });
+                   }
+               }
+           </script>                
+        </div>
+    </div>
+
+    <br />
+    
+    <div class="subSection">
+        @* Deployment Priority Lookup A2*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_DeploymentP_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("DeploymentPriority", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="DepPriorDrop" class="stnSelectInput" name="PRIORITY_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Deployment Priority to Edit or Delete</option>
+                        @foreach (DEPLOYMENT_PRIORITY depP in ViewData["DeploymentPriority"] as List<DEPLOYMENT_PRIORITY>)
+                        {
+                            <option value='@depP.PRIORITY_ID'>@depP.PRIORITY_NAME</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveDepP();" class="STNButton" value="Delete" />      
+                }
+            }
+            else
+            {     
+                <select id="DepPriorDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+				    @foreach (DEPLOYMENT_PRIORITY depP in ViewData["DeploymentPriority"] as List<DEPLOYMENT_PRIORITY>)
+        {
+                        <option value='@depP.PRIORITY_ID'>@depP.PRIORITY_NAME</option> 
+        }
+                </select>
+                <br />	<br />
+            }
+           <script type="text/javascript">
+               function RemoveDepP() {
+                   var answer = confirm("Are you sure you want to delete this Deployment Priority?");
+                   if (answer == true) {
+                       $("#loading").fadeIn();
+                       var toDelete = $("#DepPriorDrop").val();
+                       $.ajax({
+                           url: '@Url.Action("DeploymentPriorityDelete", "Lookups")',
+                           data: { id: toDelete },
+                           success: function (response) {
+                               if (response == "True") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                               }
+                               else if (response == "False") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                                   alert("Delete was unsuccessful");
+                               }
+                           }
+                       });
+                   }
+               }
+           </script>                
+        </div>
+    </div>
+    
+    <br />
+
+    <div class="subSection">
+        @* Event Types Lookup A3*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_EventType_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("EventType", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="EventDrop" class="stnSelectInput" name="EVENT_TYPE_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Event Type to Edit or Delete</option>
+                        @foreach (EVENT_TYPE aET in ViewData["EventTypes"] as List<EVENT_TYPE>)
+                        {
+                            <option value='@aET.EVENT_TYPE_ID'>@aET.TYPE</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveET();" class="STNButton" value="Delete" />          
+                }
+            }
+            else
+            {
+                <select id="EventDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">				
+                    @foreach (EVENT_TYPE aET in ViewData["EventTypes"] as List<EVENT_TYPE>)
+                    {
+                        <option>@aET.TYPE</option> 
+                    }
+                </select>
+                <br /><br />
+            }
+           <script type="text/javascript">
+            function RemoveET() {
+                var answer = confirm("Are you sure you want to delete this Event Type?");
+                if (answer == true) {
+                    $("#loading").fadeIn();
+                    var toDelete = $("#EventDrop").val();
+                    $.ajax({
+                        url: '@Url.Action("EventTypeDelete", "Lookups")',
+                        data: { id: toDelete },
+                        success: function (response) {
+                            if (response == "True") {
+                                window.location.href = '@Url.Action("Index", "Lookups")';
+                            }
+                            else if (response == "False") {
+                                window.location.href = '@Url.Action("Index", "Lookups")';
+                                alert("Delete was unsuccessful");
+                            }
+                        }
+                    });
+                }
+            }
+           </script>                
+        </div>
+    </div>    
+
+    <br />
+
+    <div class="subSection">
+        @* Horizontal Collection Methods Lookup A4*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_HCollectMethod_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("HCollectMethod", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="HCMDrop" class="stnSelectInput" name="HCOLLECT_METHOD_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Horizontal Collect Method to Edit or Delete</option>
+                        @foreach (HORIZONTAL_COLLECT_METHODS HCM in ViewData["HCollectMethods"] as List<HORIZONTAL_COLLECT_METHODS>)
+                        {
+                            <option value='@HCM.HCOLLECT_METHOD_ID'>@HCM.HCOLLECT_METHOD</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveHCM();" class="STNButton" value="Delete" />          
+                }
+            }
+            else
+            { 
+                <select id="HCMDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+				    @foreach (HORIZONTAL_COLLECT_METHODS hCM in ViewData["HCollectMethods"] as List<HORIZONTAL_COLLECT_METHODS>)
+        {
+                        <option>@hCM.HCOLLECT_METHOD</option> 
+        }
+                 </select>
+                 <br />	<br />
+            }
+           <script type="text/javascript">
+               function RemoveHCM() {
+                   var answer = confirm("Are you sure you want to delete this Horizontal Collection Method?");
+                   if (answer == true) {
+                       $("#loading").fadeIn();
+                       var toDelete = $("#HCMDrop").val();
+                       $.ajax({
+                           url: '@Url.Action("HCollectMethodDelete", "Lookups")',
+                           data: { id: toDelete },
+                           success: function (response) {
+                               if (response == "True") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                               }
+                               else if (response == "False") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                                   alert("Delete was unsuccessful");
+                               }
+                           }
+                       });
+                   }
+               }
+           </script>                
+        </div>
+    </div>
+
+    <br />
+
+    <div class="subSection">
+        @* HousingTYpes Lookup A5*@
+        <div class="subSectionHeader"><span class="bold">HOUSING TYPES</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("HousingType", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="HousingTDrop" class="stnSelectInput" name="HOUSING_TYPE_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Housing Type to Edit or Delete</option> 
+                        @foreach (HOUSING_TYPE ht in ViewData["HousingTypes"] as List<HOUSING_TYPE>)
+                        {
+                            <option value='@ht.HOUSING_TYPE_ID'>@ht.TYPE_NAME</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveHousingT();" class="STNButton" value="Delete" />      
+                }
+            }
+            else
+            { 
+                <select id="HousingTDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+				    @foreach (HOUSING_TYPE ht in ViewData["HousingTypes"] as List<HOUSING_TYPE>)
+                    {
+                        <option>@ht.TYPE_NAME</option> 
+                    }
+                </select>
+                <br />	<br />
+            }
+            <script type="text/javascript">
+                function RemoveHousingT() {
+                    var answer = confirm("Are you sure you want to delete this Housing Type?");
+                    if (answer == true) {
+                        $("#loading").fadeIn();
+                        var toDelete = $("#HousingTDrop").val();
+                        $.ajax({
+                            url: '@Url.Action("HousingTypeDelete", "Lookups")',
+                            data: { id: toDelete },
+                            success: function (response) {
+                                if (response == "True") {
+                                    window.location.href = '@Url.Action("Index", "Lookups")';
+                                }
+                                else if (response == "False") {
+                                    window.location.href = '@Url.Action("Index", "Lookups")';
+                                    alert("Delete was unsuccessful");
+                                }
+                            }
+                        });
+                    }
+                }
+            </script>                
+        </div>
+    </div>
+    
+    <br />
+
+    <div class="subSection">
+        @* HWM Types Lookup A6*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_HWMtype_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("HWMType", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="HWMTypeDrop" class="stnSelectInput" name="HWM_TYPE_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose HWM Type to Edit or Delete</option>
+                        @foreach (HWM_TYPES hwm in ViewData["HWMTypes"] as List<HWM_TYPES>)
+                        {
+                            <option value='@hwm.HWM_TYPE_ID'>@hwm.HWM_TYPE</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemovehwmT();" class="STNButton" value="Delete" />          
+                }
+            }
+            else
+            {
+                <select id="HWMTypeDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+                    @foreach (HWM_TYPES hwm in ViewData["HWMTypes"] as List<HWM_TYPES>)
+                    {
+                        <option>@hwm.HWM_TYPE</option> 
+                    }
+                </select>
+                <br />	<br />
+            }
+           <script type="text/javascript">
+               function RemovehwmT() {
+                   var answer = confirm("Are you sure you want to delete this HWM Type?");
+                   if (answer == true) {
+                       $("#loading").fadeIn();
+                       var toDelete = $("#HWMTypeDrop").val();
+                       $.ajax({
+                           url: '@Url.Action("HWMTypeDelete", "Lookups")',
+                           data: { id: toDelete },
+                           success: function (response) {
+                               if (response == "True") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                               }
+                               else if (response == "False") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                                   alert("Delete was unsuccessful");
+                               }
+                           }
+                       });
+                   }
+               }
+           </script>                
+        </div>
+    </div>    
+
+    <br /> 
+     
+    <div class="subSection">
+        @* Markers Lookup A7*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_Marker_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("Markers", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="MarkDrop" class="stnSelectInput" name="MARKER_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Marker to Edit or Delete</option>
+                        @foreach (MARKER mark in ViewData["Markers"] as List<MARKER>)
+                        {
+                            <option value='@mark.MARKER_ID'>@mark.MARKER1</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveMark();" class="STNButton" value="Delete" />          
+                }
+            }
+            else
+            { 
+                <select id="MarkDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+			        @foreach (MARKER mark in ViewData["Markers"] as List<MARKER>)
+           {
+                        <option value='@mark.MARKER_ID'>@mark.MARKER1</option> 
+           }
+                </select>
+                <br />	<br />
+            }
+           <script type="text/javascript">
+               function RemoveMark() {
+                   var answer = confirm("Are you sure you want to delete this Marker?");
+                   if (answer == true) {
+                       $("#loading").fadeIn();
+                       var toDelete = $("#MarkDrop").val();
+                       $.ajax({
+                           url: '@Url.Action("MarkersDelete", "Lookups")',
+                           data: { id: toDelete },
+                           success: function (response) {
+                               if (response == "True") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                               }
+                               else if (response == "False") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                                   alert("Delete was unsuccessful");
+                               }
+                           }
+                       });
+                   }
+               }
+           </script>                
+        </div>
+    </div>      
+    
+    <br />
+
+    <div class="subSection">
+        @* op quality Lookup A8*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_OPQual_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("OPQuality", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="OPQualityDrop" class="stnSelectInput" name="OP_QUALITY_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose OP Quality to Edit or Delete</option> 
+                        @foreach (OP_QUALITY opq in ViewData["OPQualities"] as List<OP_QUALITY>)
+                        {
+                            <option value='@opq.OP_QUALITY_ID'>@opq.QUALITY</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveOPQ();" class="STNButton" value="Delete" />      
+                }
+            }
+            else
+            { 
+                <select id="OPQualityDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+				    @foreach (OP_QUALITY opq in ViewData["OPQualities"] as List<OP_QUALITY>)
+                    {
+                        <option>@opq.QUALITY</option> 
+                    }
+                </select>
+                <br />	<br />
+            }
+            <script type="text/javascript">
+                function RemoveOPQ() {
+                    var answer = confirm("Are you sure you want to delete this Objective Point Quality?");
+                    if (answer == true) {
+                        $("#loading").fadeIn();
+                        var toDelete = $("#OPQualityDrop").val();
+                        $.ajax({
+                            url: '@Url.Action("OPQualityDelete", "Lookups")',
+                            data: { id: toDelete },
+                            success: function (response) {
+                                if (response == "True") {
+                                    window.location.href = '@Url.Action("Index", "Lookups")';
+                                }
+                                else if (response == "False") {
+                                    window.location.href = '@Url.Action("Index", "Lookups")';
+                                    alert("Delete was unsuccessful");
+                                }
+                            }
+                        });
+                    }
+                }
+            </script>                
+        </div>
+    </div>
+    
+    <br />
+ 
+    <div class="subSection">
+        @* Sensor Brand Lookup A9*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_SensorBrand_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("SensorBrand", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="SensorBrDrop" class="stnSelectInput" name="SENSOR_BRAND_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Sensor Brand to Edit or Delete</option> 
+                        @foreach (SENSOR_BRAND senBrand in ViewData["SensorBrands"] as List<SENSOR_BRAND>)
+                        {
+                            <option value='@senBrand.SENSOR_BRAND_ID'>@senBrand.BRAND_NAME</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveSensBrand();" class="STNButton" value="Delete" />      
+                }
+            }
+            else
+            { 
+                <select id="SensorBrDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+				@foreach (SENSOR_BRAND senBrand in ViewData["SensorBrands"] as List<SENSOR_BRAND>)
+    {
+                    <option>@senBrand.BRAND_NAME</option> 
+    }
+                </select>
+                <br />	<br />
+            }
+            <script type="text/javascript">
+                function RemoveSensBrand() {
+                    var answer = confirm("Are you sure you want to delete this Sensor Brand?");
+                    if (answer == true) {
+                        $("#loading").fadeIn();
+                        var toDelete = $("#SensorBrDrop").val();
+                        $.ajax({
+                            url: '@Url.Action("SensorBrandDelete", "Lookups")',
+                            data: { id: toDelete },
+                            success: function (response) {
+                                if (response == "True") {
+                                    window.location.href = '@Url.Action("Index", "Lookups")';
+                                }
+                                else if (response == "False") {
+                                    window.location.href = '@Url.Action("Index", "Lookups")';
+                                    alert("Delete was unsuccessful");
+                                }
+                            }
+                        });
+                    }
+                }
+            </script>                
+        </div>
+    </div>
+
+    <br />
+
+    <div class="subSection">
+        @* Status Types Lookup A10*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_SensorStat_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("StatusType", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="StatusDrop" class="stnSelectInput" name="STATUS_TYPE_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Status Type to Edit or Delete</option> 
+                        @foreach (STATUS_TYPE StTypes in ViewData["StatusTypes"] as List<STATUS_TYPE>)
+                        {
+                            <option value='@StTypes.STATUS_TYPE_ID'>@StTypes.STATUS</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveStT();" class="STNButton" value="Delete" />      
+                }
+            }
+            else
+            { 
+                <select id="StatusDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+				@foreach (STATUS_TYPE StTypes in ViewData["StatusTypes"] as List<STATUS_TYPE>)
+    {
+                    <option>@StTypes.STATUS</option> 
+    }
+                </select>
+                <br />	<br />
+            }
+            <script type="text/javascript">
+                function RemoveStT() {
+                    var answer = confirm("Are you sure you want to delete this Status Type?");
+                    if (answer == true) {
+                        $("#loading").fadeIn();
+                        var toDelete = $("#StatusDrop").val();
+                        $.ajax({
+                            url: '@Url.Action("StatusTypeDelete", "Lookups")',
+                            data: { id: toDelete },
+                            success: function (response) {
+                                if (response == "True") {
+                                    window.location.href = '@Url.Action("Index", "Lookups")';
+                                }
+                                else if (response == "False") {
+                                    window.location.href = '@Url.Action("Index", "Lookups")';
+                                    alert("Delete was unsuccessful");
+                                }
+                            }
+                        });
+                    }
+                }
+            </script>                
+        </div>
+    </div>
+
+    <br />
+
+    <div class="subSection">
+        @* Site Location Types ( Network Types) Lookup A11*@
+        <div class="subSectionHeader"><span class="bold">SITE LOCATION TYPE IN NETWORK</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("NetworkType", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="NetworkTDrop" class="stnSelectInput" name="NETWORK_TYPE_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Site Location Type to Edit or Delete</option> 
+                        @foreach (NETWORK_TYPE nt in ViewData["NetworkTypes"] as List<NETWORK_TYPE>)
+                        {
+                            <option value='@nt.NETWORK_TYPE_ID'>@nt.NETWORK_TYPE_NAME</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveNetworkT();" class="STNButton" value="Delete" />      
+                }
+            }
+            else
+            { 
+                <select id="NetworkTDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+				    @foreach (NETWORK_TYPE nt in ViewData["NetworkTypes"] as List<NETWORK_TYPE>)
+                    {
+                        <option>@nt.NETWORK_TYPE_NAME</option> 
+                    }
+                </select>
+                <br />	<br />
+            }
+            <script type="text/javascript">
+                function RemoveNetworkT() {
+                    var answer = confirm("Are you sure you want to delete this Network Type?");
+                    if (answer == true) {
+                        $("#loading").fadeIn();
+                        var toDelete = $("#NetworkTDrop").val();
+                        $.ajax({
+                            url: '@Url.Action("NetworkTypeDelete", "Lookups")',
+                            data: { id: toDelete },
+                            success: function (response) {
+                                if (response == "True") {
+                                    window.location.href = '@Url.Action("Index", "Lookups")';
+                                }
+                                else if (response == "False") {
+                                    window.location.href = '@Url.Action("Index", "Lookups")';
+                                    alert("Delete was unsuccessful");
+                                }
+                            }
+                        });
+                    }
+                }
+            </script>                
+        </div>
+    </div>
+
+    <br />
+
+    <div class="subSection">
+        @* VerticalDatum Lookup A12*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_VDatum_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("VDatum", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="VDatumDrop" class="stnSelectInput" name="DATUM_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Vertical Datum to Edit or Delete</option> 
+                        @foreach (VERTICAL_DATUMS Vd in ViewData["VerticalDatums"] as List<VERTICAL_DATUMS>)
+                        {
+                            <option value='@Vd.DATUM_ID'>@Vd.DATUM_NAME</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveVD();" class="STNButton" value="Delete" />      
+                }
+            }
+            else
+            { 
+                <select id="VDatumDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+				    @foreach (VERTICAL_DATUMS Vd in ViewData["VerticalDatums"] as List<VERTICAL_DATUMS>)
+                    {
+                        <option>@Vd.DATUM_NAME</option> 
+                    }
+                </select>
+                <br />	<br />
+            }
+            <script type="text/javascript">
+                function RemoveVD() {
+                    var answer = confirm("Are you sure you want to delete this Vertical Datum?");
+                    if (answer == true) {
+                        $("#loading").fadeIn();
+                        var toDelete = $("#VDatumDrop").val();
+                        $.ajax({
+                            url: '@Url.Action("VDatumDelete", "Lookups")',
+                            data: { id: toDelete },
+                            success: function (response) {
+                                if (response == "True") {
+                                    window.location.href = '@Url.Action("Index", "Lookups")';
+                                }
+                                else if (response == "False") {
+                                    window.location.href = '@Url.Action("Index", "Lookups")';
+                                    alert("Delete was unsuccessful");
+                                }
+                            }
+                        });
+                    }
+                }
+            </script>                
+        </div>
+    </div>
+    
+    <br />
+</div>
+
+<div class="fiftyPercColumn">
+    
+    <div class="subSection">
+        @* Contact Types Lookup B1*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_ContactType_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("ContactType", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="ContactDrop" class="stnSelectInput" name="CONTACT_TYPE_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Contact Type to Edit or Delete</option>
+                        @foreach (CONTACT_TYPE aCT in ViewData["ContactTypes"] as List<CONTACT_TYPE>)
+                        {
+                            <option value='@aCT.CONTACT_TYPE_ID'>@aCT.TYPE</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveCT();" class="STNButton" value="Delete" />          
+                }
+            }
+            else
+            {
+                <select id="ContactDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">				
+                    @foreach (CONTACT_TYPE aCT in ViewData["ContactTypes"] as List<CONTACT_TYPE>)
+                    {
+                        <option>@aCT.TYPE</option> 
+                    }
+                </select>
+                <br /><br />
+            }
+           <script type="text/javascript">
+               function RemoveCT() {
+                   var answer = confirm("Are you sure you want to delete this Contact Type?");
+                   if (answer == true) {
+                       $("#loading").fadeIn();
+                       var toDelete = $("#ContactDrop").val();
+                       $.ajax({
+                           url: '@Url.Action("ContactTypeDelete", "Lookups")',
+                           data: { id: toDelete },
+                           success: function (response) {
+                               if (response == "True") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                               }
+                               else if (response == "False") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                                   alert("Delete was unsuccessful");
+                               }
+                           }
+                       });
+                   }
+               }
+           </script>                
+        </div>
+    </div>    
+
+    <br />
+
+    <div class="subSection">
+        @* Event Status Lookup B2*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_EventStat_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("EventStatus", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="EventStatDrop" class="stnSelectInput" name="EVENT_STATUS_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Event Status to Edit or Delete</option>
+                        @foreach (EVENT_STATUS EStatus in ViewData["EventStatus"] as List<EVENT_STATUS>)
+                        {
+                            <option value='@EStatus.EVENT_STATUS_ID'>@EStatus.STATUS</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveES();" class="STNButton" value="Delete" /> 
+                }
+            }
+            else
+            {
+                <select id="EventStatDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+				    @foreach (EVENT_STATUS EStatus in ViewData["EventStatus"] as List<EVENT_STATUS>)
+        {
+                        <option>@EStatus.STATUS</option> 
+        }
+                </select>
+                <br />	<br />
+            }
+           <script type="text/javascript">
+               function RemoveES() {
+                   var answer = confirm("Are you sure you want to delete this Event Status?");
+                   if (answer == true) {
+                       $("#loading").fadeIn();
+                       var toDelete = $("#EventStatDrop").val();
+                       $.ajax({
+                           url: '@Url.Action("EventStatusDelete", "Lookups")',
+                           data: { id: toDelete },
+                           success: function (response) {
+                               if (response == "True") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                               }
+                               else if (response == "False") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                                   alert("Delete was unsuccessful");
+                               }
+                           }
+                       });
+                   }
+               }
+           </script>                
+        </div>
+    </div>
+    
+    <br />
+
+    <div class="subSection">
+        @* File Types Lookup B3*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_FileType_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("FileType", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="FileTypeDrop" class="stnSelectInput" name="FILETYPE_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose File Type to Edit or Delete</option>
+                        @foreach (FILE_TYPE FType in ViewData["FileTypes"] as List<FILE_TYPE>)
+                        {
+                            <option value='@FType.FILETYPE_ID'>@FType.FILETYPE</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveFT();" class="STNButton" value="Delete" />         
+                }
+            }
+            else
+            { 
+                <select id="FileTypeDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+				    @foreach (FILE_TYPE FType in ViewData["FileTypes"] as List<FILE_TYPE>)
+        {
+                        <option>@FType.FILETYPE</option> 
+        }
+                </select>
+                <br /><br />
+            }
+           <script type="text/javascript">
+               function RemoveFT() {
+                   var answer = confirm("Are you sure you want to delete this File Type?");
+                   if (answer == true) {
+                       $("#loading").fadeIn();
+                       var toDelete = $("#FileTypeDrop").val();
+                       $.ajax({
+                           url: '@Url.Action("FileTypeDelete", "Lookups")',
+                           data: { id: toDelete },
+                           success: function (response) {
+                               if (response == "True") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                               }
+                               else if (response == "False") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                                   alert("Delete was unsuccessful");
+                               }
+                           }
+                       });
+                   }
+               }
+           </script>                
+        </div>
+    </div>
+    
+    <br />
+
+    <div class="subSection">
+        @* HorizontalDatum Lookup B4*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_Hdatum_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("HDatum", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="HDatumDrop" class="stnSelectInput" name="DATUM_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Horizontal Datum to Edit or Delete</option> 
+                        @foreach (HORIZONTAL_DATUMS hd in ViewData["HorizontalDatums"] as List<HORIZONTAL_DATUMS>)
+                        {
+                            <option value='@hd.DATUM_ID'>@hd.DATUM_NAME</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveHD();" class="STNButton" value="Delete" />      
+                }
+            }
+            else
+            { 
+                <select id="HDatumDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+				    @foreach (HORIZONTAL_DATUMS hd in ViewData["HorizontalDatums"] as List<HORIZONTAL_DATUMS>)
+                    {
+                        <option>@hd.DATUM_NAME</option> 
+                    }
+                </select>
+                <br />	<br />
+            }
+            <script type="text/javascript">
+                function RemoveHD() {
+                    var answer = confirm("Are you sure you want to delete this Horizontal Datum?");
+                    if (answer == true) {
+                        $("#loading").fadeIn();
+                        var toDelete = $("#HDatumDrop").val();
+                        $.ajax({
+                            url: '@Url.Action("HDatumDelete", "Lookups")',
+                            data: { id: toDelete },
+                            success: function (response) {
+                                if (response == "True") {
+                                    window.location.href = '@Url.Action("Index", "Lookups")';
+                                }
+                                else if (response == "False") {
+                                    window.location.href = '@Url.Action("Index", "Lookups")';
+                                    alert("Delete was unsuccessful");
+                                }
+                            }
+                        });
+                    }
+                }
+            </script>                
+        </div>
+    </div>
+
+    <br />
+
+    <div class="subSection">
+        @* HWM Qualities Lookup B5*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_HWMqual_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("HWMQual", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="HWMQualDrop" class="stnSelectInput" name="HWM_QUALITY_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose HWM Quality to Edit or Delete</option>
+                        @foreach (HWM_QUALITIES HWMQual in ViewData["HWMQualities"] as List<HWM_QUALITIES>)
+                        {
+                            <option value='@HWMQual.HWM_QUALITY_ID'>@HWMQual.HWM_QUALITY</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveHWMQ();" class="STNButton" value="Delete" />    
+                }
+            }
+            else
+            {         
+                <select id="HWMQualDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+				    @foreach (HWM_QUALITIES HWMQual in ViewData["HWMQualities"] as List<HWM_QUALITIES>)
+        {
+                       <option>@HWMQual.HWM_QUALITY</option> 
+        }
+                </select>
+                <br />	<br />
+            }
+            
+           <script type="text/javascript">
+               function RemoveHWMQ() {
+                   var answer = confirm("Are you sure you want to delete this HWM Quality?");
+                   if (answer == true) {
+                       $("#loading").fadeIn();
+                       var toDelete = $("#HWMQualDrop").val();
+                       $.ajax({
+                           url: '@Url.Action("HWMQualDelete", "Lookups")',
+                           data: { id: toDelete },
+                           success: function (response) {
+                               if (response == "True") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                               }
+                               else if (response == "False") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                                   alert("Delete was unsuccessful");
+                               }
+                           }
+                       });
+                   }
+               }
+           </script>                
+        </div>
+    </div>
+    
+    <br />
+
+    <div class="subSection">
+        @* Instr Collection Condition Lookup B6*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_InstrCollectCond_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("InstrCollCond", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="InstrCollCondDrop" class="stnSelectInput" name="ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Instrument Collection Condition to Edit or Delete</option>
+                        @foreach (INSTR_COLLECTION_CONDITIONS instColCond in ViewData["InstrCollCond"] as List<INSTR_COLLECTION_CONDITIONS>)
+                        {
+                            <option value='@instColCond.ID'>@instColCond.CONDITION</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveICC();" class="STNButton" value="Delete" />    
+                }
+            }
+            else
+            {         
+                <select id="InstrCollCondDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+				    @foreach (INSTR_COLLECTION_CONDITIONS instColCond in ViewData["InstrCollCond"] as List<INSTR_COLLECTION_CONDITIONS>)
+        {
+                       <option>@instColCond.CONDITION</option> 
+        }
+                </select>
+                <br />	<br />
+            }
+            
+           <script type="text/javascript">
+               function RemoveICC() {
+                   var answer = confirm("Are you sure you want to delete this Instrument Collection Condition?");
+                   if (answer == true) {
+                       $("#loading").fadeIn(); 
+                       var toDelete = $("#InstrCollCondDrop").val();
+                       $.ajax({
+                           url: '@Url.Action("InstrCollCondDelete", "Lookups")',
+                           data: { id: toDelete },
+                           success: function (response) {
+                               if (response == "True") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                               }
+                               else if (response == "False") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                                   alert("Delete was unsuccessful");
+                               }
+                           }
+                       });
+                   }
+               }
+           </script>                
+        </div>
+    </div>
+
+    <br />
+    
+    <div class="subSection">
+        @* Network Names Lookup B7*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_NetworkName_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("NetworkName", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="NetworkNDrop" class="stnSelectInput" name="NETWORK_NAME_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Network Name to Edit or Delete</option> 
+                        @foreach (NETWORK_NAME nn in ViewData["NetworkNames"] as List<NETWORK_NAME>)
+                        {
+                            <option value='@nn.NETWORK_NAME_ID'>@nn.NAME</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveNetworkN();" class="STNButton" value="Delete" />      
+                }
+            }
+            else
+            { 
+                <select id="NetworkNDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+				    @foreach (NETWORK_NAME nn in ViewData["NetworkNames"] as List<NETWORK_NAME>)
+                    {
+                        <option>@nn.NAME</option> 
+                    }
+                </select>
+                <br />	<br />
+            }
+            <script type="text/javascript">
+                function RemoveNetworkN() {
+                    var answer = confirm("Are you sure you want to delete this Network Name?");
+                    if (answer == true) {
+                        $("#loading").fadeIn();
+                        var toDelete = $("#NetworkNDrop").val();
+                        $.ajax({
+                            url: '@Url.Action("NetworkNameDelete", "Lookups")',
+                            data: { id: toDelete },
+                            success: function (response) {
+                                if (response == "True") {
+                                    window.location.href = '@Url.Action("Index", "Lookups")';
+                                }
+                                else if (response == "False") {
+                                    window.location.href = '@Url.Action("Index", "Lookups")';
+                                    alert("Delete was unsuccessful");
+                                }
+                            }
+                        });
+                    }
+                }
+            </script>                
+        </div>
+    </div>
+
+    <br />
+
+    <div class="subSection">
+        @* Objective Point Type Lookup B8*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_OPTypes_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("OPTypes", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="OPTypesDrop" class="stnSelectInput" name="OBJECTIVE_POINT_TYPE_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Objective Point Type to Edit or Delete</option>
+                        @foreach (OBJECTIVE_POINT_TYPE anOPT in ViewData["OPTypes"] as List<OBJECTIVE_POINT_TYPE>)
+                        {
+                            <option value='@anOPT.OBJECTIVE_POINT_TYPE_ID'>@anOPT.OP_TYPE</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveOPT();" class="STNButton" value="Delete" />      
+                }
+            }
+            else
+            {     
+                <select id="OPTypesDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+				    @foreach (OBJECTIVE_POINT_TYPE anOPT in ViewData["OPTypes"] as List<OBJECTIVE_POINT_TYPE>)
+        {
+                        <option value='@anOPT.OBJECTIVE_POINT_TYPE_ID'>@anOPT.OP_TYPE</option> 
+        }
+                </select>
+                <br />	<br />
+            }
+           <script type="text/javascript">
+               function RemoveOPT() {
+                   var answer = confirm("Are you sure you want to delete this Objective Point Type?");
+                   if (answer == true) {
+                       $("#loading").fadeIn();
+                       var toDelete = $("#OPTypesDrop").val();
+                       $.ajax({
+                           url: '@Url.Action("OPTypesDelete", "Lookups")',
+                           data: { id: toDelete },
+                           success: function (response) {
+                               if (response == "True") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                               }
+                               else if (response == "False") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                                   alert("Delete was unsuccessful");
+                               }
+                           }
+                       });
+                   }
+               }
+           </script>                
+        </div>
+    </div>
+
+    <br />
+    
+    <div class="subSection">
+        @* Deployment Types Lookup B9*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_SensorDepType_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("DepType", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="DepDrop" class="stnSelectInput" name="DEPLOYMENT_TYPE_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Deployment Type to Edit or Delete</option>
+                        @foreach (DEPLOYMENT_TYPE dTypes in ViewData["DeploymentTypes"] as List<DEPLOYMENT_TYPE>)
+                        {
+                            <option value='@dTypes.DEPLOYMENT_TYPE_ID'>@dTypes.METHOD</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveDT();" class="STNButton" value="Delete" /> 
+                }
+            }
+            else
+            { 
+                <select id="DepDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+			        @foreach (DEPLOYMENT_TYPE dTypes in ViewData["DeploymentTypes"] as List<DEPLOYMENT_TYPE>)
+           {
+                        <option>@dTypes.METHOD</option> 
+           }
+                </select>
+                <br />	<br />
+            }
+           <script type="text/javascript">
+               function RemoveDT() {
+                   var answer = confirm("Are you sure you want to delete this Deployment Type?");
+                   if (answer == true) {
+                       $("#loading").fadeIn();
+                       var toDelete = $("#DepDrop").val();
+                       $.ajax({
+                           url: '@Url.Action("DepTypeDelete", "Lookups")',
+                           data: { id: toDelete },
+                           success: function (response) {
+                               if (response == "True") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                               }
+                               else if (response == "False") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                                   alert("Delete was unsuccessful");
+                               }
+                           }
+                       });
+                   }
+               }
+           </script>                
+        </div>
+    </div>
+      
+    <br />
+    
+    <div class="subSection">
+        @* Sensor Types Lookup B10*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_SensorType_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("SensorType", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="SensorDrop" class="stnSelectInput" name="SENSOR_TYPE_ID" data-native-menu="false" data-mini="true">
+                        <option value="0">Choose Sensor Type to Edit or Delete</option>
+                        @foreach (SENSOR_TYPE STypes in ViewData["SensorTypes"] as List<SENSOR_TYPE>)
+                        {
+                            <option value='@STypes.SENSOR_TYPE_ID'>@STypes.SENSOR</option>
+                        }
+                    </select>
+                    <br /><br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveST();" class="STNButton" value="Delete" />          
+                }
+            }
+            else
+            {
+                <select id="SensorDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+                    @foreach (SENSOR_TYPE STypes in ViewData["SensorTypes"] as List<SENSOR_TYPE>)
+                    {
+                        <option >@STypes.SENSOR</option>
+                    }
+                </select>
+                <br /><br />
+            }
+           <script type="text/javascript">
+               function RemoveST() {
+                   var answer = confirm("Are you sure you want to delete this Sensor Type?");
+                   if (answer == true) {
+                       $("#loading").fadeIn();
+                       var toDelete = $("#SensorDrop").val();
+                       $.ajax({
+                           url: '@Url.Action("SensorTypeDelete", "Lookups")',
+                           data: { id: toDelete },
+                           success: function (response) {
+                               if (response == "True") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                               }
+                               else if (response == "False") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                                   alert("Delete was unsuccessful");
+                               }
+                           }
+                       });
+                   }
+               }
+           </script>                
+        </div>
+    </div>
+    
+    <br />
+
+    <div class="subSection">
+        @* Vertical Collect Methods Lookup B11*@
+        <div class="subSectionHeader"><span class="bold">@Html.Label(LookupsStrings.Index_VCollMethod_lb)</span></div>          
+        <div class="subSectionContent">
+            @if (ViewData["Role"] == "Admin")
+            {
+                using (Html.BeginForm("VCollectMethod", "Lookups", FormMethod.Post, null))
+                {
+                    <select id="VColMethDrop" class="stnSelectInput" name="VCOLLECT_METHOD_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Vertical Collection Method to Edit or Delete</option>
+                        @foreach (VERTICAL_COLLECT_METHODS col in ViewData["VCollectMethods"] as List<VERTICAL_COLLECT_METHODS>)
+                        {
+                            <option value='@col.VCOLLECT_METHOD_ID'>@col.VCOLLECT_METHOD</option> 
+                        }
+                    </select>
+                    <br />	<br />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Edit" />
+                    <input type="submit" name="Create" onclick="loading();" class="STNButton" value="Add New" />
+                    <input type="button" onclick="RemoveVCM();" class="STNButton" value="Delete" />      
+                }
+            }
+            else
+            {     
+                <select id="VColMethDrop" class="stnSelectInput" data-native-menu="false" data-mini="true">
+				    @foreach (VERTICAL_COLLECT_METHODS Vcol in ViewData["VCollectMethods"] as List<VERTICAL_COLLECT_METHODS>)
+        {
+                        <option value='@Vcol.VCOLLECT_METHOD_ID'>@Vcol.VCOLLECT_METHOD</option> 
+        }
+                </select>
+                <br />	<br />
+            }
+           <script type="text/javascript">
+               function RemoveVCM() {
+                   var answer = confirm("Are you sure you want to delete this Vertical Collection Method?");
+                   if (answer == true) {
+                       $("#loading").fadeIn();
+                       var toDelete = $("#VColMethDrop").val();
+                       $.ajax({
+                           url: '@Url.Action("VCollectMethodDelete", "Lookups")',
+                           data: { id: toDelete },
+                           success: function (response) {
+                               if (response == "True") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                               }
+                               else if (response == "False") {
+                                   window.location.href = '@Url.Action("Index", "Lookups")';
+                                   alert("Delete was unsuccessful");
+                               }
+                           }
+                       });
+                   }
+               }
+           </script>                
+        </div>
+    </div>
+
+    <br />
+
+</div> @* end fiftyPercColumn *@
+
+<br clear="all" />
+
+
+<script type="text/javascript">
+    function loading() {
+        $("#loading").fadeIn();
+    };    
+</script>
+<script type="text/javascript">
+    $("#deleteClick").click(function () {
+        $("#loading").fadeIn();
+    });       
+</script>

@@ -1,0 +1,110 @@
+﻿@*
+Comments:
+09.04.14 - TR - Created
+
+*@
+
+@*
+/* Authors:
+*      Tonia Roddick (troddick@usgs.gov)
+* Copyright:
+*      2012 USGS - WiM
+* Purpose:
+*      Create Sensor Brand
+*/
+*@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model System.Collections.Generic.List<STNServices.SENSOR_BRAND>
+
+@{
+    ViewBag.Title = "Create Sensor Brand";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+<div id="dataTitle">
+    <div class="title">Sensor Brand</div>
+</div>
+<br clear="all" />
+<hr class="headerUnderline" />
+
+@using (Ajax.BeginForm("SensorBrandCreate", "Lookups", null, new AjaxOptions() { HttpMethod = "POST" }, new { @id = "CreateSensorBrandForm" }))
+{
+    <div class="fiftyPercColumn">
+        <div class="ui-grid-a">
+            <div class="ui-block-b">
+                @{
+                    foreach (SENSOR_BRAND sb in Model)
+                    {    
+                        @sb.BRAND_NAME
+                        <br />
+                    }
+                }
+            </div>
+            <div class="ui-block-a"><span class="required bold">@Html.Label(LookupsStrings.SensorBrand_createNew)</span></div>
+            <div class="ui-block-b"><input type="text" class="required stnTextInput ui-shadow-inset" id="name" name="BRAND_NAME" data-mini="true" /></div>
+        </div>
+    </div>
+    
+    <div id="formSubmitDiv" class="formSection">
+        <div class="leftSideSubmit">
+            <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+            <div class="submitDiv">
+                <div class="darkButtonBorder"><input type="submit" class="submit" value="Submit" /></div>
+            </div>
+        </div>    
+    </div>
+}
+
+<script type="text/javascript">
+    window.onload = function () {
+        var txtbox = document.getElementById("name");
+        txtbox.focus();
+    }
+
+    function cancelClick() {
+        $("#loading").fadeIn();
+        window.location.href = '@Url.Action("Index", "Lookups")'
+    };
+
+    function loading() {
+        $("#loading").fadeIn();
+    };
+
+    //doc.ready 
+    $(document).ready(function () {
+        $("#CreateSensorBrandForm").validate();
+        $("#CreateSensorBrandForm").removeData("validator");
+        $("#CreateSensorBrandForm").removeData("unobtrusiveValidation");
+
+        $("#CreateSensorBrandForm").validate({
+            rules: {
+                'BRAND_NAME': "required"
+            },
+            messages: {
+                'BRAND_NAME': "Required"
+            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                form.submit();
+            }
+
+        });
+    });
+</script>
+
+<style type="text/css">
+    #CreateSensorBrandForm label.error {      
+        width: auto;
+        display: block;
+        color: Red;
+    }
+    
+</style>

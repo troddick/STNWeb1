@@ -1,0 +1,99 @@
+﻿@*
+Comments:
+09.04.14 - TR - Created
+*@
+
+@*
+/* Authors:
+*      Tonia Roddick (troddick@usgs.gov)
+* Copyright:
+*      2012 USGS - WiM
+* Purpose:
+*      Edit Sensor Brand
+*/
+*@
+
+@using STNServices;
+
+@model STNServices.SENSOR_BRAND
+
+@{
+    ViewBag.Title = "Edit Sensor Brand";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+
+    <div id="dataTitle">
+        <div class="title">Edit Sensor Brand</div>
+    </div>
+    <br clear="all" />
+    <hr class="headerUnderline" />
+
+    @using (Ajax.BeginForm("SensorBrandEdit", "Lookups", new { id = Model.SENSOR_BRAND_ID }, new AjaxOptions() { HttpMethod = "POST" }, new { @id = "EditSensorBrandForm" }))
+    {
+        <div class="fiftyPercColumn">   
+            <input type="hidden" name="SENSOR_BRAND_ID" value="@Model.SENSOR_BRAND_ID" />
+                  
+            <div class="ui-grid-a">
+                <div class="ui-block-a"><span class="required">Sensor Brand:</span></div>
+                <div class="ui-block-b">
+                    <input type="text" class="required stnTextInput ui-shadow-inset" name="BRAND_NAME" data-mini="true" value="@Model.BRAND_NAME" />
+                </div>
+            </div>
+    
+        </div>
+    
+         <div id="formSubmitDiv" class="formSection">
+            <div class="leftSideSubmit">
+                <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+                <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" class="submit" value="Submit" /></div></div>
+            </div>
+    
+        </div>
+    
+    }
+<script type="text/javascript">
+    function cancelClick() {
+        $("#loading").fadeIn();
+        window.location.href = '@Url.Action("Index", "Lookups")' 
+    };
+
+    function loading() {
+        $("#loading").fadeIn();
+    }
+
+    //doc.ready 
+    $(document).ready(function () {
+        $("#EditSensorBrandForm").validate();
+        $("#EditSensorBrandForm").removeData("validator");
+        $("#EditSensorBrandForm").removeData("unobtrusiveValidation");
+
+        $("#EditSensorBrandForm").validate({
+            rules: {
+                'BRAND_NAME': "required"
+            },
+            messages: {
+                'BRAND_NAME': "Required"
+            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                form.submit();
+            }
+
+        });
+    });
+</script>
+
+<style type="text/css">
+    #EditSensorBrandForm label.error {      
+        width: auto;
+        display: block;
+        color: Red;
+    }
+    
+</style>

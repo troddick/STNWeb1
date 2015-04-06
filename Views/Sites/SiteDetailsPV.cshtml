@@ -1,0 +1,347 @@
+﻿@* Comments:
+01.24.13 - TR - added loading spinning logo
+11.27.12 - TR - changed labels to html helper
+11.26.12 - TR - Created (Parial View)
+
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display details of a Site 
+ */
+ *@
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using STNWeb.Models;
+
+@model STNWeb.Models.SiteModel
+      
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#loading").fadeOut();
+
+        //need to update the Site Number on the parent Details page to make sure it stays synced if changed
+        var sName = $("#siteNO");
+        sName.text('@Model.aSite.SITE_NAME');
+    });
+</script>   
+
+@using (Ajax.BeginForm("SiteEditPV", "Sites", new { id = Model.aSite.SITE_ID }, new AjaxOptions() { UpdateTargetId = "content", HttpMethod = "GET", LoadingElementId="loading", OnSuccess = "edit_successActions" }, new { @style = "float:left; margin-right:10px" }))
+{    
+    <div>
+        <input type="submit" class="STNButton editIcon" value="Edit Site"/>
+    </div>      
+}
+ 
+<br clear="all" />
+  
+<div class="fiftyPercColumn" style="padding-top:10px">
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(SiteStrings.Desc_Label)</span>
+	    <textarea class="textAreaDetails inline" rows="4" cols="30" readonly="readonly">@Model.aSite.SITE_DESCRIPTION</textarea>
+	</div>
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(SiteStrings.InternalNotes_Label)</span>
+	    <textarea class="textAreaDetails inline" rows="4" cols="30" readonly="readonly">@Model.aSite.SITE_NOTES</textarea>
+	</div>
+
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(SiteStrings.Latitude_Label)</span>
+	    <label class="inline">@Model.aSite.LATITUDE_DD</label>
+	</div>
+   
+    <div>
+        <span class="bold ui-label-a">@Html.Label(SiteStrings.Longitude_Label)</span>
+	    <label class="inline">@Model.aSite.LONGITUDE_DD</label>
+	</div>
+  
+    <div>
+        <span class="bold ui-label-a">@Html.Label(SiteStrings.HDatum_Label)</span>
+	    <label class="inline">@ViewData["aHorizontalDatum"]</label>
+	</div>
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(HWMStrings.HCollectMethod_Label)</span>
+	    <label class="inline">@((ViewData.ContainsKey("HColMethod")) ? ViewData["HColMethod"] : "")</label>
+	</div>
+ 
+    <div>
+        <span class="bold ui-label-a">@Html.Label(SiteStrings.Address_Label)</span>
+        <label class="inline">@Model.aSite.ADDRESS</label>
+    </div>
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(SiteStrings.City_Label)</span>
+        <label class="inline">@Model.aSite.CITY</label>
+    </div>
+   
+    <div>
+        <span class="bold ui-label-a">@Html.Label(SiteStrings.State_Label)</span>
+        <label class="inline">@Model.aSite.STATE</label>
+    </div>
+ 
+    <div>
+        <span class="bold ui-label-a">@Html.Label(SiteStrings.Zip_Label)</span>
+        <label class="inline">@Model.aSite.ZIP</label>
+    </div>
+        
+    <div>
+        <span class="bold ui-label-a">@Html.Label(SiteStrings.County_Label)</span>
+        <label class="inline">@Model.aSite.COUNTY</label>
+    </div>
+  
+    <div>
+        <span class="bold ui-label-a">@Html.Label(SiteStrings.Waterbody_Label)</span>
+        <label class="inline">@Model.aSite.WATERBODY</label>
+    </div>
+     
+     <div>
+        <span class="bold ui-label-a">Drainage Area (sq mi):</span>
+        <label class="inline">@Model.aSite.DRAINAGE_AREA_SQMI</label>
+    </div>
+
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(SiteStrings.USGSStationID_Label)</span>
+	    <label class="inline">@Model.aSite.USGS_SID</label>
+    </div>
+
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(SiteStrings.NOAAStationID_Label)</span>
+	    <label class="inline">@Model.aSite.NOAA_SID</label>
+    </div>
+
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(SiteStrings.OtherStationID_Label)</span>
+	    <label class="inline">@Model.aSite.OTHER_SID</label>
+    </div>
+    
+    <div>
+        <span class="bold ui-label-a">@Html.Label(SiteStrings.SafetyNotes_Label)</span>
+	    <textarea class="textAreaDetails inline" rows="4" cols="30" readonly="readonly">@Model.aSite.SAFETY_NOTES</textarea>
+	</div>
+
+    <br clear="all" />
+    <hr style="width:100%"/>
+    @* --------------HOUSING SECTION-------------------*@
+        <div>
+            <span class="bold ui-label-a">Site Housing Information</span>
+        
+        
+            @if (ViewData.ContainsKey("SiteHousings"))
+            {
+                <table style="display:block; width:100%">
+                    <thead>
+                        <tr>
+                            <th style="width:26%;text-align:left;padding-left:10px;border-bottom: 1px solid #AAAAD3;border-top: 1px solid #AAAAD3">Housing Type</th>
+                            <th style="width:13%;border-bottom: 1px solid #AAAAD3;border-top: 1px solid #AAAAD3">Housing Length</th>
+                            <th style="width:13%;border-bottom: 1px solid #AAAAD3;border-top: 1px solid #AAAAD3">Housing Material</th>
+                            <th style="border-bottom: 1px solid #AAAAD3;border-top: 1px solid #AAAAD3">Housing Notes</th>
+                            <th style="width:13%;border-bottom: 1px solid #AAAAD3;border-top: 1px solid #AAAAD3">Amount</th>                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (SiteHousingModel shm in ViewData["SiteHousings"] as List<SiteHousingModel>)
+                        {
+                            <tr>
+                                <td style="padding-left:10px">@shm.HousingTypeName</td>
+                                <td style="text-align:center">@shm.LENGTH</td>
+                                <td>@shm.MATERIAL</td>
+                                <td>@shm.NOTES</td>
+                                <td style="text-align: center">@shm.AMOUNT</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+       
+           }
+           else
+           {
+                <label class="inline">No site housings were added for this site.</label>
+           }
+        </div>
+    @* --------------HOUSING SECTION-------------------*@
+
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(SiteStrings.Priority_Label)</span>
+	    <label class="inline">@ViewData["aPriority"]</label>
+    </div>
+          
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(SiteStrings.NetworkType_Label)</span>
+	    <ul class="inline" style=" margin:5px 0 3px 14px">
+            @foreach (var nt in ViewData["siteNetTypes"] as List<NETWORK_TYPE>)
+            {
+                <li>@nt.NETWORK_TYPE_NAME</li>
+            }
+        </ul>
+    </div>
+
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(SiteStrings.NetworkName_Label)</span>
+	    <ul class="inline" style=" margin:5px 0 3px 14px">
+            @foreach (var nn in ViewData["siteNetNames"] as List<NETWORK_NAME>)
+            {
+                <li>@nn.NAME</li>
+            }
+        </ul>
+    </div>
+          
+    <div>
+	    <span class="bold ui-label-a">@Html.Label(SiteStrings.Zone_Label)</span>
+	    <label class="inline">@Model.aSite.ZONE</label>
+    </div>
+          
+     <div>
+	    <span class="bold ui-label-a">@Html.Label(SiteStrings.PermSensor_Label)</span>
+	    <label class="inline">@Model.aSite.IS_PERMANENT_HOUSING_INSTALLED</label>
+    </div>
+
+    <div>
+        <span class="bold ui-label-a">Site Creator:</span>
+	    <label class="inline">@( ViewData.ContainsKey("creator") ? ViewData["creator"] : "" )</label>
+    </div>
+    
+    <div>
+	    <span class="bold ui-label-a">Access Permission Granted:</span>
+	    <label class="inline">@Model.aSite.ACCESS_GRANTED</label>
+    </div>
+   
+    <br clear="all" />
+
+    @if (Model.aLandOwner != null)
+    {
+
+        <h1 style="margin-top:1em">Land Owner Contact Information</h1>
+    
+        <div>
+            <span class="bold ui-label-a">@Html.Label(SiteStrings.LO_FirstName_Label)</span>
+            <label class="inline">@Model.aLandOwner.FNAME</label>
+        </div>
+  
+        <div>
+            <span class="bold ui-label-a">@Html.Label(SiteStrings.LO_LastName_Label)</span>
+            <label class="inline">@Model.aLandOwner.LNAME</label>
+        </div>
+     
+        <div>
+            <span class="bold ui-label-a">@Html.Label(SiteStrings.LO_Title_Label)</span>
+            <label class="inline">@Model.aLandOwner.TITLE</label>
+        </div>
+        
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(SiteStrings.Address_Label)</span>
+	        <label class="inline">@Model.aLandOwner.ADDRESS</label>
+        </div>
+
+        <div>
+            <span class="bold ui-label-a">@Html.Label(SiteStrings.City_Label)</span>
+            <label class="inline">@Model.aLandOwner.CITY</label>
+        </div>
+  
+        <div>
+            <span class="bold ui-label-a">@Html.Label(SiteStrings.State_Label)</span>
+            <label class="inline">@Model.aLandOwner.STATE</label>
+        </div>
+     
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(SiteStrings.Zip_Label)</span>
+	        <label class="inline">@Model.aLandOwner.ZIP</label>
+        </div>
+    
+        <div>
+            <span class="bold ui-label-a">@Html.Label(SiteStrings.LO_PrimaryNo_Label)</span>
+            <label class="inline">@Model.aLandOwner.PRIMARYPHONE</label>
+        </div>
+  
+        <div>
+            <span class="bold ui-label-a">@Html.Label(SiteStrings.LO_SecondaryNo_Label)</span>
+            <label class="inline">@Model.aLandOwner.SECONDARYPHONE</label>
+        </div>
+     
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(SiteStrings.LO_Email_Label)</span>
+	        <label class="inline">@Model.aLandOwner.EMAIL</label>
+        </div>    
+        
+    }
+    else
+    {
+        <div>No Land Owner Contact Information. Click Edit Site to add Land Owner Contact.</div>
+    }
+     
+    <br clear="all" />
+
+    @{
+        List<PeakSummaryModel> PeakModel = ViewData["Peaks"] as List<PeakSummaryModel>; 
+     }
+
+     @if (PeakModel.Count >= 1)
+     {
+         <h1 style="margin-left: 10px">Peak Summaries</h1>
+         <table id="peak-table-a">
+             <thead>
+                 <tr>
+                     <th scope="col">Elevation (ft)</th>
+                     <th scope="col">Date</th>
+                     <th scope="col">Time</th>
+                     <th scope="col">Event</th>
+                     <th scope="col">Description</th>
+                 </tr>
+             </thead>
+             <tbody>
+                 @foreach (PeakSummaryModel peak in PeakModel)
+                 {
+                     <tr>
+                        <td>@peak.PeakStage</td> 
+                            
+                        @if (peak.DateEstimated >= 1)
+                        { <td><i>@peak.PeakDate</i></td> }
+                        else
+                        { <td>@peak.PeakDate</td> }
+                          
+                        @if (peak.TimeEstimated >= 1)
+                        { <td><i>@peak.PeakTime</i></td> }
+                        else
+                        { <td>@peak.PeakTime</td> }
+                            
+                        <td>@peak.EventName</td>
+                           
+                        @if (peak.PeakHWMDesc != null)
+                        { <td>@peak.PeakHWMDesc</td> }
+                        @if (peak.PeakDataFileDesc != null)
+                        { <td>@peak.PeakDataFileDesc</td>}
+                            
+                     </tr>
+                 }
+             </tbody>
+         </table>
+         <br clear="all" /> 
+     }
+            
+    @if (ViewData.ContainsKey("sketchFiles"))
+    {
+        List<FILE> sketchFiles = ViewData["sketchFiles"] as List<FILE>;
+        <div style="margin-top:10px"><h1>Site Sketch</h1>
+            @foreach (FILE f in sketchFiles)
+            {
+                var fID = f.FILE_ID;
+                <div style="width:88%">
+                  <img alt="@f.DESCRIPTION" title="@(f.PATH), @(f.DESCRIPTION)" style="max-width:100%; max-height:100%; margin:auto; display:block" src="@Url.Action("DownloadFile", "Files", new { id = fID })" />
+                </div>
+            }
+        </div>
+    }
+         
+     <div style="margin-top:8px">
+        <iframe width="88%" frameborder="0" scrolling="no" marginheight="0" height="290" marginwidth="0" 
+            src="@(System.Configuration.ConfigurationManager.AppSettings["STNFieldInset"].ToString())?lat=@Model.aSite.LATITUDE_DD&lng=@Model.aSite.LONGITUDE_DD"></iframe>
+     </div>
+</div>
+
+   

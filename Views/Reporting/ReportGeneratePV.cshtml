@@ -1,0 +1,240 @@
+﻿@* Comments:
+04.11.14 - TR - Created (Parial View)
+
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display Generate Summary tab 
+ */
+ *@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using STNWeb.Models;
+
+@model STNWeb.Models.ReportingModel
+           
+<script src="@Url.Content("~/Assets/Scripts/jquery-1.8.3.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery-ui-1.10.4.js")" type="text/javascript"></script>
+
+<div class="fiftyPercColumn" style="width:60%">                           
+    <table class="Sec1Reporting-table" style="border:none">
+        @* Event portion of query builder *@
+        <tr><td colspan="2"><span style="font-size: x-large; margin-left:10px; font-family: 'BryantBold'">Step 1: Select Event, Date, and State(s)</span></td></tr>
+        <tr>
+            <td><span style="font-size: large; margin-left:10px; font-family: 'BryantBold'" class="required">Event</span></td>
+            <td>
+                <select style="width:38%" id="eventsList" class="required stnSelectInput ui-shadow-inset" data-native-menu="false" data-mini="true">
+                    <option value="">Choose an Event</option>
+                    @foreach (EVENT anEvent in ViewData["EventList"] as List<EVENT>)
+                    {
+                        <option value='@anEvent.EVENT_ID'>@anEvent.EVENT_NAME</option> 
+                    }
+                </select>
+            </td>
+        </tr>
+                                        
+        <tr><td colspan="2"><hr /></td></tr>
+        @* Date portion of query builder (part 1) *@
+        <tr>
+            <td><span class="required" style="font-size: large; margin-left:10px; font-family: 'BryantBold'">Date</span></td>
+            <td><input type="text" id="dateADate" style="width:35%" class="required stnTextInput ui-shadow-inset datepicker" data-mini="true" value='@((DateTime.Now).ToString("MM/dd/yyyy"))' /></td>
+        </tr>
+                    
+        <tr><td colspan="2"><hr /></td></tr>
+        @* States portion of query builder *@
+        <tr>
+            <td><span style="font-size: large; margin-left:10px; font-family: 'BryantBold'">State</span></td>
+            <td>
+                <select id="statesList" multiple="multiple" class="stnSelectInput ui-shadow-inset" data-native-menu="false" style="width:160px !important" data-mini="true">
+                    @foreach (STATES aState in ViewData["StateList"] as List<STATES>)
+                    {
+                        <option value='@aState.STATE_NAME'>@aState.STATE_NAME</option> 
+                    }
+                </select>
+                <script src="@Url.Content("~/Assets/Scripts/jquery.multiple.select.js")" type="text/javascript"></script>
+                <link href="@Url.Content("~/Assets/Styles/multiple-select.css")" rel="stylesheet" type="text/css" />
+
+                <script type="text/javascript">
+                    $("#statesList").multipleSelect({
+                        placeholder: "Filter by State(s)",
+                        selectAll: false,
+                        onClose: function () {
+                            var stateNames = $("#statesList").multipleSelect("getSelects");
+                            if (stateNames.length == 0) {
+                                $("#stateValue").text("");
+                                $("#STATE").val("");
+                            }
+                            else {
+                                var stringNames;
+                                $.each(stateNames, function (name, value) {
+                                    if (stringNames == undefined) {
+                                        stringNames = value;
+                                    }
+                                    else {
+                                        stringNames += ", " + value;
+                                    }
+                                });
+                                stringNames.slice(0, -1);
+                                $("#stateValue").text(stringNames);
+                                $("#STATE").val(stringNames);
+                            }
+                        }
+                    });
+                </script>
+            </td>
+        </tr>
+                                        
+    </table>
+                       
+</div> @* end of site column*@
+
+<div class="fiftyPercColumn" style="width:40%">
+    <div id="statesTabs">
+        <ul>
+            <li><a href="#StatesToday">Today</a></li>
+            <li><a href="#StatesYesterday">Yesterday</a></li>
+            <li><a href="#StatesGo">Pick a Date</a></li>
+        </ul>
+                   
+                
+        <div id="StatesToday">
+        @{ 
+            if (ViewData.ContainsKey("TodayReports")) 
+            { 
+                List<List<ReportingModel>> TodaysReports = ViewData["TodayReports"] as List<List<ReportingModel>>;
+                            
+                <table class="Sec1Reporting-table" style="border:none">
+                    @foreach (List<ReportingModel> EventRepList in TodaysReports)
+                    {
+                        <tr><td colspan="3">@EventRepList[0].anEvent.EVENT_NAME</td></tr>
+                        foreach (ReportingModel erl in EventRepList)
+                        {
+                            if (erl.aReport.COMPLETE == 1)
+                            {
+                                <tr>
+                                    <td style="color:Green; width:34%">@erl.aReport.STATE</td>
+                                    <td>@Html.ActionLink("View", "ReportDetails", "Reporting", new { reportId = @erl.aReport.REPORTING_METRICS_ID, StateDetail = "true" }, new { @class = "STNButton", @style = "padding: 3px 10px; background-color: #F37A49", @target = "_blank" })</td>
+                                    <td>@Html.ActionLink("Project Alert", "ProjectAlert", "Reporting", new { reportId = @erl.aReport.REPORTING_METRICS_ID }, new { @class = "STNButton", @style = "padding: 3px 10px; background-color: #F37A49", @target = "_blank" })</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td style="color:Red">@erl.aReport.STATE</td>
+                                    <td>@Html.ActionLink("View", "ReportDetails", "Reporting", new { reportId = @erl.aReport.REPORTING_METRICS_ID, StateDetail = "true" }, new { @class = "STNButton", @style = "padding: 3px 10px; background-color: #F37A49", @target = "_blank" })</td>
+                                    <td><a class="STNButton" style="width: 54%; padding: 3px; background-color: #F37A49" onclick="OpenReport(@(erl.aReport.REPORTING_METRICS_ID));">Complete</a></td>
+                                </tr>
+                            }
+                        }
+                    }
+                </table>
+            }
+            else 
+            {
+                <div>No Reports Completed Today.</div>
+            }
+                        
+        }
+        </div> @* end of Today tab *@
+
+        <div id="StatesYesterday">
+        @{ 
+            if (ViewData.ContainsKey("YesterdayReports")) 
+            {
+                List<List<ReportingModel>> YesterdayReports = ViewData["YesterdayReports"] as List<List<ReportingModel>>;
+                            
+                <table class="Sec1Reporting-table" style="border:none">
+                    @foreach (List<ReportingModel> EventRepList in YesterdayReports)
+                    {
+                        <tr><td colspan="3">@EventRepList[0].anEvent.EVENT_NAME</td></tr>
+                        foreach (ReportingModel erl in EventRepList)
+                        {
+                            if (erl.aReport.COMPLETE == 1)
+                            {
+                                <tr>
+                                    <td style="color:Green; width:34%">@erl.aReport.STATE</td>
+                                    <td>@Html.ActionLink("View", "ReportDetails", "Reporting", new { reportId = @erl.aReport.REPORTING_METRICS_ID, StateDetail = "true" }, new { @class = "STNButton", @style = "padding: 3px 10px; background-color: #F37A49", @target = "_blank" })</td>
+                                    <td>@Html.ActionLink("Project Alert", "ProjectAlert", "Reporting", new { reportId = @erl.aReport.REPORTING_METRICS_ID }, new { @class = "STNButton", @style = "padding: 3px 10px; background-color: #F37A49", @target = "_blank" })</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td style="color:Red">@erl.aReport.STATE</td>
+                                    <td>@Html.ActionLink("View", "ReportDetails", "Reporting", new { reportId = @erl.aReport.REPORTING_METRICS_ID, StateDetail = "true" }, new { @class = "STNButton", @style = "padding: 3px 10px; background-color: #F37A49", @target = "_blank" })</td>
+                                    <td><a class="STNButton" style="width: 54%; padding: 3px; background-color: #F37A49" onclick="OpenReport(@(erl.aReport.REPORTING_METRICS_ID));">Complete</a></td>
+                                </tr>
+                            }
+                        }
+                    }
+                </table>
+            }
+            else
+            {
+                <div>No Reports Completed Today.</div>
+            }
+                        
+        }
+        </div> @* end of Yesterday Tab *@
+                
+        <div id="StatesGo">
+            <input type="text" id="StatesDate" class="stnTextInput ui-shadow-inset datepicker" style="width:54%" data-mini="true"  />
+            <a id="DateViewButtonState1" class="STNButton" style="width: 54%; padding: 3px; margin-left:8px; background-color: #F37A49" onclick="GetStatesByDate();">Get States</a>
+                        
+            <div id="returningStatesPage" style="margin-top:25px"></div>
+        </div>
+    </div> @* end of "statesTabs"*@
+</div> @* end of  fiftyPercColumn*@
+
+<br clear="all" />
+              
+@* Generate Summary area *@
+<hr style="border: 1px solid black" />
+<div><span style="font-size: x-large; margin-left:10px; font-family:'BryantBold'">Step 2: Confirm selections</span></div>
+            
+@*what they chose *@
+@using (Ajax.BeginForm("GeneratedReportsPV", "Reporting", new AjaxOptions() { HttpMethod = "Post", LoadingElementId = "loading" }, new { target = "_blank", @id = "GenerateReportForm" }))
+{
+    <table class="Sec1Reporting-table" style="border:none">
+        <tr><td colspan="2"></td></tr>
+        <tr>
+            <td>Event:</td>
+            <td>
+                <span id="eventChosen"></span>
+                <input type="hidden" name="EventChosen" style="required" id="eventToSearch" />
+            </td>
+        </tr>
+        <tr>
+            <td style="width:15%">Date:</td>
+            <td>
+                <span id="queryDate">@(DateTime.Now.ToString("MM/dd/yyyy"))</span>
+                <input type="hidden" name="QueryDate" style="required" id="qDate" value='@(DateTime.Now.ToString("MM/dd/yyyy"))' />
+            </td>
+        </tr>
+        <tr>
+            <td>State:</td>
+            <td>
+                <span id="stateValue"></span>
+                <input type="hidden" name="StateValue" class="required" id="STATE" />
+            </td>
+        </tr>
+                
+    </table>
+                
+    <table style="width:64%; margin-top:10px">
+        <tr><td colspan="5"><span style="font-size: x-large; margin-left:10px; font-family:'BryantBold'">Step 3: Select your desired output</span></td></tr>
+        <tr><td></td></tr>
+        <tr>
+            <td><input type="submit" name="Generate" class="STNButton" style="padding:3px" value="Display Metrics Summary" /></td>
+            <td><input type="submit" name="Generate" class="STNButton" style="padding:3px" value="Display Contacts Summary" /></td>
+            <td><input type="submit" name="Generate" class="STNButton" style="padding:3px" value="Generate CSV Summary" /></td>
+        </tr>
+    </table>
+}
+        

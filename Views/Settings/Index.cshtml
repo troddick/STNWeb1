@@ -1,0 +1,64 @@
+﻿@* Comments:
+01.25.13 - TR - Added loading spinning logo
+10.12.12 - TR - Removed "main" div and only have it in _Layout
+10.10.12 - TR - Added "main" div for css formatting
+09.23.12 - JB - Added Events area 
+07.20.12 - JB - Created
+
+*@
+
+@* Authors:
+ *      Jonathan Baier (jbaier@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display a master settings page and link to individual setting pages 
+ *
+*@
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+    <div id="dataTitle">
+        <div class="title">Settings</div>
+    </div>
+    <br clear="all" />
+
+    <hr class="headerUnderline" />
+     
+    <div class="verticalColumn">
+        <div class="borderChild sectionIcon">
+                <a onclick="loading();" class="bigAndBold" href="@Url.Action("Index", "Members")">
+                <img src="@Url.Content("~/Assets/Images/Members1.png")" height="100px" alt="Members" /><br />
+	            Members
+                </a>
+		</div>
+
+        <div class="borderChild sectionIcon">                 
+	            <a onclick="loading();" class="bigAndBold" href="@Url.Action("Index", "Events")">
+                <img src="@Url.Content("~/Assets/Images/Events1.png")" alt="" /><br />
+                Events
+                </a>
+		</div>
+        
+        @*if (User.IsInRole("Admin")) {}*@
+        
+        <div class="borderChild sectionIcon">                 
+	            <a onclick="loading();" class="bigAndBold" href="@Url.Action("Index", "Lookups")">
+                <img src="@Url.Content("~/Assets/Images/Tables1.png")" alt="Lookup Tables" /><br />
+                Lookup Tables
+                </a>
+		</div>
+        
+        <br />
+    </div> @* end verticalColumn *@
+
+    <script type="text/javascript">
+        function loading() {
+            $("#loading").fadeIn();
+        };
+    </script>

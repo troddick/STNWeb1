@@ -1,0 +1,231 @@
+﻿@* Comments:
+04.22.14 - TR - added Tape down information
+04.04.14 - TR - Add validation
+02.14.13 - TR - Using Instrument status to edit(retrieve) instrument object
+12.06.12 - TR - Changed Interval to number and added radio buttons for Min/Sec (Stored as seconds)
+12.03.12 - TR - Created 
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Retrieve an Instrument (Partial View)
+ */
+*@
+
+@using System.Configuration;
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model STNWeb.Models.InstrumentModel
+           
+@{  
+    var InstrId = Model.Instr.INSTRUMENT_ID;
+}
+
+<script src="@Url.Content("~/Assets/Scripts/jquery.unobtrusive-ajax.min.js")" type="text/javascript"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#loading").fadeOut();       
+    });        
+</script>
+<div class="">
+    @using (Ajax.BeginForm("Retrieve", "Instruments", new { id = Model.Instr.INSTRUMENT_ID }, new AjaxOptions() { HttpMethod = "POST", UpdateTargetId = "retrieve" }, new { @id = "RetrieveForm" }))
+    {
+    
+        <input type="hidden" id="InstrINSTRUMENT_ID" name="Instr.INSTRUMENT_ID" value='@Model.Instr.INSTRUMENT_ID' />
+        <input type="hidden" id="InstrSENSOR_TYPE_ID" name="Instr.SENSOR_TYPE_ID" value="@Model.Instr.SENSOR_TYPE_ID" />
+        <input type="hidden" id="InstrDEPLOYMENT_TYPE_ID" name="Instr.DEPLOYMENT_TYPE_ID" value='@Model.Instr.DEPLOYMENT_TYPE_ID' />
+        <input type="hidden" id="InstrLOCATION_DESCRIPTION" name="Instr.LOCATION_DESCRIPTION" value="@Model.Instr.LOCATION_DESCRIPTION" />
+        <input type="hidden" id="InstrSERIAL_NUMBER" name="Instr.SERIAL_NUMBER" value='@Model.Instr.SERIAL_NUMBER' />
+        <input type="hidden" id="SENSOR_BRAND_ID" name="Instr.SENSOR_BRAND_ID" value='@Model.Instr.SENSOR_BRAND_ID' />
+        <input type="hidden" id="InstrVENTED" name="Instr.VENTED" value='@Model.Instr.VENTED' />
+        <input type="hidden" id="InstrHOUSINGSERIAL" name="Instr.HOUSING_SERIAL_NUMBER" value='@Model.Instr.HOUSING_SERIAL_NUMBER' />
+        <input type="hidden" id="InstrINTERVAL" name="Instr.INTERVAL" value="@Model.Instr.INTERVAL" />
+        <input type="hidden" id="InstrSITE_ID" name="Instr.SITE_ID" value="@Model.Instr.SITE_ID" />
+        <input type="hidden" id="InstrEVENT_ID" name="Instr.EVENT_ID" value="@Model.Instr.EVENT_ID" />
+    
+    
+        <input type="hidden" id="InstrStatusCOLLECTTEAMID" name="RetrInstrStatus.COLLECTION_TEAM_ID" value='@Session["TeamId"]' />
+        <input type="hidden" id="InstrStatusINSTRUMENT_ID" name="RetrInstrStatus.INSTRUMENT_ID" value="@Model.Instr.INSTRUMENT_ID" />
+    
+        <br clear="all" />
+        <h3 class="bold">Retrieve Sensor</h3>    
+    
+        <div class="fiftyPercColumn">
+
+            <div data-role="fieldcontain">
+                <span class="required bold ui-label-a">@Html.Label(InstrumentsStrings.Status_Label)</span>
+                <select id="StatusType" class="stnTextInput ui-shadow-inset selectmargin required" name="RetrInstrStatus.STATUS_TYPE_ID" data-native-menu="false" data-mini="true">
+				    <option value="">Choose New Status</option>
+                    @foreach (STNServices.STATUS_TYPE aStatType in ViewData["StatusTypes"] as List<STATUS_TYPE>)
+                    {
+                        <option value='@aStatType.STATUS_TYPE_ID'>@aStatType.STATUS</option> 
+                    }
+                </select><br />	
+            </div>
+            
+            <div data-role="fieldcontain">
+                <span class="required bold ui-label-a">@Html.Label(InstrumentsStrings.Conditions_Label)</span>
+                <select id="ColCond" class="stnTextInput ui-shadow-inset selectmargin required" name="Instr.INST_COLLECTION_ID" data-native-menu="false" data-mini="true">
+				    <option value="">Choose Collection Condition</option>
+                    @foreach (STNServices.INSTR_COLLECTION_CONDITIONS aColCond in ViewData["Conditions"] as List<INSTR_COLLECTION_CONDITIONS>)
+                    {
+                        <option value='@aColCond.ID'>@aColCond.CONDITION</option> 
+                    }
+                </select><br />	
+            </div>
+    
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.RetrievalNote_Label)</span>
+                <textarea rows="4" cols="30" id="notes" class="stnTextInput ui-shadow-inset margin" name="RetrInstrStatus.NOTES" data-mini="true"></textarea>
+            </div>
+
+            <div data-role="fieldcontain">
+                <span class="bold ui-label-a required">@Html.Label(InstrumentsStrings.RecoveryDate_Label)</span>
+                <input type="text" id="retDate" class="stnTextInput ui-shadow-inset margin required" name="RetrInstrStatus.TIME_STAMP" data-mini="true" value="@DateTime.UtcNow"/>
+            </div>
+    
+            <div data-role="fieldcontain">
+                <span class="required bold ui-label-a">Time Zone:</span>
+                <select id="timeZoneDD" class="stnTextInput ui-shadow-inset selectmargin" name="RetrInstrStatus.TIME_ZONE" data-native-menu="false" data-mini="true">
+				    @foreach (string tz in ViewData["TimeZones"] as List<string>)
+        {
+                        <option @(tz == "UTC" ? "selected" : "") value='@tz'>@tz</option> 
+        }
+                </select><br />	
+            </div>
+
+         <div>
+	        <span class="bold ui-label-a">@Html.Label(globalStrings.RetrieveTeam_Label)</span>
+	        <label class="inline">@Session["TeamName"]</label>
+		</div>
+@*            <div data-role="fieldcontain">
+                <span class="bold ui-label-a">@Html.Label(globalStrings.RetrieveTeam_Label)</span>
+                <label>@Session["TeamName"]</label>
+            </div>
+  *@  
+        </div>
+    
+        <div style="float:left;width:45%">  
+        <div class="subSection softHeader" style="width:90%;min-height:120px;overflow:visible">
+	        <div class="boxTitle">Tape Down Information</div>
+            <br />
+
+            <div class="ui-grid-a">
+                <div class="ui-block-a">Site Objective Point(s):</div>
+                <div class="ui-block-b">
+                    @if (ViewData.ContainsKey("SiteOPs"))
+                    {
+                        <select id="RSSiteOPsDD" class="stnSelectInput ui-shadow-inset" style="width:215px !important" name="OPMeas.OBJECTIVE_POINT_ID" data-native-menu="false" data-mini="true">
+                            <option value='0'></option>
+                            @foreach (OBJECTIVE_POINT anOP in ViewData["SiteOPs"] as List<OBJECTIVE_POINT>)
+                            {
+                                <option value='@anOP.OBJECTIVE_POINT_ID'>@anOP.NAME</option> 
+                            }
+                        </select>
+                    }
+                    else
+                    {
+                        <div>No Objective Points were added to this Site</div>
+                    }
+                    
+                    <br />	
+                </div>
+            </div>
+            <div id="opMeasurement" style="display:none">
+                <table id="opTableR" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>OP</th><th style="width:16%">Type</th><th style="width:15%">From OP</th><th style="width:15%">Hanging Length</th><th style="width:15%">Water Surface</th><th style="width:15%">Ground Surface</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>        
+    </div>
+        
+           <br />   
+    
+    <br clear="all"/>
+
+    <div id="formSubmitDiv" class="formSection" style="margin-top:23px">
+        <div class="leftSideSubmit">
+            <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+            <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" name="submit" class="submit" value="Retrieve" /></div></div>
+            <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" name="submit" class="submit" style="width:187px" value="Retrieve & Enter DF" /></div></div>
+        </div>
+    </div>
+    }
+</div>
+
+
+<style type="text/css">
+    #opTableR 
+    {
+        border-collapse:collapse;
+        width:97%;
+        margin-top:5px;
+    }
+    #opTableR th
+    {
+        border: #d9d9d9 solid 1px;
+        padding: 4px;
+    }
+    #opTableR td
+    {
+        border: #d9d9d9 solid 1px;
+        padding-left:5px;
+        padding-right:5px;
+    }
+</style>
+<script type="text/javascript">
+    function isNegNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode > 31 && (charCode < 45 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+
+    function cancelClick() {
+        $("#loading").fadeIn();
+        window.location.href = '@Url.Action("Details", "Instruments", new { id = @InstrId })'
+    };
+
+    $("#StatusType").change(function () {
+        var statType = $("#StatusType").val();
+        if (statType == 3) {
+            $("#ColCond").val(5);
+        }
+    });
+
+    $("#RSSiteOPsDD").change(function () {
+        var siteOPs = $("#RSSiteOPsDD").val();
+        var textOP = $("#RSSiteOPsDD option:selected").text();
+
+        if (siteOPs >= 1) {
+            //add a row to the table
+            $(opMeasurement).css("display", "inline-table");
+            $("#opTableR tbody").empty();
+            $("#opTableR tbody").append('<tr id="0">' +
+              '<td>' + textOP + '<input type="hidden" name="OPMeas.OBJECTIVE_POINT_ID" value="' + siteOPs + '" /></td>' +
+              '<td><div><input type="radio" name="OPMeas.TYPE" value="Foreshot" />Foreshot</div><div><input type="radio" name="OPMeas.TYPE" value="Elevation" />Elevation</div></td>' +
+              '<td><input type="text" style="width:80%" onkeypress="return isNegNumberKey(event)" class="stnTextInput ui-shadow-inset" name="OPMeas.FROM_RP" /></td>' +
+              '<td><input type="text" style="width:80%" onkeypress="return isNegNumberKey(event)" class="stnTextInput ui-shadow-inset" name="OPMeas.HANGING_LENGTH" /></td>' +
+              '<td><input type="text" style="width:80%" onkeypress="return isNegNumberKey(event)" class="stnTextInput ui-shadow-inset" name="OPMeas.WATER_SURFACE" /></td>' +
+              '<td><input type="text" style="width:80%" onkeypress="return isNegNumberKey(event)" class="stnTextInput ui-shadow-inset" name="OPMeas.GROUND_SURFACE" /></td>' +
+            '</tr>');
+        }
+        else {
+            $("#opTableR tbody tr").remove();
+            $(opMeasurement).css("display", "none");
+        }
+    });    
+</script>

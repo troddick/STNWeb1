@@ -1,0 +1,103 @@
+﻿@*
+Comments:
+04.26.13 - TR - Changed layout to only edit chosen one from dropdown
+01.30.13 - TR - adding loading logo and fixed from var to obj type for loop
+10.25.12 - TR - Added Delete and fixed cancel button
+10.12.12 - TR - Removed "main" div and only have it in _Layout
+10.10.12 - TR - Added "main" div for css formatting
+10.04.12 - TR - Added cancel and submit buttons
+10.03.12 - TR - Created 
+
+*@
+
+@*
+/* Authors:
+*      Tonia Roddick (troddick@usgs.gov)
+* Copyright:
+*      2012 USGS - WiM
+* Purpose:
+*      Edit an Event Type 
+*/
+*@
+@using STNServices;
+
+@model STNServices.EVENT_TYPE
+
+@{
+    ViewBag.Title = "Edit Event Types";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+
+    <div id="dataTitle">
+        <div class="title">Edit Event Type</div>
+    </div>
+    <br clear="all" />
+    <hr class="headerUnderline" />
+
+    @using (Ajax.BeginForm("EventTypeEdit", "Lookups", new { id = Model.EVENT_TYPE_ID }, new AjaxOptions() { HttpMethod = "POST" }, new { @id = "EditEventTypeForm" }))
+    {
+        <div class="fiftyPercColumn">   
+            <input type="hidden" name="EVENT_TYPE_ID" value="@Model.EVENT_TYPE_ID" />
+                  
+            <div class="ui-grid-a">
+                <div class="ui-block-a"><span class="required">Event Type:</span></div>
+                <div class="ui-block-b">
+                    <input type="text" class="stnTextInput ui-shadow-inset required" name="TYPE" data-mini="true" value="@Model.TYPE" />
+                </div>
+            </div>    
+        </div>
+    
+         <div id="formSubmitDiv" class="formSection">
+            <div class="leftSideSubmit">
+                <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+                <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" class="submit" value="Submit" /></div></div>
+           </div>    
+        </div>
+    
+    }
+
+<script type="text/javascript">
+    function cancelClick() {
+        $("#loading").fadeIn();
+        window.location.href = '@Url.Action("Index", "Lookups")'
+    };
+
+    function loading() {
+        $("#loading").fadeIn();
+    }
+
+    //doc.ready 
+    $(document).ready(function () {
+        $("#EditEventTypeForm").validate();
+        $("#EditEventTypeForm").removeData("validator");
+        $("#EditEventTypeForm").removeData("unobtrusiveValidation");
+
+        $("#EditEventTypeForm").validate({
+            rules: {
+                'TYPE': "required"
+            },
+            messages: {
+                'TYPE': "Required"
+            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                form.submit();
+            }
+        });
+    });
+</script>
+
+<style type="text/css">
+    #EditEventTypeForm label.error {      
+        width: auto;
+        display: block;
+        color: Red;
+    }
+    
+</style>

@@ -1,0 +1,419 @@
+@*
+02.26.14 - TR - Created 
+*@ @*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2014 USGS - WiM
+ * Purpose:
+ *      Generated Reports page 
+ */
+ *@
+@using System.Configuration;
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using STNWeb.Models;
+
+@*model STNServices.REPORTING_METRICS*@
+           
+<!DOCTYPE HTML>
+
+<html lang="en">
+    <head>
+        <style type="text/css">
+            #header
+            {
+                background-color: #59595C;
+                color: #E7E4CE;
+                display:inline;
+                font-family: "BryantRegular";
+                font-size: 40px;
+                height: 65px;
+                left: 0;
+                position: absolute;
+                right:0;
+                top: 0;
+                z-index: 1;
+            }
+            #usgsLogoDiv
+            {
+                background-color: #000000;
+                float: left;
+                height: 50px;
+                padding: 10px 5px 5px 0;
+                text-align: center;
+                width: 150px;
+            }
+            #usgsLogo
+            {
+                cursor: pointer;
+                height: 45px;
+                vertical-align: middle;
+            }
+            #usgstitle
+            {
+                padding-top: 8px;
+            }
+            #peak-table-a td 
+            {
+                max-width: 300px !important;
+            }
+            body
+            {
+                font-family: "BryantRegular";
+                font-size: 10pt;
+            }
+            #usgsfooter
+            {
+                clear: both;
+                font-size:small;
+                margin:0;
+            }
+            #usgsfooterbar
+            {
+                background-color: #666666;
+                margin:0;
+                padding:4px;
+            }
+            #usgsfooterbar a:link, #usgsfooterbar a:visited
+            {
+                color: #ffffff;
+                margin-right: 40px;
+                text-decoration: none;
+            }
+            #usgsfootertext
+            {
+                margin:0;
+                padding:4px;
+            }
+            #usgsfootertext img 
+            {
+                border: medium none;
+                float:right;
+                margin-right:5px;
+            }
+        </style>
+        
+        <title>Report Metrics Summary</title>
+        <meta name="description" content="USGS Hurricane Site information and data" />
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+        <meta name="publisher" content="USGS - U.S. Geological Survey" />
+        <meta name="created" content="20130513" />
+        @*<link href="http://www.usgs.gov/styles/common.css" rel="stylesheet" />        *@
+        <link href="@Url.Content("~/Assets/Styles/STN.css")" rel="stylesheet" type="text/css" /> 
+    </head>
+
+<body>
+<div id="header">
+    <div id="headerLogo">
+        <div id="usgsLogoDiv">
+            <img id="usgsLogo" title="USGS Links" src="@Url.Content("~/Assets/Images/logos/USGS.jpg")" alt="USGS Logo" />
+        </div>
+    </div>
+    <div id="usgstitle">USGS Flood Operations Monitoring</div>
+</div>
+
+<br clear="all" />
+
+@{
+    if (ViewData.ContainsKey("ReportList"))
+    {
+        List<ReportingModel> ReportList = ViewData["ReportList"] as List<ReportingModel>;
+        EVENT thisEvent = ViewData["Event"] as EVENT;
+        ReportMember thisReportCoord = ViewData["EventCoord"] as ReportMember;
+        
+        <div style="margin-top:5em">
+            <div style="font-size: x-large; font-family: 'BryantBold'">USGS @(thisEvent.EVENT_NAME) Report for @(((DateTime)ReportList[0].aReport.REPORT_DATE).ToShortDateString())</div> 
+            <br />
+            <table>
+                <tr><td>Event Description:</td><td>@(thisEvent.EVENT_DESCRIPTION)</td></tr>
+                <tr><td>Event Type:</td><td>@(ViewData["EventType"])</td></tr>
+                <tr><td>Event Status:</td><td>@(ViewData["EventStatus"])</td></tr>
+                <tr><td>Event Coordinator:</td><td>@(thisReportCoord.MemberName), @(thisReportCoord.OfficeName), @(thisReportCoord.Email)</td></tr>
+            </table>
+        </div>
+
+    @********************* Deployed Personnel and Assets section of the report ****************************@
+        decimal swEmpNot = 0; decimal wqEmpNot = 0; decimal swFieldTots = 0; decimal wqFieldTots = 0; decimal swFieldY = 0;
+        decimal wqFieldY = 0; decimal swFieldTod = 0; decimal wqFieldTod = 0; decimal swFieldTmr = 0; decimal wqFieldTmr = 0;
+        decimal swOffTots = 0; decimal wqOffTots = 0; decimal swOffY = 0; decimal wqOffY = 0; decimal swOffTod = 0;
+        decimal wqOffTod = 0; decimal swOffTmr = 0; decimal wqOffTmr = 0; decimal swAutos = 0; decimal wqAutos = 0;
+        decimal swBoats = 0; decimal wqBoats = 0; decimal swOthers = 0; decimal wqOthers = 0;
+        <div style="margin-bottom:-16px;margin-top:10px"><span style="font-size: large; font-family: 'BryantBold'">Deployed Personnel and Assets</span></div>
+        <br />
+        <table class="Generated-table" style="float:left;border-right:none;max-width:80%">
+            <tr><td colspan="2"></td>
+                <td style="font-family: 'BryantBold'">Employees not accounted<br /> for</td>
+                <td style="font-family: 'BryantBold'" colspan="4">Personnel in the Field</td> 
+                <td style="font-family: 'BryantBold'" colspan="4">Personnel in the Office</td>
+                <td style="font-family: 'BryantBold'" colspan="3">Vehicles Deployed</td>
+            </tr>
+            <tr><td colspan="3"></td>
+                <td style="font-family: 'BryantBold'">Cumulative Person Days</td>
+                <td style="font-family: 'BryantBold'">Yesterday</td>
+                <td style="font-family: 'BryantBold'">Today</td>
+                <td style="font-family: 'BryantBold'">Tomorrow</td>
+                <td style="font-family: 'BryantBold'">Cumulative Person Days</td>
+                <td style="font-family: 'BryantBold'">Yesterday</td>
+                <td style="font-family: 'BryantBold'">Today</td>
+                <td style="font-family: 'BryantBold'">Tomorrow</td>
+                <td style="font-family: 'BryantBold'">Trucks & Cars</td>
+                <td style="font-family: 'BryantBold'">Boats</td>
+                <td style="font-family: 'BryantBold'">Other</td>
+            </tr>
+            @foreach (ReportingModel rm in ReportList)
+            {
+            <tr>
+                <td style="font-family: 'BryantBold'" rowspan="2">@rm.aReport.STATE</td>
+                <td>SW</td>
+                <td>@(rm.aReport.SW_FIELDPERS_NOTACCT)<input type="hidden" id="swFieldNot" value="@(swEmpNot += rm.aReport.SW_FIELDPERS_NOTACCT)"/></td>
+                <td>@(rm.FieldPers_YesterdaySWTotals)<input type="hidden" id="swCumYestField" value="@(swFieldTots += rm.FieldPers_YesterdaySWTotals)"/></td>
+                <td>@(rm.aReport.SW_YEST_FIELDPERS)<input type="hidden" id="swYestField" value="@(swFieldY += rm.aReport.SW_YEST_FIELDPERS)"/></td>
+                <td>@(rm.aReport.SW_TOD_FIELDPERS)<input type="hidden" id="swTodField" value="@(swFieldTod += rm.aReport.SW_TOD_FIELDPERS)"/></td>
+                <td>@(rm.aReport.SW_TMW_FIELDPERS)<input type="hidden" id="swTmwField" value="@(swFieldTmr += rm.aReport.SW_TMW_FIELDPERS)"/></td>
+                <td>@(rm.OfficePers_YesterdaySWTotals)<input type="hidden" id="swCumYestOff" value="@(swOffTots += rm.OfficePers_YesterdaySWTotals)"/></td>
+                <td>@(rm.aReport.SW_YEST_OFFICEPERS)<input type="hidden" id="swYestOff" value="@(swOffY += rm.aReport.SW_YEST_OFFICEPERS)"/></td>
+                <td>@(rm.aReport.SW_TOD_OFFICEPERS)<input type="hidden" id="swTodOff" value="@(swOffTod += rm.aReport.SW_TOD_OFFICEPERS)"/></td>
+                <td>@(rm.aReport.SW_TMW_OFFICEPERS)<input type="hidden" id="swTmwOff" value="@(swOffTmr += rm.aReport.SW_TMW_OFFICEPERS)"/></td>
+                <td>@(rm.aReport.SW_AUTOS_DEPL)<input type="hidden" id="swAuto" value="@(swAutos += rm.aReport.SW_AUTOS_DEPL)"/></td>
+                <td>@(rm.aReport.SW_BOATS_DEPL)<input type="hidden" id="swBoats" value="@(swBoats += rm.aReport.SW_BOATS_DEPL)"/></td>
+                <td>@(rm.aReport.SW_OTHER_DEPL)<input type="hidden" id="swOther" value="@(swOthers += rm.aReport.SW_OTHER_DEPL)"/></td>
+            </tr>
+            <tr>
+                <td>WQ & Other</td>
+                <td>@(rm.aReport.WQ_FIELDPERS_NOTACCT)<input type="hidden" id="wqFieldNot" value="@(wqEmpNot += rm.aReport.WQ_FIELDPERS_NOTACCT)"/></td>
+                <td>@(rm.FieldPers_YesterdayWQTotals)<input type="hidden" id="wqCumYestField" value="@(wqFieldTots += rm.FieldPers_YesterdayWQTotals)"/></td>
+                <td>@(rm.aReport.WQ_YEST_FIELDPERS)<input type="hidden" id="wqYestField" value="@(wqFieldY += rm.aReport.WQ_YEST_FIELDPERS)"/></td>  
+                <td>@(rm.aReport.WQ_TOD_FIELDPERS)<input type="hidden" id="wqTodField" value="@(wqFieldTod += rm.aReport.WQ_TOD_FIELDPERS)"/></td>  
+                <td>@(rm.aReport.WQ_TMW_FIELDPERS)<input type="hidden" id="wqTmwField" value="@(wqFieldTmr += rm.aReport.WQ_TMW_FIELDPERS)"/></td>
+                <td>@(rm.OfficePers_YesterdayWQTotals)<input type="hidden" id="wqCumYestOff" value="@(wqOffTots += rm.OfficePers_YesterdayWQTotals)"/></td>  
+                <td>@(rm.aReport.WQ_YEST_OFFICEPERS)<input type="hidden" id="wqYestOff" value="@(wqOffY += rm.aReport.WQ_YEST_OFFICEPERS)"/></td>  
+                <td>@(rm.aReport.WQ_YEST_OFFICEPERS)<input type="hidden" id="wqTodOff" value="@(wqOffTod += rm.aReport.WQ_YEST_OFFICEPERS)"/></td>  
+                <td>@(rm.aReport.WQ_YEST_OFFICEPERS)<input type="hidden" id="wqTmwOff" value="@(wqOffTmr += rm.aReport.WQ_YEST_OFFICEPERS)"/></td>  
+                <td>@(rm.aReport.WQ_AUTOS_DEPL)<input type="hidden" id="wqAuto" value="@(wqAutos += rm.aReport.WQ_AUTOS_DEPL)"/></td>  
+                <td>@(rm.aReport.WQ_BOATS_DEPL)<input type="hidden" id="wqBoats" value="@(wqBoats += rm.aReport.WQ_BOATS_DEPL)"/></td>  
+                <td>@(rm.aReport.WQ_OTHER_DEPL)<input type="hidden" id="wqOther" value="@(wqOthers += rm.aReport.WQ_OTHER_DEPL)"/></td> 
+            </tr>
+            }
+            <tr>
+                <td style="font-family: 'BryantBold'" colspan="2">TOTAL</td>
+                <td style="font-family: 'BryantBold'">@(swEmpNot + wqEmpNot)</td>
+                <td style="font-family: 'BryantBold'">@(swFieldTots + wqFieldTots)</td>
+                <td style="font-family: 'BryantBold'">@(swFieldY + wqFieldY)</td>
+                <td style="font-family: 'BryantBold'">@(swFieldTod + wqFieldTod)</td>
+                <td style="font-family: 'BryantBold'">@(swFieldTmr + wqFieldTmr)</td>
+                <td style="font-family: 'BryantBold'">@(swOffTots + wqOffTots)</td>
+                <td style="font-family: 'BryantBold'">@(swOffY + wqOffY)</td> 
+                <td style="font-family: 'BryantBold'">@(swOffTod + wqOffTod)</td> 
+                <td style="font-family: 'BryantBold'">@(swOffTmr + wqOffTmr)</td>  
+                <td style="font-family: 'BryantBold'">@(swAutos + wqAutos)</td>  
+                <td style="font-family: 'BryantBold'">@(swBoats + wqBoats)</td>  
+                <td style="font-family: 'BryantBold'">@(swOthers + wqOthers)</td>
+            </tr>
+        </table>
+
+        <br clear="all" />
+    @******************* end of the Deployed Personnel and assets section**************@
+    
+    @********************* Instrumentation and Sampling Counts section of the report ****************************@
+        decimal gageVisit = 0; decimal gageDown = 0; decimal dischMeasToDate = 0; decimal dischMeasPlan = 0; decimal ckMeasToDate = 0;
+        decimal ckMeasPlan = 0; decimal IndMeas = 0; decimal ratExt = 0; decimal Peaks = 0; decimal rdgPl = 0;
+        decimal rdgDe = 0; decimal rdgRet = 0; decimal rdgLo = 0; decimal waterPl = 0; decimal waterDe = 0;
+        decimal waterRet = 0; decimal waterLo = 0; decimal wavePl = 0; decimal waveDe = 0; decimal waveRet = 0;
+        decimal waveLo = 0; decimal baroPl = 0; decimal baroDe = 0; decimal baroRet = 0; decimal baroLo = 0;
+        decimal metPl = 0; decimal metDe = 0; decimal metRet = 0; decimal metLo = 0; decimal hwmFl = 0;
+        decimal hwmCol = 0; decimal qwGageV = 0; decimal contQwGageV = 0; decimal contQwGageD = 0; decimal disQwSamp = 0;
+        decimal sedCol = 0;
+        <div style="margin-bottom:-16px;margin-top:10px"><span style="font-size: large; font-family: 'BryantBold'">Instrumentation and Sampling Counts</span></div>
+        <br />
+        <table class="Generated-table" style="float:left;border-right:none;max-width:80%">
+            <tr>
+                <td colspan="3"></td>
+                <td>To Date</td><td>Planned</td>
+                <td>To Date</td><td>Planned</td>
+                <td colspan="8"></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td style="font-family:'BryantBold'">Gage Visits</td>
+                <td style="font-family:'BryantBold'">Gages down at present</td>
+                <td style="font-family:'BryantBold'" colspan="2">Discharge Measurements</td>
+                <td style="font-family:'BryantBold'" colspan="2">Check Measurements</td>                
+                <td style="font-family:'BryantBold'">Indirect Measurements</td>
+                <td style="font-family:'BryantBold'">Rating Extensions</td>
+                <td style="font-family:'BryantBold'">Peaks of record</td>                
+                <td style="font-family:'BryantBold'">QW Gage visits</td>
+                <td style="font-family:'BryantBold'">Continuous QW Gages visited</td>
+                <td style="font-family:'BryantBold'">Continuous QW Gages down</td>
+                <td style="font-family:'BryantBold'">Discrete QW samples collected</td>
+                <td style="font-family:'BryantBold'">Sediment samples collected</td>
+            </tr>
+            
+            @foreach (ReportingModel rm in ReportList)
+              {
+                <tr>
+                <td style="font-family: 'BryantBold'">@(rm.aReport.STATE)</td>
+                <td>@(rm.aReport.GAGE_VISIT)<input type="hidden" value="@(gageVisit += rm.aReport.GAGE_VISIT)" /></td>
+                <td>@(rm.aReport.GAGE_DOWN)<input type="hidden" value="@(gageDown += rm.aReport.GAGE_DOWN)" /></td>                
+                <td>@(rm.aReport.TOT_DISCHARGE_MEAS)<input type="hidden" value="@(dischMeasToDate += rm.aReport.TOT_DISCHARGE_MEAS)" /></td>
+                <td>@(rm.aReport.PLAN_DISCHARGE_MEAS)<input type="hidden" value="@(dischMeasPlan += rm.aReport.PLAN_DISCHARGE_MEAS)" /></td>
+                <td>@(rm.aReport.TOT_CHECK_MEAS)<input type="hidden" value="@(ckMeasToDate += rm.aReport.TOT_CHECK_MEAS)" /></td>
+                <td>@(rm.aReport.PLAN_CHECK_MEAS)<input type="hidden" value="@(ckMeasPlan += rm.aReport.PLAN_CHECK_MEAS)" /></td>
+                <td>@(rm.aReport.PLAN_INDIRECT_MEAS)<input type="hidden" value="@(IndMeas += rm.aReport.PLAN_INDIRECT_MEAS)" /></td>
+                <td>@(rm.aReport.RATING_EXTENS)<input type="hidden" value="@(ratExt += rm.aReport.RATING_EXTENS)" /></td>
+                <td>@(rm.aReport.GAGE_PEAK_RECORD)<input type="hidden" value="@(Peaks += rm.aReport.GAGE_PEAK_RECORD)" /></td>
+                <td>@(rm.aReport.QW_GAGE_VISIT)<input type="hidden" value="@(qwGageV += rm.aReport.QW_GAGE_VISIT)" /></td>
+                <td>@(rm.aReport.QW_CONT_GAGEVISIT)<input type="hidden" value="@(contQwGageV += rm.aReport.QW_CONT_GAGEVISIT)" /></td>
+                <td>@(rm.aReport.QW_GAGE_DOWN)<input type="hidden" value="@(contQwGageD += rm.aReport.QW_GAGE_DOWN)" /></td>
+                <td>@(rm.aReport.QW_DISCR_SAMPLES)<input type="hidden" value="@(disQwSamp += rm.aReport.QW_DISCR_SAMPLES)" /></td>
+                <td>@(rm.aReport.COLL_SEDSAMPLES)<input type="hidden" value="@(sedCol += rm.aReport.COLL_SEDSAMPLES)" /></td>
+                </tr>
+                }
+                <tr>
+                    <td style="font-family: 'BryantBold'">TOTAL</td>
+                    <td style="font-family: 'BryantBold'">@(gageVisit)</td>
+                    <td style="font-family: 'BryantBold'">@(gageDown)</td>
+                    <td style="font-family: 'BryantBold'">@(dischMeasToDate)</td>
+                    <td style="font-family: 'BryantBold'">@(dischMeasPlan)</td>
+                    <td style="font-family: 'BryantBold'">@(ckMeasToDate)</td>
+                    <td style="font-family: 'BryantBold'">@(ckMeasPlan)</td>
+                    <td style="font-family: 'BryantBold'">@(IndMeas)</td>
+                    <td style="font-family: 'BryantBold'">@(ratExt)</td>
+                    <td style="font-family: 'BryantBold'">@(Peaks)</td>
+                    <td style="font-family: 'BryantBold'">@(qwGageV)</td>
+                    <td style="font-family: 'BryantBold'">@(contQwGageV)</td>
+                    <td style="font-family: 'BryantBold'">@(contQwGageD)</td>
+                    <td style="font-family: 'BryantBold'">@(disQwSamp)</td>
+                    <td style="font-family: 'BryantBold'">@(sedCol)</td>
+                </tr>
+         </table>
+         <br />
+         <table class="Generated-table" style="float:left;border-right:none;margin-top:10px;max-width:80%">
+            <tr>
+                <td></td>
+                <td style="font-family:'BryantBold'" colspan="4">Rapid Deployment Gages</td>
+                <td style="font-family:'BryantBold'" colspan="4">Water Level Sensors</td>
+                <td style="font-family:'BryantBold'" colspan="4">Wave Sensors</td>
+                <td style="font-family:'BryantBold'" colspan="4">Barometers</td>
+                <td style="font-family:'BryantBold'" colspan="4">Meteorological Sensors</td>
+                <td style="font-family:'BryantBold'" colspan="2">Highwater Marks</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td style="font-family:'BryantBold'">Planned</td>
+                <td style="font-family:'BryantBold'">Deployed</td>        
+                <td style="font-family:'BryantBold'">Recovered</td>
+                <td style="font-family:'BryantBold'">Lost</td>
+                
+                <td style="font-family:'BryantBold'">Planned</td>
+                <td style="font-family:'BryantBold'">Deployed</td>
+                <td style="font-family:'BryantBold'">Recovered</td>
+                <td style="font-family:'BryantBold'">Lost</td>
+                
+                <td style="font-family:'BryantBold'">Planned</td>
+                <td style="font-family:'BryantBold'">Deployed</td>
+                <td style="font-family:'BryantBold'">Recovered</td>
+                <td style="font-family:'BryantBold'">Lost</td>
+                
+                <td style="font-family:'BryantBold'">Planned</td>
+                <td style="font-family:'BryantBold'">Deployed</td>
+                <td style="font-family:'BryantBold'">Recovered</td>
+                <td style="font-family:'BryantBold'">Lost</td>
+                
+                <td style="font-family:'BryantBold'">Planned</td>
+                <td style="font-family:'BryantBold'">Deployed</td>
+                <td style="font-family:'BryantBold'">Recovered</td>
+                <td style="font-family:'BryantBold'">Lost</td>
+                
+                <td style="font-family:'BryantBold'">Flagged</td>
+                <td style="font-family:'BryantBold'">Collected</td>
+             </tr>
+              @foreach (ReportingModel rm in ReportList)
+              {
+                  <tr>
+                    <td style="font-family: 'BryantBold'">@(rm.aReport.STATE)</td>
+                    <td>@(rm.aReport.PLAN_RAPDEPL_GAGE)<input type="hidden" value="@(rdgPl += rm.aReport.PLAN_RAPDEPL_GAGE)" /></td>
+                    <td>@(rm.aReport.DEP_RAPDEPL_GAGE)<input type="hidden" value="@(rdgDe += rm.aReport.DEP_RAPDEPL_GAGE)" /></td>
+                    <td>@(rm.aReport.REC_RAPDEPL_GAGE)<input type="hidden" value="@(rdgRet += rm.aReport.REC_RAPDEPL_GAGE)" /></td>
+                    <td>@(rm.aReport.LOST_RAPDEPL_GAGE)<input type="hidden" value="@(rdgLo += rm.aReport.LOST_RAPDEPL_GAGE)" /></td>
+                    <td>@(rm.aReport.PLAN_WTRLEV_SENSOR)<input type="hidden" value="@(waterPl += rm.aReport.PLAN_WTRLEV_SENSOR)" /></td>
+                    <td>@(rm.aReport.DEP_WTRLEV_SENSOR)<input type="hidden" value="@(waterDe += rm.aReport.DEP_WTRLEV_SENSOR)" /></td>
+                    <td>@(rm.aReport.REC_WTRLEV_SENSOR)<input type="hidden" value="@(waterRet += rm.aReport.REC_WTRLEV_SENSOR)" /></td>
+                    <td>@(rm.aReport.LOST_WTRLEV_SENSOR)<input type="hidden" value="@(waterLo += rm.aReport.LOST_WTRLEV_SENSOR)" /></td>
+                    <td>@(rm.aReport.PLAN_WV_SENS)<input type="hidden" value="@(wavePl += rm.aReport.PLAN_WV_SENS)" /></td>
+                    <td>@(rm.aReport.DEP_WV_SENS)<input type="hidden" value="@(waveDe += rm.aReport.DEP_WV_SENS)" /></td>
+                    <td>@(rm.aReport.REC_WV_SENS)<input type="hidden" value="@(waveRet += rm.aReport.REC_WV_SENS)" /></td>
+                    <td>@(rm.aReport.LOST_WV_SENS)<input type="hidden" value="@(waveLo += rm.aReport.LOST_WV_SENS)" /></td>
+                    <td>@(rm.aReport.PLAN_BAROMETRIC)<input type="hidden" value="@(baroPl += rm.aReport.PLAN_BAROMETRIC)" /></td>
+                    <td>@(rm.aReport.DEP_BAROMETRIC)<input type="hidden" value="@(baroDe += rm.aReport.DEP_BAROMETRIC)" /></td>
+                    <td>@(rm.aReport.REC_BAROMETRIC)<input type="hidden" value="@(baroRet += rm.aReport.REC_BAROMETRIC)" /></td>
+                    <td>@(rm.aReport.LOST_BAROMETRIC)<input type="hidden" value="@(baroLo += rm.aReport.LOST_BAROMETRIC)" /></td>
+                    <td>@(rm.aReport.PLAN_METEOROLOGICAL)<input type="hidden" value="@(metPl += rm.aReport.PLAN_METEOROLOGICAL)" /></td>
+                    <td>@(rm.aReport.DEP_METEOROLOGICAL)<input type="hidden" value="@(metDe += rm.aReport.DEP_METEOROLOGICAL)" /></td>
+                    <td>@(rm.aReport.REC_METEOROLOGICAL)<input type="hidden" value="@(metRet += rm.aReport.REC_METEOROLOGICAL)" /></td>
+                    <td>@(rm.aReport.LOST_METEOROLOGICAL)<input type="hidden" value="@(metLo += rm.aReport.LOST_METEOROLOGICAL)" /></td>
+                    <td>@(rm.aReport.HWM_FLAGGED)<input type="hidden" value="@(hwmFl += rm.aReport.HWM_FLAGGED)" /></td>
+                    <td>@(rm.aReport.HWM_COLLECTED)<input type="hidden" value="@(hwmCol += rm.aReport.HWM_COLLECTED)" /></td>
+                
+                </tr>
+              }
+              <tr>
+                <td style="font-family: 'BryantBold'">TOTAL</td>
+                <td style="font-family: 'BryantBold'">@(rdgPl)</td>
+                <td style="font-family: 'BryantBold'">@(rdgDe)</td>
+                <td style="font-family: 'BryantBold'">@(rdgRet)</td>
+                <td style="font-family: 'BryantBold'">@(rdgLo)</td>
+                <td style="font-family: 'BryantBold'">@(waterPl)</td>
+                <td style="font-family: 'BryantBold'">@(waterDe)</td>
+                <td style="font-family: 'BryantBold'">@(waterRet)</td>
+                <td style="font-family: 'BryantBold'">@(waterLo)</td>
+                <td style="font-family: 'BryantBold'">@(wavePl)</td>
+                <td style="font-family: 'BryantBold'">@(waveDe)</td>
+                <td style="font-family: 'BryantBold'">@(waveRet)</td>
+                <td style="font-family: 'BryantBold'">@(waveLo)</td>
+                <td style="font-family: 'BryantBold'">@(baroPl)</td>
+                <td style="font-family: 'BryantBold'">@(baroDe)</td>
+                <td style="font-family: 'BryantBold'">@(baroRet)</td>
+                <td style="font-family: 'BryantBold'">@(baroLo)</td>
+                <td style="font-family: 'BryantBold'">@(metPl)</td>
+                <td style="font-family: 'BryantBold'">@(metDe)</td>
+                <td style="font-family: 'BryantBold'">@(metRet)</td>
+                <td style="font-family: 'BryantBold'">@(metLo)</td>
+                <td style="font-family: 'BryantBold'">@(hwmFl)</td>
+                <td style="font-family: 'BryantBold'">@(hwmCol)</td>                
+            </tr>
+        </table>
+    <br clear="all" />
+    <div style="margin-top:2em">To make a <b>PDF of this Report</b>, select Print in your browser and choose Adobe PDF as printer name.</div>
+    }
+    else
+    {
+        <div style="margin-top:6em;font-size:large">There are no Reports that match these parameters.</div>
+    }
+    
+}
+<br clear="all" />
+
+
+@* BEGIN USGS Footer Template *@
+    <div id="usgsfooter" style="margin-top:10px;bottom:0;width:100%">
+	    <p id="usgsfooterbar">
+		    <a href="http://www.usgs.gov/laws/accessibility.html" title="Accessibility Policy (Section 508)">Accessibility</a>
+		    <a href="http://www.usgs.gov/foia/" title="Freedom of Information Act">FOIA</a>
+		    <a href="http://www.usgs.gov/laws/privacy.html" title="Privacy policies of the U.S. Geological Survey.">Privacy</a>
+		    <a href="http://www.usgs.gov/laws/policies_notices.html" title="Policies and notices that govern information posted on USGS Web sites.">Policies and Notices</a>
+
+	    </p>
+
+	    <p id="usgsfootertext">
+		    <a href="http://www.takepride.gov/"><img src="http://www.usgs.gov/images/footer_graphic_takePride.jpg" alt="Take Pride in America logo" title="Take Pride in America Home Page" width="60" height="58"></a>
+	        <a href="http://firstgov.gov/"><img src="http://www.usgs.gov/images/footer_graphic_usagov.jpg" alt="USA.gov logo" width="90" height="26" style="float: right; margin-right: 10px;" title="USAGov: Government Made Easy."></a>
+		    <a href="http://www.doi.gov/">U.S. Department of the Interior</a> |
+		    <a href="http://www.usgs.gov/">U.S. Geological Survey</a><br>
+            Page Contact Information: <a href="mailto:storm_team_leader@usgs.gov ">Storm Team Leader</a><br>
+            Page Last Modified: Monday, 03-March-2014 13:11:12 CST
+	    </p>
+    </div>
+@*-- END USGS Footer Template *@
+</body>
+</html>

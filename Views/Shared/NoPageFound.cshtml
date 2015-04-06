@@ -1,0 +1,13 @@
+﻿@model System.Web.Mvc.HandleErrorInfo
+
+@{
+    ViewBag.Title = "Error";
+}
+
+<h2>
+   Error: Sorry, this page can not be found.
+</h2>
+<br />
+<p>
+    @Html.ActionLink("Return to the Home Page", "Index", "Home", null, new { @class = "STNButton", onclick = "loading();" })
+</p>

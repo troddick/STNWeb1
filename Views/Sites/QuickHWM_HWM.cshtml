@@ -1,0 +1,223 @@
+﻿@*
+04.21.14 - TR - validate
+10.10.12 - TR - Created 
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Quick HWM creation page (Site, HWM, OP)
+ */
+ *@
+@using System.Configuration;
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model STNWeb.Models.QuickHWMModel
+
+    
+     <div class="fiftyPercColumn">
+        
+        <div style="color:#59595C; font-size:large; font-weight:bold; margin-bottom: 10px">HWM</div>
+        
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">@Html.Label(HWMStrings.HWMType_Label)</span></div>
+                <div class="ui-block-b">
+                    <select id="hwmTypeDD" class="required stnSelectInput ui-shadow-inset" name="Qhwm.HWM_TYPE_ID" data-native-menu="false" data-mini="true">
+					    <option value="">Choose a HWM Type</option>
+                        @foreach (HWM_TYPES aHWMT in ViewData["HWMTypesList"] as List<HWM_TYPES>)
+                        {
+                            <option value='@aHWMT.HWM_TYPE_ID'>@aHWMT.HWM_TYPE</option> 
+                        }
+                    </select>
+                    <br />	
+                    <div class="" id="HWM_TYPE_ID_validate"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                 <div class="ui-block-a"><span class="required">@Html.Label(HWMStrings.HWMEnvironment_Label)</span></div>
+                 <div class="ui-block-b">
+                    <table>
+                        <tr>
+                            <td style="width:50%"><input type="radio" class="required ui-shadow-inset" name="Qhwm.HWM_ENVIRONMENT" value="Coastal" />Coastal</td>
+                            <td style="width:50%"><input type="radio" class="required ui-shadow-inset" name="Qhwm.HWM_ENVIRONMENT" value="Riverine" />Riverine</td>
+                            <td><div id="HWM_ENVIRONMENT_validate"></div></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center">0.05</td>
+                            <td style="text-align:center">0.02</td>
+                            <td style="text-align:center">Excellent</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center">0.1</td>
+                            <td style="text-align:center">0.05</td>
+                            <td style="text-align:center">Good</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center">0.2</td>
+                            <td style="text-align:center">0.1</td>
+                            <td style="text-align:center">Fair</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center">0.4</td>
+                            <td style="text-align:center">0.2</td>
+                            <td style="text-align:center">Poor</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center">>0.40</td>
+                            <td style="text-align:center">>0.20</td>
+                            <td style="text-align:center">V. Poor</td>
+                        </tr>
+                        <tr><td colspan="3"><a href="http://pubs.usgs.gov/tm/11d1/" target="_blank">USGS T&M 11-D1, Table 13</a></td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">@Html.Label(HWMStrings.HWMQual_Label)</span></div>
+                <div class="ui-block-b">
+                    <select id="hwmQualityDD" class="required stnSelectInput ui-shadow-inset" name="Qhwm.HWM_QUALITY_ID" data-native-menu="false" data-mini="true">
+					    <option value="">Choose a HWM Quality</option>
+                        @foreach (HWM_QUALITIES aHWMQ in ViewData["HWMQualitiesList"] as List<HWM_QUALITIES>)
+                        {
+                            <option value='@aHWMQ.HWM_QUALITY_ID'>@aHWMQ.HWM_QUALITY</option> 
+                        }
+                    </select>
+                    <br />	
+                    <div class="" id="HWM_QUALITY_ID_validate"></div>
+                </div>                
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                 <div class="ui-block-a">@Html.Label(HWMStrings.Bank_Label)</div>
+                <div class="ui-block-b">
+                    <span>
+                        <input type="radio" name="Qhwm.BANK" value="Left" />Left
+                        <input type="radio" name="Qhwm.BANK" value="Right" />Right
+                        <input type="radio" name="Qhwm.BANK" value="N/A" />N/A
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(HWMStrings.LocationDesc_Label)</div>
+                <div class="ui-block-b"><textarea rows="4" cols="30"class="stnTextInput ui-shadow-inset" name="Qhwm.HWM_LOCATIONDESCRIPTION" data-mini="true"></textarea></div>
+                 
+            </div>
+        </div>        
+     </div>
+    
+     <div class="fiftyPercColumn" style="margin-top:31px">
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">Surveyed Elevation (ft):</div>
+                <div class="ui-block-b" style="margin-bottom:0"><input type="text" class="stnTextInput ui-shadow-inset" onkeypress="return isNegNumberKey(event)" name="Qhwm.ELEV_FT" data-mini="true" /></div>
+                <br /><div style="float:left;margin-left:8em">* If left blank, HWM will be considered flagged and not yet surveyed.</div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(globalStrings.VDatum_Label)</div>
+                <div class="ui-block-b">
+                    <select id="vdatumDD" class="stnSelectInput ui-shadow-inset" name="Qhwm.VDATUM_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Vertical Datum</option>
+                        @foreach (VERTICAL_DATUMS aVD in ViewData["vDatumList"] as List<VERTICAL_DATUMS>)
+                        {
+                            <option value='@aVD.DATUM_ID'>@aVD.DATUM_NAME</option> 
+                        }
+                    </select>
+                    <br />	
+                </div>
+            </div>
+        </div>
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(HWMStrings.Height_Label)</div>
+                <div class="ui-block-b"><input type="text" class="stnTextInput ui-shadow-inset" onkeypress="return isNegNumberKey(event)" name="Qhwm.HEIGHT_ABOVE_GND" data-mini="true" /></div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                 <div class="ui-block-a"><span class="required">@Html.Label(HWMStrings.FlagDate_Label)</span></div>
+                 <div class="ui-block-b"><input type="text" class="required datepicker stnTextInput ui-shadow-inset" name="Qhwm.FLAG_DATE" data-mini="true" value="@DateTime.Now.ToShortDateString()"/></div>
+            </div>
+        </div>
+        
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                 <div class="ui-block-a">@Html.Label(HWMStrings.SurveyDate_Label)</div>
+                 <div class="ui-block-b"><input type="text" class="stnTextInput datepicker ui-shadow-inset" name="Qhwm.SURVEY_DATE" data-mini="true" /></div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(HWMStrings.VCollectMethod_Label)</div>
+                <div class="ui-block-b">
+                    <select id="VcollMethodDD" class="stnSelectInput ui-shadow-inset" name="Qhwm.VCOLLECT_METHOD_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose a Vertical Collection Method</option>
+                        @foreach (VERTICAL_COLLECT_METHODS aVColMd in ViewData["VcollectMethodList"] as List<VERTICAL_COLLECT_METHODS>)
+                        {
+                            <option value='@aVColMd.VCOLLECT_METHOD_ID'>@aVColMd.VCOLLECT_METHOD</option> 
+                        }
+                    </select>
+                    <br />	
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(HWMStrings.Marker_Label)</div>
+                <div class="ui-block-b">
+                    <select id="Markerdd" class="stnSelectInput ui-shadow-inset" name="Qhwm.MARKER_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose a Marker</option>
+                        @foreach (MARKER aMrk in ViewData["markerList"] as List<MARKER>)
+                        {
+                            <option value='@aMrk.MARKER_ID'>@aMrk.MARKER1</option> 
+                        }
+                    </select>
+                    <br />	
+                </div>
+            </div>
+        </div>            
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(HWMStrings.Notes_Label)</div>
+                <div class="ui-block-b"><textarea rows="4" cols="30" class="stnTextInput ui-shadow-inset" name="Qhwm.HWM_NOTES" data-mini="true"></textarea></div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                 <div class="ui-block-a">@Html.Label(HWMStrings.Stillwater_Label)</div>
+                <div class="ui-block-b">
+                    <span>
+                        <input type="radio" name="Qhwm.STILLWATER" value="1" />Yes
+                        <input type="radio" name="Qhwm.STILLWATER" value="0" />No
+                    </span>
+                </div>
+            </div>
+        </div>
+     </div>
+
+    <br />         
+    
+   <br clear="all" />

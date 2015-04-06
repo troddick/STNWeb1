@@ -1,0 +1,109 @@
+﻿@*
+Comments:
+05.15.14 - TR - Created
+
+*@
+
+@*
+/* Authors:
+*      Tonia Roddick (troddick@usgs.gov)
+* Copyright:
+*      2012 USGS - WiM
+* Purpose:
+*      Create Marker
+*/
+*@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model System.Collections.Generic.List<STNServices.OBJECTIVE_POINT_TYPE>
+
+@{
+    ViewBag.Title = "Create Marker";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+<div id="dataTitle">
+    <div class="title">Objective Point Type:</div>
+</div>
+<br clear="all" />
+<hr class="headerUnderline" />
+
+@using (Ajax.BeginForm("OPTypesCreate", "Lookups", null, new AjaxOptions() { HttpMethod = "POST" }, new { @id = "CreateOPTypeForm" }))
+{
+    <div class="fiftyPercColumn">
+        <div class="ui-grid-a">
+            <div class="ui-block-b">
+                @{
+                    foreach (OBJECTIVE_POINT_TYPE t in Model)
+                    {    
+                        @t.OP_TYPE
+                        <br />
+                    }
+                    }
+            </div>
+            <div class="ui-block-a"><span class="required bold">@Html.Label(LookupsStrings.OPTypes_createNew)</span></div>
+            <div class="ui-block-b"><input type="text" class="required stnTextInput ui-shadow-inset" id="type" name="OP_TYPE" data-mini="true" /></div>
+        </div>
+    </div>
+    
+    <div id="formSubmitDiv" class="formSection">
+        <div class="leftSideSubmit">
+            <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+            <div class="submitDiv">
+                <div class="darkButtonBorder"><input type="submit" class="submit" value="Submit" /></div>
+            </div>
+            <asp:Button ID="SaveSiteButton" runat="server" Text="Save" />
+        </div>    
+    </div>
+    }
+
+<script type="text/javascript">
+    window.onload = function () {
+        var txtbox = document.getElementById("type");
+        txtbox.focus();
+    }
+
+    function cancelClick() {
+        $("#loading").fadeIn();
+        window.location.href = '@Url.Action("Index", "Lookups")'
+    };
+
+    function loading() {
+        $("#loading").fadeIn();
+    };
+
+    //doc.ready 
+    $(document).ready(function () {
+        $("#CreateOPTypeForm").validate();
+        $("#CreateOPTypeForm").removeData("validator");
+        $("#CreateOPTypeForm").removeData("unobtrusiveValidation");
+        
+        $("#CreateOPTypeForm").validate({
+            rules: {
+                'OP_TYPE': "required"
+            },
+            messages: {
+                'OP_TYPE': "Required"
+            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                form.submit();
+            }
+        });
+    });
+</script>
+
+<style type="text/css">
+    #CreateOPTypeForm label.error {      
+        width: auto;
+        display: block;
+        color: Red;
+    }    
+</style>

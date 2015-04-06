@@ -1,0 +1,73 @@
+﻿@* Comments: 
+10.25.12 - TR - changed to table layout
+10.18.12 - TR - Changed from Members.cshtml to Index.cshtml within Members folder
+10.17.12 - TR - Fixed ActionLink so alert window opens onClick
+10.12.12 - TR - Filled in to display members
+09.28.12 - JB - Created from old web app 
+
+*@
+
+@*
+/* Authors:
+ *      Jonathan Baier (jbaier@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display members listing
+ */
+ *@
+
+ @using STNServices;
+ @using STNWeb.Models;
+ 
+
+ @model System.Collections.Generic.List<MemberListingModel>
+            
+ @{
+    ViewBag.Title = "Members";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+<div id="dataTitle">
+        <div class="title">Members</div>
+    </div>
+    <br clear="all" />    
+    <hr class="headerUnderline" />
+
+    @if (ViewData["Role"] == "Admin" || ViewData["Role"] == "Manager")
+    {
+        <div>
+            @Html.ActionLink("Create", "MemberCreate", "Members", null, new { @class = "STNButton", onclick = "loading();" })
+        </div>
+    }
+    
+<br clear="all" />
+
+<div>
+
+    <table id="MemberListTable-a">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Agency</th>
+                <th scope="col">Role</th>
+            </tr>
+        </thead>
+        @foreach (var aMember in Model) 
+        {
+            <tr>
+                <td>@Html.ActionLink(aMember.MemberName, "MemberDE", "Members", new { id = aMember.MemberID }, new { onclick = "loading();" })</td>
+                <td>@(aMember.AgencyName)</td>
+                <td>@(aMember.RoleName)</td>
+            </tr>
+        }
+    </table>                              
+</div>
+
+<script type="text/javascript">
+    function loading() {
+        $("#loading").fadeIn();
+    };
+</script>

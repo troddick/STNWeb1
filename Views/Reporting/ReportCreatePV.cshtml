@@ -1,0 +1,916 @@
+﻿@* Comments:
+02.20.14 - TR - Created (Parial View)
+
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display Create of Report 
+ */
+ *@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using STNWeb.Models;
+
+@model STNWeb.Models.ReportingModel
+           
+@using (Ajax.BeginForm("CreateReport", "Reporting", null, new AjaxOptions() { UpdateTargetId = "content", HttpMethod = "POST", LoadingElementId = "loading" }, new { @id = "CreateReportForm"}))
+{
+    <div>
+        <table class="Sec1Reporting-table" style="width: 100%">
+            @* Section 1: Date, Event, State selection *@
+            <tr>
+                <td colspan="8" style="border-bottom: 1px solid #59595C">
+                    <span style="font-size: x-large; font-family: 'BryantBold'">Section 1: Start Report</span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="8"></td>
+            </tr>
+            <tr>                        
+                <td style="width: 19%">@*<input type="hidden" name="aReport.REPORTING_METRICS_ID" id="ReportID" />*@
+                    <span class="required" style="font-size: 18px">Date being reported:</span>
+                </td>
+                <td style="width: 11%">
+                    <input type="text" id="aDate" class="required stnTextInput ui-shadow-inset datepicker" name="aReport.REPORT_DATE" data-mini="true" value='@(DateTime.Now.ToString("MM/dd/yyyy"))' />
+                </td>
+                <td style="width: 4%">
+                </td>
+                <td style="width: 6%">
+                    <span class="required" style="font-size: 18px">Event:</span>
+                </td>
+                <td style="width: 20%">
+                    <select id="eventList" class="required stnSelectInput ui-shadow-inset" name="aReport.EVENT_ID" data-native-menu="false" data-mini="true">
+                        <option value="">Choose an Event</option>
+                        @foreach (EVENT anEvent in ViewData["EventList"] as List<EVENT>)
+                        {
+                            <option value='@anEvent.EVENT_ID'>@anEvent.EVENT_NAME</option> 
+                        }
+                    </select>
+                    <br />
+                </td>
+                <td style="width: 4%">
+                </td>
+                <td style="width: 6%">
+                    <span class="required" style="font-size: 18px">State:</span>
+                </td>
+                <td style="width: 21%">
+                    <select id="stateList" class="required stnSelectInput ui-shadow-inset" name="aReport.STATE" data-native-menu="false" data-mini="true">
+                        <option value="">Choose a State</option>
+                        @foreach (STATES aState in ViewData["StateList"] as List<STATES>)
+                        {
+                            <option value='@aState.STATE_ABBREV'>@aState.STATE_NAME</option> 
+                        }
+                    </select>
+                    <br />
+                </td>
+            </tr>
+            <tr><td colspan="8"><a id="populateButton" class="STNButton" style="padding: 3px; background-color: #F37A49" onclick="getValues();">Populate Totals</a></td></tr>
+            <tr><td colspan="8"></td></tr>
+        </table>
+        @* End of step 1 *@
+    </div>
+    <br />
+    
+    <div class="fiftyPercColumn">
+        @* Section 2: Personnel and Vehicle Counts *@
+        <table style="float: left" class="Reporting-table">                    
+            <tr>
+                <td colspan="4">
+                    <span style="font-size: x-large; font-family: 'BryantBold'">Section 2: Personnel and Vehicle Counts</span>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td style="text-align: center; font-family: 'BryantBold';">Surfacewater</td>
+                <td style="text-align: center; font-family: 'BryantBold';">Water Quality<br />and Other</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width: 21%">
+                    <span class="required">Employees not accounted for</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px">
+                    <input type="text" id="SW_empl" class="stnTextInput ui-shadow-inset required" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.SW_FIELDPERS_NOTACCT" data-mini="true" />
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px">
+                    <input type="text" id="WQ_empl" class="stnTextInput ui-shadow-inset required" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.WQ_FIELDPERS_NOTACCT" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="3" style="width: 12%">
+                    <span>Personnel in <br />the field</span>
+                </td>
+                <td>
+                    <span class="required">Yesterday</span>
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInFieldYestSurf" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.SW_YEST_FIELDPERS" data-mini="true" />
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInFieldYestWQ" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.WQ_YEST_FIELDPERS" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="required">Today</span>
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInFieldTodaySurf" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.SW_TOD_FIELDPERS" data-mini="true" />
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInFieldTodayWQ" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.WQ_TOD_FIELDPERS" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="required">Tomorrow</span>
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInFieldTomorrowSurf" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.SW_TMW_FIELDPERS" data-mini="true" />
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInFieldTomorrowWQ" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.WQ_TMW_FIELDPERS" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="3">
+                    <span>Personnel in <br />the office</span>
+                </td>
+                <td>
+                    <span class="required">Yesterday</span>
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInOfficeYestSurf" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.SW_YEST_OFFICEPERS" data-mini="true" />
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInOfficeYestWQ" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.WQ_YEST_OFFICEPERS" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="required">Today</span>
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInOfficeTodaySurf" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.SW_TOD_OFFICEPERS" data-mini="true" />
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInOfficeTodayWQ" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.WQ_TOD_OFFICEPERS" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="required">Tomorrow</span>
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInOfficeTomorrowSurf" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.SW_TMW_OFFICEPERS" data-mini="true" />
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="pInOfficeTomorrowWQ" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.WQ_TMW_OFFICEPERS" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="3">
+                    <span>Vehicles <br /> deployed</span>
+                </td>
+                <td>
+                    <span class="required">Trucks & Cars</span>
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="trNcarsSurf" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.SW_AUTOS_DEPL" data-mini="true" />
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="trNcarsWQ" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.WQ_AUTOS_DEPL" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="required">Boats</span>
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="boatsSurf" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.SW_BOATS_DEPL" data-mini="true" />
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="boatsWQ" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.WQ_BOATS_DEPL" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="required">Other</span>
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="otherVehSurf" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.SW_OTHER_DEPL" data-mini="true" />
+                </td>
+                <td style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="otherVehWQ" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" style="width: 55%; margin-left: 17px" name="aReport.WQ_OTHER_DEPL" data-mini="true" />
+                </td>
+            </tr>
+        </table>
+                
+        @* Section 3: Instrumentation and Sampling Counts *@
+        <table style="float: left; margin-top: 20px; margin-bottom: 20px" class="Reporting-table">                    
+            <tr>
+                <td colspan="4">
+                    <span style="font-size: x-large; font-family: 'BryantBold'">Section 3: Instrumentation<br />& Sampling Counts</span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width: 22%">
+                    <span class="required">Gage visits (cumulative)</span>
+                </td>
+                <td colspan="2" style="width: 16%; padding: 5px 7px 5px 7px">
+                    <input type="text" id="gageVisits" onkeypress="return isNumberKey(event)" class="stnTextInput ui-shadow-inset required" style="width: 32%" name="aReport.GAGE_VISIT" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <span class="required">Gages down at present</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="gagesDown" onkeypress="return isNumberKey(event)" class="stnTextInput ui-shadow-inset required" style="width: 32%" name="aReport.GAGE_DOWN" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="2" style="width: 12%">
+                    <span>Discharge<br />measurements</span>
+                </td>
+                <td>
+                    <span class="required">To date</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="dischMeasToDate" onkeypress="return isNumberKey(event)" class="required stnTextInput ui-shadow-inset" style="width: 32%" name="aReport.TOT_DISCHARGE_MEAS" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="required">Planned</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="dischMeasPlanned" onkeypress="return isNumberKey(event)" class="required stnTextInput ui-shadow-inset" style="width: 32%" name="aReport.PLAN_DISCHARGE_MEAS" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="2">
+                    <span>Check<br />measurements</span>
+                </td>
+                <td>
+                    <span class="required">To Date</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="chkMeasToDate" onkeypress="return isNumberKey(event)" class="required stnTextInput ui-shadow-inset" style="width: 32%" name="aReport.TOT_CHECK_MEAS" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="required">Planned</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="chkMeasPlanned" onkeypress="return isNumberKey(event)" class="required stnTextInput ui-shadow-inset" style="width: 32%" name="aReport.PLAN_CHECK_MEAS" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width: 21%">
+                    <span class="required">Indirect measurements planned</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="indMeasPlan" onkeypress="return isNumberKey(event)" class="stnTextInput ui-shadow-inset required" style="width: 32%" name="aReport.PLAN_INDIRECT_MEAS" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width: 21%">
+                    <span class="required">Rating extensions</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="rateExt" onkeypress="return isNumberKey(event)" class="stnTextInput ui-shadow-inset required" style="width: 32%" name="aReport.RATING_EXTENS" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width: 21%">
+                    <span class="required">Peaks of record on gages<br />to date ( > 20 years of record)</span>
+                </td>
+                <td colspan="2" style="adding: 5px 7px 5px 7px">
+                    <input type="text" id="peaks" onkeypress="return isNumberKey(event)" class="stnTextInput ui-shadow-inset required" style="width: 31%" name="aReport.GAGE_PEAK_RECORD" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="4">
+                    <span>Rapid Deployment<br />gages, to date</span>
+                </td>
+                <td>
+                    <span class="required">Planned</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="rdgPlanned" onkeypress="return isNumberKey(event)" class="required stnTextInput ui-shadow-inset" style="width: 32%" name="aReport.PLAN_RAPDEPL_GAGE" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Deployed</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_rdgDeployed" style="color:#696969"></span></div>
+                    <input type="hidden" id="rdgDeployed" name="aReport.DEP_RAPDEPL_GAGE" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Recovered</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_rdgRecovered" style="color:#696969"></span></div>
+                    <input type="hidden" id="rdgRecovered" name="aReport.REC_RAPDEPL_GAGE" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Lost</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_rdgLost" style="color:#696969"></span></div>
+                    <input type="hidden" id="rdgLost" name="aReport.LOST_RAPDEPL_GAGE" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="4">
+                    <span>Water Level<br />Sensors, to date</span>
+                </td>
+                <td>
+                    <span class="required">Planned</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="wlsPlanned" onkeypress="return isNumberKey(event)" class="required stnTextInput ui-shadow-inset" style="width: 32%" name="aReport.PLAN_WTRLEV_SENSOR" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Deployed</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_wlsDeployed" style="color:#696969"></span></div>
+                    <input type="hidden" id="wlsDeployed" name="aReport.DEP_WTRLEV_SENSOR" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Recovered</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_wlsRecovered" style="color:#696969"></span></div>
+                    <input type="hidden" id="wlsRecovered" name="aReport.REC_WTRLEV_SENSOR" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Lost</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_wlsLost" style="color:#696969"></span></div>
+                    <input type="hidden" id="wlsLost" name="aReport.LOST_WTRLEV_SENSOR" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="4">
+                    <span>Wave Sensors,<br />to date</span>
+                </td>
+                <td>
+                    <span class="required">Planned</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="wsPlanned" onkeypress="return isNumberKey(event)" class="required stnTextInput ui-shadow-inset" style="width: 32%" name="aReport.PLAN_WV_SENS" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Deployed</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_wsDeployed" style="color:#696969"></span></div>
+                    <input type="hidden" id="wsDeployed" name="aReport.DEP_WV_SENS" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Recovered</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_wsRecovered" style="color:#696969"></span></div>
+                    <input type="hidden" id="wsRecovered" name="aReport.REC_WV_SENS" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Lost</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_wsLost" style="color:#696969"></span></div>
+                    <input type="hidden" id="wsLost" name="aReport.LOST_WV_SENS" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="4">
+                    <span>Barometers,<br /> to date</span>
+                </td>
+                <td>
+                    <span class="required">Planned</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="barPlanned" onkeypress="return isNumberKey(event)" class="required stnTextInput ui-shadow-inset" style="width: 32%" name="aReport.PLAN_BAROMETRIC" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Deployed</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_barDeployed" style="color:#696969"></span></div>
+                    <input type="hidden" id="barDeployed" name="aReport.DEP_BAROMETRIC" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Recovered</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_barRecovered" style="color:#696969"></span></div>
+                    <input type="hidden" id="barRecovered" name="aReport.REC_BAROMETRIC" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Lost</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_barLost" style="color:#696969"></span></div>
+                    <input type="hidden" id="barLost" name="aReport.LOST_BAROMETRIC" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="4">
+                    <span>Meteorological<br /> Sensors, to date</span>
+                </td>
+                <td>
+                    <span class="required">Planned</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="msPlanned" onkeypress="return isNumberKey(event)" class="required stnTextInput ui-shadow-inset" style="width: 32%" name="aReport.PLAN_METEOROLOGICAL" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Deployed</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_msDeployed" style="color:#696969"></span></div>
+                    <input type="hidden" id="msDeployed" name="aReport.DEP_METEOROLOGICAL" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Recovered</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_msRecovered" style="color:#696969"></span></div>
+                    <input type="hidden" id="msRecovered" name="aReport.REC_METEOROLOGICAL" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Lost</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_msLost" style="color:#696969"></span></div>
+                    <input type="hidden" id="msLost" name="aReport.LOST_METEOROLOGICAL" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="2">
+                    <span>Highwater Mark,<br /> to date</span>
+                </td>
+                <td>
+                    <span>Flagged</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_hwmFlagged" style="color:#696969"></span></div>
+                    <input type="hidden" id="hwmFlagged" name="aReport.HWM_FLAGGED" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Collected</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <div class="divLbl_shadowInset"><span id="span_hwmCollected" style="color:#696969"></span></div>
+                    <input type="hidden" id="hwmCollected" name="aReport.HWM_COLLECTED" />
+                </td>
+            </tr>
+                    
+            <tr>
+                <td colspan="2" style="width: 21%">
+                    <span class="required">QW Gage visits (cumulative)</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="qwGageVisit" class="stnTextInput ui-shadow-inset required" onkeypress="return isNumberKey(event)" style="width: 32%" name="aReport.QW_GAGE_VISIT" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width: 21%">
+                    <span class="required">Continuous QW Gages visited</span>
+                </td>
+                <td colspan="2" style="padding: 5px 7px 5px 7px">
+                    <input type="text" id="contQwGageVisit" class="stnTextInput ui-shadow-inset required" onkeypress="return isNumberKey(event)" style="width: 32%" name="aReport.QW_CONT_GAGEVISIT" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width: 21%">
+                    <span class="required">Continuous QW Gages down</span>
+                </td>
+                <td colspan="2" style="width: 17%; padding: 5px 7px 5px 7px">
+                    <input type="text" id="qwGagesDown" class="stnTextInput ui-shadow-inset required" onkeypress="return isNumberKey(event)" style="width: 32%" name="aReport.QW_GAGE_DOWN" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width: 21%">
+                    <span class="required">Discrete QW samples collected</span>
+                </td>
+                <td colspan="2" style="width: 17%; padding: 5px 7px 5px 7px">
+                    <input type="text" id="qwSamplesCol" class="stnTextInput ui-shadow-inset required" onkeypress="return isNumberKey(event)" style="width: 32%" name="aReport.QW_DISCR_SAMPLES" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width: 21%">
+                    <span class="required">Sediment samples collected</span>
+                </td>
+                <td colspan="2" style="width: 17%; padding: 5px 7px 5px 7px">
+                    <input type="text" id="sedSamplesCol" class="stnTextInput ui-shadow-inset required" onkeypress="return isNumberKey(event)" style="width: 32%" name="aReport.COLL_SEDSAMPLES" data-mini="true" />
+                </td>
+            </tr>
+        </table>
+        <br />
+    </div>
+    
+    <div class="fiftyPercColumn">
+        @*Notes table*@
+        <table class="Sec1Reporting-table" style="width: 98%; float: right">
+            <tr>
+                <td style="border-bottom: 1px solid #59595C">
+                    <span style="font-size: x-large; font-family: 'BryantBold'">Section 4: Notes</span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Notes detailing the day's field activities (optional)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <textarea id="notesText" rows="10" cols="30" class="stnTextInput ui-shadow-inset" name="aReport.NOTES" data-mini="true"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-top: 0px">
+                    *Limit 2000 characters
+                </td>
+            </tr>
+        </table>
+               
+        @{ ReportMember loggedInMember = ViewData["Submitter"] as ReportMember; }
+
+        <input type="hidden" name="aReport.MEMBER_ID" value="@loggedInMember.MemberID" />
+                
+        @* Section 5: Contact Info*@
+        <table class="Sec1Reporting-table" style="width: 98%; float: right; margin-top: 20px">
+            <tr>
+                <td colspan="2" style="border-bottom: 1px solid #59595C">
+                    <span style="font-size: x-large; font-family: 'BryantBold'">Section 5: Contact Information</span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <span style="font-size: large; font-family: 'BryantBold'">Submitter</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-left: 40px; width: 4%">
+                    <span>Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px">
+                    <span>@loggedInMember.MemberName</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-left: 40px">
+                    <span>Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px">
+                    <span>@loggedInMember.Phone</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-left: 40px">
+                    <span>Email</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px">
+                    <span>@loggedInMember.Email</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-left: 40px">
+                    <span>Office Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px">
+                    <span>@loggedInMember.OfficeName</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-left: 40px">
+                    <span>Office Address</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px">
+                    <span>@loggedInMember.OfficeAddress1</span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <span style="font-size: x-large; font-family: 'BryantBold'">Event Contacts</span>
+                </td>
+            </tr>
+            <tr>
+                @* Deployed Staff *@
+                <td colspan="2">
+                    <span style="font-size: large; font-family: 'BryantBold'">Deployed Staff (required)</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span class="required">First Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="depStaffFName" class="stnTextInput ui-shadow-inset required" style="width: 55%" name="DeplContact.FNAME" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span class="required">Last Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="depStaffLName" class="required stnTextInput ui-shadow-inset" style="width: 55%" name="DeplContact.LNAME" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span class="required">Email</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="depStaffEmail" class="required stnTextInput ui-shadow-inset" style="width: 55%" name="DeplContact.EMAIL" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span class="required">Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <input type="text" id="depStaffPhone" class="required stnTextInput ui-shadow-inset" style="width: 55%" name="DeplContact.PHONE" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Alternate Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <input type="text" id="depStaffAltPhone" class="stnTextInput ui-shadow-inset" style="width: 55%" name="DeplContact.ALT_PHONE" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="border: 0px none">
+                </td>
+            </tr>
+            <tr>@* General *@
+                <td colspan="2" style="border-bottom: 0px none">
+                    <span style="font-size: large; font-family: 'BryantBold'">General (optional)</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>First Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="genStaffFName" class="stnTextInput ui-shadow-inset" style="width: 55%" name="GenContact.FNAME" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>Last Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="genStaffLName" class="stnTextInput ui-shadow-inset" style="width: 55%" name="GenContact.LNAME" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Email</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="genStaffEmail" class="stnTextInput ui-shadow-inset" style="width: 55%" name="GenContact.EMAIL" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <input type="text" id="genStaffPhone" class="stnTextInput ui-shadow-inset" style="width: 55%" name="GenContact.PHONE" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Alternate Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <input type="text" id="genStaffAltPhone" class="stnTextInput ui-shadow-inset" style="width: 55%" name="GenContact.ALT_PHONE" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="border: 0px none">
+                </td>
+            </tr>
+            <tr>
+                @* Inland Flood *@
+                <td colspan="2" style="border-bottom: 0px none">
+                    <span style="font-size: large; font-family: 'BryantBold'">Inland Flood (optional)</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>First Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="inFlStaffFName" class="stnTextInput ui-shadow-inset" style="width: 55%" name="InlandContact.FNAME" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>Last Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="inFlStaffLName" class="stnTextInput ui-shadow-inset" style="width: 55%" name="InlandContact.LNAME" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Email</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="inFlStaffEmail" class="stnTextInput ui-shadow-inset" style="width: 55%" name="InlandContact.EMAIL" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <input type="text" id="inFlStaffPhone" class="stnTextInput ui-shadow-inset" style="width: 55%" name="InlandContact.PHONE" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Alternate Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <input type="text" id="inFlStaffAltPhone" class="stnTextInput ui-shadow-inset" style="width: 55%" name="InlandContact.ALT_PHONE" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="border: 0px none">
+                </td>
+            </tr>
+            <tr>
+                @* Coastal Staff *@
+                <td colspan="2" style="border-bottom: 0px none">
+                    <span style="font-size: large; font-family: 'BryantBold'">Coastal Flood (optional)</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>First Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="coaFlStaffFName" class="stnTextInput ui-shadow-inset" style="width: 55%" name="CoastContact.FNAME" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>Last Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="coaFlStaffLName" class="stnTextInput ui-shadow-inset" style="width: 55%" name="CoastContact.LNAME" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Email</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="coaFlStaffEmail" class="stnTextInput ui-shadow-inset" style="width: 55%" name="CoastContact.EMAIL" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <input type="text" id="coaFlStaffPhone" class="stnTextInput ui-shadow-inset" style="width: 55%" name="CoastContact.PHONE" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Alternate Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <input type="text" id="coaFlStaffAltPhone" class="stnTextInput ui-shadow-inset" style="width: 55%" name="CoastContact.ALT_PHONE" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="border: 0px none">
+                </td>
+            </tr>
+            <tr>
+                @* Water Quality Staff *@
+                <td colspan="2" style="border-bottom: 0px none">
+                    <span style="font-size: large; font-family: 'BryantBold'">Water Quality (optional)</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>First Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="watQualStaffFName" class="stnTextInput ui-shadow-inset" style="width: 55%" name="WaterContact.FNAME" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px; width: 4%">
+                    <span>Last Name</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="watQualStaffLName" class="stnTextInput ui-shadow-inset" style="width: 55%" name="WaterContact.LNAME" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Email</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none;">
+                    <input type="text" id="watQualStaffEmail" class="stnTextInput ui-shadow-inset" style="width: 55%" name="WaterContact.EMAIL" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <input type="text" id="watQualStaffPhone" class="stnTextInput ui-shadow-inset" style="width: 55%" name="WaterContact.PHONE" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 0px none; padding-left: 40px">
+                    <span>Alternate Phone</span>
+                </td>
+                <td style="width: 17%; padding: 5px 7px 5px 7px; border: 0px none">
+                    <input type="text" id="watQualStaffAltPhone" class="stnTextInput ui-shadow-inset" style="width: 55%" name="WaterContact.ALT_PHONE" data-mini="true" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="border: 0px none">
+                </td>
+            </tr>
+        </table>
+    </div>
+      
+    <div id="formSubmitDiv" class="formSection">
+        <div class="leftSideSubmit" style="text-align: left">                    
+            <div style="width:33%;float:left">
+                <div style="width:21px;float:left; margin:10px 5px"><input type="checkbox" name="aReport.COMPLETE" value="1" /></div>
+                <div>Check if this Report is Complete. <br />(If left unchecked, you may come back<br />later to finish it)</div>
+            </div>
+            <div class="submitDiv" style="height: 40px; padding-left:27px">
+                <div class="darkButtonBorder">
+                            
+                    <input type="submit" name="Create" class="submit" value="Submit" />
+                            
+                </div> 
+                
+            </div>
+        </div>
+    </div>
+    
+    <br clear="all" />
+}

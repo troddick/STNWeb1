@@ -1,0 +1,94 @@
+﻿@* Comments
+12.12.12 - TR - Created 
+*@
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+  * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Partial view for create when file type: Field Map, Field Sheets, Level Notes, Historic Citation, or Other is chosen 
+ */
+ *@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+ 
+@model STNWeb.Models.FileSourceModel
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#loading").fadeOut();
+    });        
+</script>
+@{ 
+    MEMBER aMember = ViewData["Member"] as MEMBER; }
+
+    
+
+    <div class="ui-grid-a">
+        <div data-role="fieldcontain">
+            <div class="ui-block-a">@Html.Label(FileStrings.FileURL_Label)</div>
+            <div class="ui-block-b"><input type="text" class="stnTextInput ui-shadow-inset" name="FSM_File.FILE_URL" data-mini="true" /></div>
+        </div>
+    </div>
+
+    <div class="ui-grid-a">
+        <div data-role="fieldcontain">
+            <div class="ui-block-a"><span class="required">@Html.Label(FileStrings.Source_Label)</span></div>
+            <div class="ui-block-b"><input type="text" class="required stnTextInput ui-shadow-inset" name="FSM_Source.SOURCE_NAME" value='@aMember.FNAME @aMember.LNAME' /></div>
+        </div>
+    </div>
+ 
+    <div class="ui-grid-a">
+        <div data-role="fieldcontain">
+            <div class="ui-block-a"><span class="required">@Html.Label(FileStrings.Agency_Label)</span></div>
+            <div class="ui-block-b">
+                <select id="agencyDD" class="required stnSelectInput ui-shadow-inset" name="FSM_Source.AGENCY_ID" data-native-menu="false" data-mini="true">
+                    @foreach (AGENCY agency in ViewData["SourceAgency"] as List<AGENCY>)
+                    {
+                        <option @( (agency.AGENCY_ID == aMember.AGENCY_ID) ? "selected" : "") value='@agency.AGENCY_ID'>@agency.AGENCY_NAME</option>     
+                    }
+                </select>
+                <br />
+            </div>
+        </div>
+    </div>
+
+    <div class="ui-grid-a">
+        <div data-role="fieldcontain">
+            <div class="ui-block-a"><span class="required">@Html.Label(FileStrings.DateTaken_Label)</span></div>
+            <div class="ui-block-b"><input type="text" class="required datepicker stnTextInput ui-shadow-inset" name="FSM_Source.SOURCE_DATE" data-mini="true" value="@DateTime.Now.ToShortDateString()"/></div>
+    </div>
+
+    <div class="ui-grid-a">
+        <div data-role="fieldcontain">
+            <div class="ui-block-a"><span class="required">@Html.Label(FileStrings.DateUploaded_Label)</span></div>
+            <div class="ui-block-b"><input type="text" class="required datepicker stnTextInput ui-shadow-inset" name="FSM_File.FILE_DATE" data-mini="true" value="@DateTime.Now.ToShortDateString()"/></div>
+    </div>
+
+    <div class="ui-grid-a">
+        <div data-role="fieldcontain">
+            <div class="ui-block-a"><span class="required">@Html.Label(FileStrings.FileDesc_Label)</span></div>
+            <div class="ui-block-b"><textarea rows="4" cols="30" class="required stnTextInput ui-shadow-inset" name="FSM_File.DESCRIPTION" data-mini="true"></textarea></div>
+        </div>
+    </div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(function () {
+            //datepicker 
+            $('input').filter('.datepicker').datepicker({
+                changeMonth: true,
+                yearRange: '1965:2030',
+                changeYear: true,
+                onClose: Validate()
+            });
+        });
+    });
+
+    function Validate() {
+        $('input[name="FSM_Source.SOURCE_DATE"]').valid();
+        $('input[name="FSM_File.FILE_DATE"]').valid();
+    }
+</script>

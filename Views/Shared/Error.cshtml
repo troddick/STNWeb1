@@ -1,0 +1,23 @@
+﻿@model System.Web.Mvc.HandleErrorInfo
+
+@{
+    ViewBag.Title = "Error";
+    int firstIndex = Model.Exception.ToString().IndexOf("'");
+    int secondIndex = Model.Exception.ToString().IndexOf("',");
+    int diff = (secondIndex+1) - firstIndex;
+    string message = string.Empty;
+    if (firstIndex > 1 && secondIndex > 0)
+    { message = Model.Exception.ToString().Substring(firstIndex, diff);}
+    else
+    {  message = Model.Exception.ToString();}
+}
+
+<h2>
+    Sorry, an error occurred while processing your request.
+    <br />
+    
+</h2>
+<p>Error:</p>
+<p>  @(Model.ControllerName) @(Model.ActionName) page returned: @message</p>
+
+<p style="margin-top:2em">@Html.ActionLink("Return to the Home Page", "Index", "Home", null, new { @class = "STNButton", onclick = "loading();" })</p>

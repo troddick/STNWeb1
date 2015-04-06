@@ -1,0 +1,282 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AgencyAdd_createNew" xml:space="preserve">
+    <value>Address:</value>
+  </data>
+  <data name="AgencyCity_createNew" xml:space="preserve">
+    <value>City:</value>
+  </data>
+  <data name="AgencyName_createNew" xml:space="preserve">
+    <value>Agency Name:</value>
+  </data>
+  <data name="AgencyPhone_createNew" xml:space="preserve">
+    <value>Phone:</value>
+  </data>
+  <data name="AgencyState_createNew" xml:space="preserve">
+    <value>State:</value>
+  </data>
+  <data name="AgencyZip_createNew" xml:space="preserve">
+    <value>Zip:</value>
+  </data>
+  <data name="VCollectMethod_createNew" xml:space="preserve">
+    <value>New Vertical Collect Method: </value>
+  </data>
+  <data name="DeplType_createNew" xml:space="preserve">
+    <value>New Deployment Type: </value>
+  </data>
+  <data name="EventStat_createNew" xml:space="preserve">
+    <value>New Event Status: </value>
+  </data>
+  <data name="EventType_createNew" xml:space="preserve">
+    <value>New Event Type: </value>
+  </data>
+  <data name="FileType_createNew" xml:space="preserve">
+    <value>New File Type: </value>
+  </data>
+  <data name="HCollectMethod_createNew" xml:space="preserve">
+    <value>New Horizontal Collection Method: </value>
+  </data>
+  <data name="HDatumAbbr_createNew" xml:space="preserve">
+    <value>Horizontal Datum Abbreviation:</value>
+  </data>
+  <data name="HDatumName_createNew" xml:space="preserve">
+    <value>Horizontal Datum Name:</value>
+  </data>
+  <data name="HDatum_createNew" xml:space="preserve">
+    <value>New Horizontal Datum:</value>
+  </data>
+  <data name="HWMQual_createNew" xml:space="preserve">
+    <value>New HWM Quality: </value>
+  </data>
+  <data name="HWMType_createNew" xml:space="preserve">
+    <value>New HWM Type: </value>
+  </data>
+  <data name="Index_Agency_lb" xml:space="preserve">
+    <value>AGENCIES</value>
+  </data>
+  <data name="Index_VCollMethod_lb" xml:space="preserve">
+    <value>VERTICAL COLLECTION METHODS</value>
+  </data>
+  <data name="Index_EventStat_lb" xml:space="preserve">
+    <value>EVENT STATUS</value>
+  </data>
+  <data name="Index_EventType_lb" xml:space="preserve">
+    <value>EVENT TYPES</value>
+  </data>
+  <data name="Index_FileType_lb" xml:space="preserve">
+    <value>FILE TYPES</value>
+  </data>
+  <data name="Index_HCollectMethod_lb" xml:space="preserve">
+    <value>HORIZONTAL COLLECTION METHODS</value>
+  </data>
+  <data name="Index_Hdatum_lb" xml:space="preserve">
+    <value>HORIZONTAL DATUMS</value>
+  </data>
+  <data name="Index_HWMqual_lb" xml:space="preserve">
+    <value>HWM QUALITIES</value>
+  </data>
+  <data name="Index_HWMtype_lb" xml:space="preserve">
+    <value>HWM TYPES</value>
+  </data>
+  <data name="Index_Marker_lb" xml:space="preserve">
+    <value>MARKERS</value>
+  </data>
+  <data name="Index_SensorDepType_lb" xml:space="preserve">
+    <value>SENSOR DEPLOYMENT TYPES</value>
+  </data>
+  <data name="Index_SensorStat_lb" xml:space="preserve">
+    <value>SENSOR STATUS TYPES</value>
+  </data>
+  <data name="Index_SensorType_lb" xml:space="preserve">
+    <value>SENSOR TYPES</value>
+  </data>
+  <data name="Index_VDatum_lb" xml:space="preserve">
+    <value>VERTICAL DATUMS</value>
+  </data>
+  <data name="Markers_createNew" xml:space="preserve">
+    <value>New Marker: </value>
+  </data>
+  <data name="SensorType_createNew" xml:space="preserve">
+    <value>New Sensor Type: </value>
+  </data>
+  <data name="StatusType_createNew" xml:space="preserve">
+    <value>New Status Type: </value>
+  </data>
+  <data name="VDatumAbbr_createNew" xml:space="preserve">
+    <value>Vertical Datum Abbreviation:</value>
+  </data>
+  <data name="VDatumName_createNew" xml:space="preserve">
+    <value>Vertical Datum Name:</value>
+  </data>
+  <data name="VDatum_createNew" xml:space="preserve">
+    <value>New Vertical Datum:</value>
+  </data>
+  <data name="DeploymentPriority_createNew" xml:space="preserve">
+    <value>New Deployment Priority:</value>
+  </data>
+  <data name="DeploymentP_createNew" xml:space="preserve">
+    <value>New Deployment Priority:</value>
+  </data>
+  <data name="Index_DeploymentP_lb" xml:space="preserve">
+    <value>DEPLOYMENT PRIORITY</value>
+  </data>
+  <data name="Index_NetworkType_lb" xml:space="preserve">
+    <value>SITE LOCATION TYPE IN NETWORK</value>
+  </data>
+  <data name="NetworkType_createNew" xml:space="preserve">
+    <value>New Site Location Type in the Network:</value>
+  </data>
+  <data name="Index_OPTypes_lb" xml:space="preserve">
+    <value>OBJECTIVE POINT TYPES</value>
+  </data>
+  <data name="OPTypes_createNew" xml:space="preserve">
+    <value>New Objective Point Type:</value>
+  </data>
+  <data name="Index_ContactType_lb" xml:space="preserve">
+    <value>CONTACT TYPES</value>
+  </data>
+  <data name="Index_InstrCollectCond_lb" xml:space="preserve">
+    <value>INSTRUMENT COLLECTION CONDITIONS</value>
+  </data>
+  <data name="Index_OPQual_lb" xml:space="preserve">
+    <value>OBJECTIVE POINT QUALITIES</value>
+  </data>
+  <data name="Index_SensorBrand_lb" xml:space="preserve">
+    <value>SENSOR BRANDS</value>
+  </data>
+  <data name="ContactType_createNew" xml:space="preserve">
+    <value>New Contact Type:</value>
+  </data>
+  <data name="InstrCollCond_createNew" xml:space="preserve">
+    <value>New Instrument Collection Condition:</value>
+  </data>
+  <data name="OPQuality_createNew" xml:space="preserve">
+    <value>New OP Quality:</value>
+  </data>
+  <data name="SensorBrand_createNew" xml:space="preserve">
+    <value>New Sensor Brand:</value>
+  </data>
+  <data name="Index_NetworkName_lb" xml:space="preserve">
+    <value>NETWORK NAMES</value>
+  </data>
+  <data name="NetworkName_createNew" xml:space="preserve">
+    <value>New Network Name:</value>
+  </data>
+</root>

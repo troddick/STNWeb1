@@ -1,0 +1,552 @@
+﻿@* Comments: 
+04.18.14 - TR - added hdatum
+04.14.14 - TR - added validate
+03.13.13 - TR - Added BANK radio buttons
+01.25.13 - TR - added loading spinning logo
+12.05.12 - TR - Water body defaults to Site waterbody, took out Approval and turned CollectTeam into label at bottom, added Notes
+11.28.12 - TR - labels converted to html.Labels
+10.29.12 - TR - Created 
+
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+  * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Create a Site's HWM 
+ */
+ *@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using System.Linq;
+
+@model STNServices.HWM
+           
+@{
+    ViewBag.Title = "Create HWM";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    
+}
+
+<script src="@Url.Content("~/Assets/Scripts/jquery-1.8.3.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery-ui-1.10.4.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.maskedinput.min.js")" type="text/javascript"></script>
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+
+@{ 
+    decimal eventId = Convert.ToDecimal(Session["EventId"]);
+    SITE theSite = ViewData["theSite"] as SITE;
+   }
+
+<div id="dataTitle">
+    <div class="title">Create HWM</div>
+</div>
+<br clear="all" />
+<hr class="headerUnderline" />
+
+@using (Ajax.BeginForm("Create", "HWMs", new AjaxOptions() { HttpMethod = "POST", OnBegin="loading"}, new { @id = "HWMCreateForm" }))
+{
+    
+    <input type="hidden" id='siteId' name="SITE_ID" value='@theSite.SITE_ID' />
+    <input type="hidden" name="FLAG_TEAM_ID" value='@Session["TeamId"]' />
+    
+    <div class="fiftyPercColumn">
+       
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(HWMStrings.WaterBody_Label)</div>
+                <div class="ui-block-b"><input type="text" class="stnTextInput ui-shadow-inset" id="waterbody" name="WATERBODY" data-mini="true" value='@theSite.WATERBODY' /></div>
+            </div>
+        </div>
+                
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(HWMStrings.Event_Label)</div>
+                <div class="ui-block-b">
+                    <select id="groupPlaceholder" class="stnSelectInput ui-shadow-inset" name="EVENT_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose an event</option>
+                        @foreach (EVENT anE in ViewData["EventList"] as List<EVENT>)
+                        {
+                            <option @( (anE.EVENT_ID == eventId) ? "selected" : "") value='@anE.EVENT_ID'>@anE.EVENT_NAME</option> 
+                        }
+                    </select>
+                    <br />	
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">@Html.Label(HWMStrings.HWMType_Label)</span></div>
+                <div class="ui-block-b">
+                    <select id="hwmTypeDD" class="required stnSelectInput ui-shadow-inset" name="HWM_TYPE_ID" data-native-menu="false" data-mini="true">
+					    <option value="">Choose a HWM Type</option>
+                        @foreach (HWM_TYPES aHWMT in ViewData["HWMTypesList"] as List<HWM_TYPES>)
+                        {
+                            <option value='@aHWMT.HWM_TYPE_ID'>@aHWMT.HWM_TYPE</option> 
+                        }
+                    </select>
+                    <br />	
+                    <div class="" id="HWM_TYPE_ID_validate"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                 <div class="ui-block-a"><span class="required">@Html.Label(HWMStrings.HWMEnvironment_Label)</span></div>
+                 <div class="ui-block-b">
+                    <table>
+                        <tr>
+                            <td style="width:50%"><input type="radio" class="required ui-shadow-inset" name="HWM_ENVIRONMENT" value="Coastal" />Coastal</td>
+                            <td style="width:50%"><input type="radio" class="required ui-shadow-inset" checked="checked" name="HWM_ENVIRONMENT" value="Riverine" />Riverine</td>
+                            <td><div id="HWM_ENVIRONMENT_validate"></div></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center">0.05</td>
+                            <td style="text-align:center">0.02</td>
+                            <td style="text-align:center">Excellent</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center">0.1</td>
+                            <td style="text-align:center">0.05</td>
+                            <td style="text-align:center">Good</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center">0.2</td>
+                            <td style="text-align:center">0.1</td>
+                            <td style="text-align:center">Fair</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center">0.4</td>
+                            <td style="text-align:center">0.2</td>
+                            <td style="text-align:center">Poor</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center">>0.40</td>
+                            <td style="text-align:center">>0.20</td>
+                            <td style="text-align:center">V. Poor</td>
+                        </tr>
+                        <tr><td colspan="3"><a href="http://pubs.usgs.gov/tm/11d1/" target="_blank">USGS T&M 11-D1, Table 13</a></td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">@Html.Label(HWMStrings.HWMQual_Label)</span></div>
+                <div class="ui-block-b">
+                    <select id="hwmQualityDD" class="required stnSelectInput ui-shadow-inset" name="HWM_QUALITY_ID" data-native-menu="false" data-mini="true">
+					    <option value="">Choose a HWM Quality</option>
+                        @foreach (HWM_QUALITIES aHWMQ in ViewData["HWMQualitiesList"] as List<HWM_QUALITIES>)
+                        {
+                            <option value='@aHWMQ.HWM_QUALITY_ID'>@aHWMQ.HWM_QUALITY</option> 
+                        }
+                    </select>
+                    <br />	
+                    <div class="" id="HWM_QUALITY_ID_validate"></div>
+                </div>                
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                 <div class="ui-block-a">@Html.Label(HWMStrings.Bank_Label)</div>
+                <div class="ui-block-b">
+                    <span>
+                        <input type="radio" name="BANK" value="Left" />Left
+                        <input type="radio" name="BANK" value="Right" />Right
+                        <input type="radio" name="BANK" checked="checked" value="N/A" />N/A
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(HWMStrings.LocationDesc_Label)</div>
+                <div class="ui-block-b"><textarea rows="4" cols="30"class="stnTextInput ui-shadow-inset" name="HWM_LOCATIONDESCRIPTION" data-mini="true"></textarea></div>
+                 
+            </div>
+        </div>        
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"></div>
+                <div class="ui-block-b">
+                    <span>
+                        <input type="radio" name="IntervalUnit" id="dd_radio" checked="checked" value="DecDeg" />Dec Deg
+                        <input type="radio" name="IntervalUnit" id="dms_radio" value="DMS" />DMS
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                 <div class="ui-block-a"><span class="required">@Html.Label(SiteStrings.Latitude_Label)</span></div>
+                 <div class="ui-block-b" id="Lat_dd"><input type="text" class="required stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" name="LATITUDE_DD" id="latitude" data-mini="true" value='@theSite.LATITUDE_DD' /><div class="" id="LATITUDE_DD_validate"></div></div>
+                 <div class="ui-block-b hidden"  id="Lat_dmc">
+                    <input type="text" style="width:20%" class="stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" id="Latdec" name="LATITUDE_D" data-mini="true" />&nbsp;°&nbsp;&nbsp;
+                    <input  type="text" style="width:20%" class="stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" id="Latmin" name="LATITUDE_M" data-mini="true" />&nbsp;′&nbsp;&nbsp;
+                    <input  type="text" style="width:20%" class="stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" id="Latsec" name="LATITUDE_S" data-mini="true" />&nbsp;″
+                </div>
+            </div>
+        </div>
+        
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                 <div class="ui-block-a"><span class="required">@Html.Label(SiteStrings.Longitude_Label)</span></div>
+                 <div class="ui-block-b" id="Long_dd"><input type="text" class="required stnTextInput ui-shadow-inset" name="LONGITUDE_DD" id="longitude" data-mini="true" value='@theSite.LONGITUDE_DD' /><div class="" id="LONGITUDE_DD_validate"></div></div>
+                 <div class="ui-block-b hidden"  id="Long_dmc">
+                    <input type="text" style="width:20%" class="stnTextInput ui-shadow-inset" id="Longdec" name="LONGITUDE_D" data-mini="true" />&nbsp;°&nbsp;&nbsp;
+                    <input  type="text" style="width:20%" class="stnTextInput ui-shadow-inset" id="Longmin" onkeypress="return isNumberKey(event)" name="LONGITUDE_M" data-mini="true" />&nbsp;′&nbsp;&nbsp;
+                    <input  type="text" style="width:20%" class="stnTextInput ui-shadow-inset" id="Longsec" onkeypress="return isNumberKey(event)" name="LONGITUDE_S" data-mini="true" />&nbsp;″
+                </div>
+            </div>
+        </div>
+        
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">@Html.Label(SiteStrings.HDatum_Label)</span></div>
+                <div class="ui-block-b">
+                    <select id="hdatumDD" class="required stnSelectInput ui-shadow-inset" name="HDATUM_ID" data-native-menu="false" data-mini="true">
+					    <option value="">Choose Horizontal Datum</option>
+                        @foreach (HORIZONTAL_DATUMS aHD in ViewData["HDatumList"] as List<HORIZONTAL_DATUMS>)
+                        {
+                            <option @(aHD.DATUM_ID == theSite.HDATUM_ID ? "selected" : "") value='@aHD.DATUM_ID'>@aHD.DATUM_NAME</option> 
+                        }
+                    </select>
+                    <br />
+        	        <div class="" id="HDATUM_ID_validate"></div>
+                </div>
+                
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a"><span class="required">@Html.Label(HWMStrings.HCollectMethod_Label)</span></div>
+                <div class="ui-block-b">
+                    <select id="gpsTypeDD" class="required stnSelectInput ui-shadow-inset" name="HCOLLECT_METHOD_ID" data-native-menu="false" data-mini="true">
+					    <option value="">Chooose Horizontal Collection Method</option>
+                        @foreach (HORIZONTAL_COLLECT_METHODS aHcol in ViewData["HCollectList"] as List<HORIZONTAL_COLLECT_METHODS>)
+                        {
+                            <option @(aHcol.HCOLLECT_METHOD_ID == theSite.HCOLLECT_METHOD_ID ? "selected" : "") value='@aHcol.HCOLLECT_METHOD_ID'>@aHcol.HCOLLECT_METHOD</option> 
+                        }
+                    </select>
+                    <br />
+                    <div class="" id="HCOLLECT_METHOD_ID_validate"></div>	
+                </div>                    
+            </div>
+        </div>
+       
+    </div>
+    
+    <div class="fiftyPercColumn">  
+    
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">Surveyed Elevation (ft):</div>
+                <div class="ui-block-b" style="margin-bottom:0"><input type="text" class="stnTextInput ui-shadow-inset" onkeypress="return isNegNumberKey(event)" name="ELEV_FT" data-mini="true" /></div>
+                <br /><div style="float:left;margin-left:8em">* If left blank, HWM will be considered flagged and not yet surveyed.</div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(globalStrings.VDatum_Label)</div>
+                <div class="ui-block-b">
+                    <select id="vdatumDD" class="stnSelectInput ui-shadow-inset" name="VDATUM_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose Vertical Datum</option>
+                        @foreach (VERTICAL_DATUMS aVD in ViewData["vDatumList"] as List<VERTICAL_DATUMS>)
+                        {
+                            <option value='@aVD.DATUM_ID'>@aVD.DATUM_NAME</option> 
+                        }
+                    </select>
+                    <br />	
+                </div>
+            </div>
+        </div>
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(HWMStrings.Height_Label)</div>
+                <div class="ui-block-b"><input type="text" class="stnTextInput ui-shadow-inset" onkeypress="return isNegNumberKey(event)" name="HEIGHT_ABOVE_GND" data-mini="true" /></div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                 <div class="ui-block-a"><span class="required">@Html.Label(HWMStrings.FlagDate_Label)</span></div>
+                 <div class="ui-block-b"><input type="text" class="required datepicker stnTextInput ui-shadow-inset" name="FLAG_DATE" data-mini="true" value="@DateTime.Now.ToShortDateString()"/></div>
+            </div>
+        </div>
+        
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                 <div class="ui-block-a">@Html.Label(HWMStrings.SurveyDate_Label)</div>
+                 <div class="ui-block-b"><input type="text" class="stnTextInput datepicker ui-shadow-inset" name="SURVEY_DATE" data-mini="true" /></div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(HWMStrings.VCollectMethod_Label)</div>
+                <div class="ui-block-b">
+                    <select id="VcollMethodDD" class="stnSelectInput ui-shadow-inset" name="VCOLLECT_METHOD_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose a Vertical Collection Method</option>
+                        @foreach (VERTICAL_COLLECT_METHODS aVColMd in ViewData["VcollectMethodList"] as List<VERTICAL_COLLECT_METHODS>)
+                        {
+                            <option value='@aVColMd.VCOLLECT_METHOD_ID'>@aVColMd.VCOLLECT_METHOD</option> 
+                        }
+                    </select>
+                    <br />	
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(HWMStrings.Marker_Label)</div>
+                <div class="ui-block-b">
+                    <select id="Markerdd" class="stnSelectInput ui-shadow-inset" name="MARKER_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose a Marker</option>
+                        @foreach (MARKER aMrk in ViewData["markerList"] as List<MARKER>)
+                        {
+                            <option value='@aMrk.MARKER_ID'>@aMrk.MARKER1</option> 
+                        }
+                    </select>
+                    <br />	
+                </div>
+            </div>
+        </div>            
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">@Html.Label(HWMStrings.Notes_Label)</div>
+                <div class="ui-block-b"><textarea rows="4" cols="30" class="stnTextInput ui-shadow-inset" name="HWM_NOTES" data-mini="true"></textarea></div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                 <div class="ui-block-a">@Html.Label(HWMStrings.Stillwater_Label)</div>
+                <div class="ui-block-b">
+                    <span>
+                        <input type="radio" name="STILLWATER" value="1" />Yes
+                        <input type="radio" name="STILLWATER" checked="checked" value="0" />No
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a">Flagging Team:</div>
+                <div class="ui-block-b">@Session["TeamName"]</div>
+            </div>
+        </div>    
+
+       
+                
+    </div>
+    
+    <br clear="all" />
+    <br />
+    
+    <div id="formSubmitDiv" class="formSection">
+        <div class="leftSideSubmit">
+            <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel&#10; " onclick="cancelClick();" /></div></div>
+            <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" name="Create" class="submit" value="Submit&#10; " /></div></div>
+            <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" name="Create" class="submit" value="Submit & Add&#10;Peak Summary" /> </div></div>
+        </div>
+    
+    </div>
+}
+<script type="text/javascript">
+    window.onload = function () {
+        var txtbox = document.getElementById("waterbody");
+        txtbox.focus();
+    }
+
+   //number formatter (any number and decimal place)
+   function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode != 46 && charCode > 31
+            && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+    function isNegNumberKey(evt) {
+        //this allows only numbers and negative sign
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode > 31 && (charCode < 45 || charCode > 57)) {
+            return false;
+        }
+
+        return true;
+    }
+    $(function () {
+        //datepicker 
+        $('input').filter('.datepicker').datepicker({
+            changeMonth: true,
+            yearRange: '1965:2030',
+            changeYear: true
+        });
+
+        //$("#longitude").mask("-999.?99999");
+    });
+
+    $().ready(function () {
+        //validate form on and submit
+
+        $("#HWMCreateForm").validate({
+            errorPlacement: function (error, element) {
+                var name = $(element).attr("name");
+                error.appendTo($("#" + name + "_validate"));
+            },
+            messages: {
+                'HWM_TYPE_ID': "Required",
+                'HWM_ENVIRONMENT': "Required",
+                'HWM_QUALITY_ID': "Required",
+                'HDATUM_ID': "Required",
+                'HCOLLECT_METHOD_ID': "Required",
+                'FLAG_DATE': "Required"
+            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                form.submit();  
+             }
+        });
+
+        //radio button change going from dec degrees to degree minute seconds show/hides lat/long input texts
+        $("#dd_radio").change(function () { //Dec Deg
+            $("#Latsec").removeClass("required");
+            $("#Longsec").removeClass("required");
+
+            $("#Lat_dmc").hide();
+            $("#Long_dmc").hide();
+
+            $("#latitude").addClass("required");
+            $("#longitude").addClass("required");
+
+            if ($("#Latsec").val() != "") {
+                var degLa = $("#Latdec").val();
+                var minLa = $("#Latmin").val();
+                var secLa = $("#Latsec").val();
+                var decDegLat = azimuth(degLa, minLa, secLa);
+                $("#latitude").val(decDegLat);
+
+            }
+            if ($("#Longdec").val() != "") {
+                var degLo = $("#Longdec").val();
+                var minLo = $("#Longmin").val();
+                var secLo = $("#Longsec").val();
+                var decDegLong = azimuth(degLo, minLo, secLo);
+                $("#longitude").val(decDegLong);
+            }
+
+            $("#Lat_dd").show();
+            $("#Long_dd").show();
+        });
+
+        $("#dms_radio").change(function () { //dms
+            $("#latitude").removeClass("required");
+            $("#longitude").removeClass("required");
+
+            $("#Lat_dd").hide();
+            $("#Long_dd").hide();
+
+            $("#Latsec").addClass("required");
+            $("#Longsec").addClass("required");
+
+            if ($("#latitude").val() != "") {
+                var dms = deg_to_dms($("#latitude").val());
+                var dmsArray = dms.split(":");
+                $("#Latdec").val(dmsArray[0]);
+                $("#Latmin").val(dmsArray[1]);
+                $("#Latsec").val(dmsArray[2]);
+            }
+            if ($("#longitude").val() != "") {
+                var dms = deg_to_dms($("#longitude").val());
+                var dmsArray = dms.split(":");
+                $("#Longdec").val("-" + dmsArray[0]);
+                $("#Longmin").val(dmsArray[1]);
+                $("#Longsec").val(dmsArray[2]);
+            }
+            $("#Lat_dmc").show();
+            $("#Long_dmc").show();
+        });
+    });
+
+    //convert deg min sec to dec degrees
+    function azimuth(deg, min, sec) {
+        if (deg < 0) {
+            azi = -1.0 * deg + 1.0 * min / 60.0 + 1.0 * sec / 3600.0;
+            return (-1.0 * azi).toFixed(5);
+        }
+        else {
+            azi = 1.0 * deg + 1.0 * min / 60.0 + 1.0 * sec / 3600.0;
+            return (azi).toFixed(5);
+        }
+    }
+
+    //convert dec degrees to dms
+    function deg_to_dms(deg) {
+        if (deg.substring(0, 1) == "-") {
+            deg = deg.substring(1);
+        }
+        var d = Math.floor(deg);
+        var minfloat = (deg - d) * 60;
+        var m = Math.floor(minfloat);
+        var s = ((minfloat - m) * 60).toFixed(3);
+
+        return ("" + d + ":" + m + ":" + s);
+    }
+
+
+    function cancelClick() {
+        $("#loading").fadeIn();
+        var siteID = $("#siteId").val();
+        window.location.href = '@Url.Action("Details", "Sites")' + "/" + siteID
+    }
+
+    function getCreateWindow(url) {
+        var width = 300;
+        var height = 500;
+        var left = (screen.width - width) / 2;
+        var top = (screen.height - height) / 2;
+        var params = 'width=' + width + ', height=' + height;
+        params += ', top=' + top + ', left=' + left;
+        params += ', directories=no';
+        params += ', location=no';
+        params += ', menubar=no';
+        params += ', resizable=no';
+        params += ', scrollbars=no';
+        params += ', status=no';
+        params += ', toolbar=no';
+        newwin = window.open(url, 'windowname5', params);
+        if (window.focus) { newwin.focus() }
+        return false;
+    }
+</script>
+<style type="text/css">
+    #HWMCreateForm label.error {
+        margin-left: 10px;
+        width: auto;
+        display: inline;
+        color: Red;
+    } 
+    .ui-grid-a .ui-block-b
+    {
+        width:19em !important;
+    }
+</style>

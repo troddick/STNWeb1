@@ -1,0 +1,232 @@
+﻿@* Comments:
+04.16.14 - TR - Added validation
+02.14.13 - TR - Using InstrumentModel to show details of the instrument and its status
+12.06.12 - TR - Changed Interval to number and added radio buttons for Min/Sec (Stored as seconds)
+12.03.12 - TR - Created (Parial View)
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display details of a Sensor 
+ */
+ *@
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using STNWeb.Models;
+
+@model STNWeb.Models.InstrumentModel
+
+
+@{
+    INSTRUMENT thisInstrument = @Model.Instr;
+    INSTRUMENT_STATUS PropInstStat = @Model.PropInstrStatus;
+    INSTRUMENT_STATUS DeplInstStat = @Model.DeplInstrStatus;
+    INSTRUMENT_STATUS RetrInstStat = @Model.RetrInstrStatus;
+    INSTRUMENT_STATUS LostInstStat = @Model.LostInstrStatus;
+    
+  }
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+<div>
+    <h2>Deployed Sensor Information</h2>
+    @using (Ajax.BeginForm("DepInstrEditPV", "Instruments", new { id = thisInstrument.INSTRUMENT_ID }, new AjaxOptions() { UpdateTargetId = "content", HttpMethod = "GET", LoadingElementId = "loading", OnSuccess = "edit_successActions" }, new { @style = "float:left;margin-right:10px" }))
+    {
+        <div><input type="submit" class="STNButton editIcon" value="Edit Deployed Sensor"/></div>
+        <br />
+    
+    }
+    
+    @* only show the Retrieve Instrument button if the most current instrStatus.status_type_id != 2 or 3 (retrieved or lost)*@
+    @{  
+        //if no collection team don't show
+        if (Session["TeamId"] != null)
+        {
+            if (RetrInstStat == null) 
+            {
+                //hasn't been retrieved yet, and there is a session TeamId
+                using (Ajax.BeginForm("InstrRetrievePV", "Instruments", new { id = Model.Instr.INSTRUMENT_ID, siteID = Model.Instr.SITE_ID }, new AjaxOptions() { UpdateTargetId = "retrieve", HttpMethod = "GET", LoadingElementId = "loading", OnSuccess = "edit_successActions" }))
+                {
+                    <input type="hidden" id="notRetrieved" value="true" />
+                    <div><input type="submit" class="STNButton editIcon" value="Retrieve Sensor"/></div>
+                    <br />
+                }
+            }
+        }
+       else 
+        { //there is no team id set
+            if (RetrInstStat == null && LostInstStat == null)
+            {
+            <div style="width:50%"><a href="@Url.Action("InstrRetrievePV", new {id= thisInstrument.INSTRUMENT_ID})" >Choose</a> an event and collection team before retrieving a sensor.</div>
+            <br />
+            }
+        }
+    }
+</div>
+<br clear="all" />
+
+
+    <div class="fiftyPercColumn"> 
+        
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.Event_Label)</span>
+	        <label class="inline">@(ViewData.ContainsKey("anEvent") ? ViewData["anEvent"] : "")</label>
+		</div>
+        
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.SensorType_Label)</span>
+	        <label class="inline">@(ViewData.ContainsKey("SensorType") ? ViewData["SensorType"] : "")</label>
+		</div>
+
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.SensorBrand_Label)</span>
+	        <label class="inline">@ViewData["SensorBrand"]</label>
+		</div>
+
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.SerialNo_Label)</span>
+	        <label class="inline">@thisInstrument.SERIAL_NUMBER</label>
+		</div>
+                        
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.HousingSerialNo_Label)</span>
+	        <label class="inline">@thisInstrument.HOUSING_SERIAL_NUMBER</label>
+		</div>
+        
+        @if (thisInstrument.SENSOR_TYPE_ID == 1)
+        {
+            <div>
+	            <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.Vented_Label)</span>
+	            <label class="inline">@thisInstrument.VENTED</label>
+		    </div>
+        }
+
+        <div>
+	        <span class="bold ui-label-a">Housing Type:</span>
+	        <label class="inline">@(ViewData.ContainsKey("HouseType") ? ViewData["HouseType"] : "")</label>
+		</div>
+
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.DeploymentType_Label)</span>
+	        <label class="inline">@(ViewData.ContainsKey("DeplType") ? ViewData["DeplType"] : "")</label>
+		</div>
+                        
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.LocationDesc_Label)</span>
+	        <textarea class="textAreaDetails inline" cols="30" readonly="readonly">@thisInstrument.LOCATION_DESCRIPTION</textarea>
+		</div>
+        
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.Interval_Label)</span>
+	        @if (thisInstrument.INTERVAL != null) 
+            {<label class="inline">@thisInstrument.INTERVAL seconds</label> } 
+            else {<label class="inline"></label>}
+		</div>
+              
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.TimeStamp_Label)</span>
+	        <label class="inline">@Model.DeplInstrStatus.TIME_STAMP</label> 
+		</div>
+              
+        <div>
+	        <span class="bold ui-label-a">Time Zone:</span>
+	        <label class="inline">@Model.DeplInstrStatus.TIME_ZONE</label> 
+		</div>
+              
+        <div>
+            <span class="bold ui-label-a">Tape Down Information:</span>
+        
+        
+            @if (ViewData.ContainsKey("StatusOPmeasurements"))
+            {
+                OPMeasModel thisOPMeas = ViewData["StatusOPmeasurements"] as OPMeasModel;
+                
+                <table id="opMeasTable" style="border-collapse:collapse;display:inline-block; width:95%;margin-left:10px">
+                    <thead>
+                        <tr><th style="width:25%;text-align:center">OP</th><th style="width:16%">Type</th><th style="width:15%">From OP</th><th style="width:15%">Hanging Length</th><th style="width:15%">Water Surface</th><th style="width:15%">Ground Surface</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding-left:10px">@thisOPMeas.ObjPointName</td>
+                            <td style="width:10px">@thisOPMeas.Type</td>
+                            <td style="text-align:center">@thisOPMeas.FromRP</td>
+                            <td style="text-align:center">@thisOPMeas.HangingLength</td>
+                            <td style="text-align:center">@thisOPMeas.WaterSurface</td>
+                            <td style="text-align:center">@thisOPMeas.GroundSurface</td>
+                        </tr>
+                    </tbody>
+                </table>
+       
+           }
+           else
+           {
+                <label class="inline">No tape down values were added for this deployment</label>
+           }
+        </div>
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.Notes_Label)</span>
+	        <label class="inline">@Model.DeplInstrStatus.NOTES</label> 
+		</div>
+        
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(InstrumentsStrings.Status_Label)</span>
+	        <label class="inline">Deployed</label> 
+		</div>
+
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(globalStrings.SiteNo_Label)</span>
+	        <label class="inline">@ViewData["SiteNo"]</label>
+		</div>
+        
+        @if (PropInstStat != null)
+        {
+            <div>
+	            <span class="bold ui-label-a">@Html.Label(globalStrings.ProposeMember_Label)</span>
+	            <label class="inline">@ViewData["proposedBy"]</label>
+		    </div>
+        }
+        
+        <div>
+	        <span class="bold ui-label-a">@Html.Label(globalStrings.DeployTeam_Label)</span>
+	        <label class="inline">@( ViewData.ContainsKey("teamName") ? ViewData["teamName"] : "" )</label>
+		</div>
+
+    </div> 
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $("#loading").fadeOut();
+
+        $("#retrieveButton").click(function () {
+            //go hit services and find out if there's a retrieved sensor for this (depl pv wouldn't know about it)
+
+            var retrievedSensor = $("#notRetrieved").val();
+            if (retrievedSensor != "true") {
+                alert("Instrument already retrieved. Please refresh");
+            }
+            else {
+                $("#loading").fadeIn();
+                $("#form1").submit();
+            }
+        });
+    });       
+</script>
+<style type="text/css">
+    #opMeasTable th
+    {
+        border: #d9d9d9 solid 1px;
+        padding: 4px;
+    }
+    #opMeasTable td
+    {
+        border: #d9d9d9 solid 1px;
+        padding-left:5px;
+        padding-right:5px;
+    }
+</style>

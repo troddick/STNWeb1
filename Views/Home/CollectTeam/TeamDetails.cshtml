@@ -1,0 +1,113 @@
+﻿@* Comments:
+02.09.13 - TR - Created 
+
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display details of a Collection Team 
+ */
+ *@
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model System.Collections.Generic.List<STNServices.MEMBER>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#loading").fadeOut();
+    });        
+</script>
+
+<div id="dataTitle">
+    <div class="title">
+        Collection Team: @ViewData["colTeamName"]
+    </div>
+</div>
+<br clear="all" />
+
+   
+<hr class="headerUnderline" />
+    <input type="hidden" id="FromWhere" value="@ViewData["RedirectURL"]" />
+
+@*<br />*@
+@*Member 1*@
+
+@{ 
+   foreach (MEMBER  m in Model)
+   {
+   
+       var ind = 0;
+       <div class="fiftyPercColumn"> 
+            <div class="subSection" style="padding-bottom:8px">
+                <div class="subSectionHeader"><span class="bold">Member</span></div>
+                <div class="subSectionContent">  
+                    <div>
+                        <span class="bold ui-label-a">@Html.Label(MemberStrings.FirstName_Label)</span>
+                        <label class="inline">@m.FNAME</label>
+                    </div>
+
+                    <div>
+                        <span class="bold ui-label-a">@Html.Label(MemberStrings.LastName_Label)</span>
+                        <label class="inline">@m.LNAME</label>
+                    </div>
+    
+                    <div>
+                        <span class="bold ui-label-a">@Html.Label(MemberStrings.UserName_Label)</span>
+                        <label class="inline">@m.USERNAME</label>
+                    </div>
+    
+                    <div>@{var agen = "ag_" + ind;}
+                        <span class="bold ui-label-a">@Html.Label(MemberStrings.Agency_Label)</span>
+                        <label class="inline">@( ViewData.ContainsKey(agen) ? ViewData[agen] : "")</label>
+                    </div>
+
+                    <div>@{ var role = "ro_" + ind;}
+                        <span class="bold ui-label-a">@Html.Label(MemberStrings.Role_Label)</span>
+                        <label class="inline">@( ViewData.ContainsKey(role) ? ViewData[role] : "")</label>
+                    </div>
+    
+                    <div>
+                        <span class="bold ui-label-a">@Html.Label(MemberStrings.Phone_Label)</span>
+                        <label class="inline">@m.PHONE</label>
+                    </div>
+
+                    <div>
+                        <span class="bold ui-label-a">@Html.Label(MemberStrings.Email_Label)</span>
+                        <label class="inline">@m.EMAIL</label>
+                    </div>
+
+                    <div>
+                        <span class="bold ui-label-a">@Html.Label(MemberStrings.RSSFeed_Label)</span>
+                        <label class="inline">@m.RSSFEED</label>
+                    </div>
+
+                    <div>
+                        <span class="bold ui-label-a">@Html.Label(MemberStrings.EmergencyContactName_Label)</span>
+                        <label class="inline">@m.EMERGENCY_CONTACT_NAME</label>
+                    </div>
+
+                    <div>
+                        <span class="bold ui-label-a">@Html.Label(MemberStrings.EmergencyContactPhone_Label)</span>
+                        <label class="inline">@m.EMERGENCY_CONTACT_PHONE</label>
+                    </div>               
+                </div>
+            </div>
+        </div>
+       ind++;
+   }
+
+}
+
+<div class="submitDiv"><div class="darkButtonBorder"><input type="submit" style="margin-top:50px" onclick="GoBack();" class="submit" value="Back" /></div></div>
+
+<script type="text/javascript">
+    function GoBack() {
+        var rdURL = $("#FromWhere").val()
+        window.location.href = rdURL;
+    }
+</script>

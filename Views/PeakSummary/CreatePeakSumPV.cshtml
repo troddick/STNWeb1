@@ -1,0 +1,98 @@
+﻿@* Comments: 
+01.8.13 - TR - Created 
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+  * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Partial view for create Peak Summary info when file type DATA is chosen 
+ */
+ *@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using STNWeb.Models;
+ 
+@model STNWeb.Models.FileDataFileModel
+    
+
+<div class="fiftyPercColumn">
+        <div class="subSection softHeader">
+            <div class="bold">@Html.Label(globalStrings.PeakSummary_Label)</div>
+    
+            <div class="ui-grid-a">
+                <div data-role="fieldcontain">
+                    <div class="ui-block-a"><span class="required"></span>@Html.Label(globalStrings.PS_PeakDate_Label)</div>
+                    <div class="ui-block-b"><input type="text" class="stnTextInput ui-shadow-inset" name="FDFM_Peak.PEAK_DATE.Date" data-mini="true" />
+                    <label>MM/DD/YYYY</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ui-grid-a">
+                <div data-role="fieldcontain">
+                        <div class="ui-block-a">@Html.Label(globalStrings.PS_Estimated_Label)</div>
+                        <div class="ui-block-b">
+                            <input type="checkbox" name="FDFM_Peak.IS_PEAK_ESTIMATED" value="1" />
+                        </div>
+                </div>
+            </div>
+
+            <div class="ui-grid-a">
+                <div data-role="fieldcontain">
+                    <div class="ui-block-a">@Html.Label(globalStrings.PS_PeakTime_Label)</div>
+                    <div class="ui-block-b"><input type="text" class="stnTextInput ui-shadow-inset" name="FDFM_Peak.PEAK_DATE.Time" data-mini="true" />
+                    <label>hh:mm PM</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ui-grid-a">
+                <div data-role="fieldcontain">
+                        <div class="ui-block-a">@Html.Label(globalStrings.PS_Estimated_Label)</div>
+                        <div class="ui-block-b">
+                            <input type="checkbox" name="FDFM_Peak.IS_PEAK_TIME_ESTIMATED" value="1" />
+                        </div>
+                </div>
+            </div>
+            
+            <div class="ui-grid-a">
+                <div data-role="fieldcontain">
+                    <div class="ui-block-a">@Html.Label(globalStrings.PS_PeakStage_Label)</div>
+                    <div class="ui-block-b"><input type="text" class="stnTextInput ui-shadow-inset" name="FDFM_Peak.PEAK_STAGE" data-mini="true" /></div>
+                </div>
+            </div>
+    
+            <div class="ui-grid-a">
+                <div data-role="fieldcontain">
+                        <div class="ui-block-a">@Html.Label(globalStrings.PS_Estimated_Label)</div>
+                        <div class="ui-block-b">
+                            <input type="checkbox" name="FDFM_Peak.IS_PEAK_STAGE_ESTIMATED" value="1" />
+                        </div>
+                </div>
+            </div>
+    
+            <div class="ui-grid-a">
+                <div data-role="fieldcontain">
+                    <div class="ui-block-a">@Html.Label(globalStrings.PS_PeakDischarge_Label)</div>
+                    <div class="ui-block-b"><input type="text" class="stnTextInput ui-shadow-inset" name="FDFM_Peak.PEAK_DISCHARGE" data-mini="true" /></div>
+                </div>
+            </div>
+    
+            <div class="ui-grid-a">
+                <div data-role="fieldcontain">
+                        <div class="ui-block-a">@Html.Label(globalStrings.PS_Estimated_Label)</div>
+                        <div class="ui-block-b">
+                            <input type="checkbox" name="FDFM_Peak.IS_PEAK_DISCHARGE_ESTIMATED" value="1" />
+                        </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+ 

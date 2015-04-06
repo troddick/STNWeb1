@@ -1,0 +1,156 @@
+﻿ 
+@* Comments:
+02.07.13 - TR - Created 
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Partial view containing Instrument box (list of Instruments for a site for an event)
+ */
+ *@
+ 
+ 
+ @using STNServices;
+ @using STNWeb.Assets.Resources;
+ @using STNWeb.Models;
+
+ <div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+
+ 
+ <div class="subSection softHeader">
+	    <label class="boxTitle">Sensors</label>
+        <br />
+        <label class="bold"> -- Proposed</label>
+        <input type="button" id="proposedButton" onclick="toggleDeplTypes();" style="padding:0; margin-left:6em" class="STNButton narrow" value="Proposed Sensors" />
+        @using (Ajax.BeginForm("AddProposedSiteSensors", "Instruments", new { siteId = ViewData["siteId"]}, new AjaxOptions() { HttpMethod = "POST"}, new { id = "AddProposedForm"}))
+        {
+            <input type="hidden" name="siteId" value="@ViewData["siteId"]" />
+            <input type="hidden" name="TIME_STAMP" value="@DateTime.UtcNow" />
+            <div id="DeploymentList" style="border: 1px solid; padding:4px" class="hidden">
+                @{ List<DEPLOYMENT_TYPE> DepTypeList = ViewData["DeploymentTypeList"] as List<DEPLOYMENT_TYPE>;
+                    for (int i = 0; i < DepTypeList.Count; i++)
+                    {
+                        <input type="checkbox" name="ProposedSiteSensors" value="@DepTypeList[i].DEPLOYMENT_TYPE_ID" />@DepTypeList[i].METHOD<br />
+                    }   
+                }      	
+                <a id="ProposedAdd" style="padding:0" onclick="AddProposedClick();" class="STNButton narrow">Add Proposed Sensors</a>
+            </div>
+        }
+        @if (ViewData.ContainsKey("Proposed"))
+        {
+            <table style="width:95%">
+            @foreach (InstrSensorType anInstrument in ViewData["Proposed"] as List<InstrSensorType>)
+            {
+                <tr>
+                    <td>
+                        @Html.ActionLink(String.Format("{0} Sensor", anInstrument.DepType), "ProposedDetails", "Instruments", new { id = anInstrument.InstrID }, new { onclick = "loading();" })
+                    </td>
+                    <td> @*Need to think about this... can a proposed sensor be Proposed with an Event chosen*@
+                        @Html.ActionLink("Deploy", "DeployProposedSensor", "Instruments", new { id = anInstrument.InstrID, siteId = ViewData["SiteId"] }, new { @class = "STNButton", @style = "padding:1px", onclick = "loading();" })
+                    </td>
+                </tr>                                              
+            }
+            </table>
+        }
+        else
+        {
+            <div style="padding-bottom:5px">No Proposed Sensors</div>
+        }            
+        <label class="bold"> -- Deployed</label>
+         @if (ViewData.ContainsKey("Deployed"))
+         {        
+            <table style="width:95%">
+                @foreach (INSTRUMENT anInstrument in ViewData["Deployed"] as List<INSTRUMENT>)
+                {            
+                    <tr>
+                        <td>
+                            @Html.ActionLink(String.Format("Sensor {0}", anInstrument.SERIAL_NUMBER), "Details", "Instruments", new { id = anInstrument.INSTRUMENT_ID }, new { onclick = "loading();" })
+                        </td>
+                     </tr>                                              
+                }                    
+            </table>
+         }
+         else
+         {
+            <div style="padding-bottom:5px">No Deployed Instruments for this Event and Site</div>
+         }
+         <label class="bold"> -- Retrieved</label>
+         @if (ViewData.ContainsKey("Retrieved"))
+         {        
+            <table style="width:95%">
+                @foreach (INSTRUMENT anInstrument in ViewData["Retrieved"] as List<INSTRUMENT>)
+                {            
+                    <tr>
+                        <td>
+                            @Html.ActionLink(String.Format("Sensor {0}", anInstrument.SERIAL_NUMBER), "Details", "Instruments", new { id = anInstrument.INSTRUMENT_ID }, new { onclick = "loading();" })
+                        </td>
+                     </tr>                                              
+                }                    
+            </table>
+         }
+         else
+         {
+            <div style="padding-bottom:5px">No Retrieved Instruments for this Event and Site</div>
+         }    
+         @if (ViewData.ContainsKey("Lost"))
+        {
+            <label class="bold" style="text-align:center"> -- Lost</label>
+            <table style="width:95%">
+                @foreach (INSTRUMENT anInstrument in ViewData["Lost"] as List<INSTRUMENT>)
+                {            
+                    <tr>
+                        <td>
+                            @Html.ActionLink(String.Format("Sensor {0}", anInstrument.SERIAL_NUMBER), "Details", "Instruments", new { id = anInstrument.INSTRUMENT_ID }, new { onclick = "loading();" })
+                        </td>
+                    </tr>                                              
+                }                    
+            </table>
+        }
+        <br clear="all" />
+        <div>@Html.ActionLink("Deploy new Sensor", "Create", "Instruments", new { siteId = ViewData["SiteId"] }, new { @class = "STNButton", onclick = "loading();" })</div>
+   <br />
+</div>
+<br />
+
+@* "Deploy new Sensor" --> check to see if the site/hwm sensor is attached to has a rp set. 
+    if so, 
+        go ahead to create sensor. 
+    if not, 
+        alert(must create rp on site/hwm first), 
+        then redirect to rf create page.
+*@
+<script type="text/javascript">
+    function toggleDeplTypes() {
+        if ($("#DeploymentList").is(":visible")) {
+            $("#DeploymentList").hide();
+        }
+        else {
+            $("#DeploymentList").show();
+        }
+    }
+
+    function AddProposedClick() {
+        //add these deployment type sensors to this site
+        $("#loading").fadeIn();
+        var thisForm = $("#AddProposedForm").serialize();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("AddProposedSiteSensors", "Instruments")',
+            dataType: "json",
+            data: thisForm,
+            success: function (response) {
+                if (response.toString() == "true") {
+                    window.location.href = '@Url.Action("Details", "Sites", new { id = @ViewData["siteId"] })'
+                }
+            }
+        });
+    }
+
+    function loading() {
+        $("#loading").fadeIn();
+    };
+</script>

@@ -1,0 +1,91 @@
+﻿@* Comments:
+12.18.12 - TR - Created (Parial View)
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+ * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Display details of a allother file types (not Photo or Data) 
+ */
+ *@
+@using STNServices;
+@using STNWeb.Assets.Resources;
+
+@model STNWeb.Models.FileSourceModel
+        
+    
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#loading").fadeOut();
+    });        
+</script>    
+
+@* AllOtherFileTypes *@
+    
+    @using (Ajax.BeginForm("AllOtherFileEditPV", "Files", new { id = Model.FSM_File.FILE_ID }, new AjaxOptions() { UpdateTargetId = "content", HttpMethod = "GET", LoadingElementId = "loading", OnSuccess = "edit_successActions" }))
+    {
+        <div>
+            <div style="display:inline-block;float:left"><input type="submit" class="STNButton editIcon" value="Edit File Information"/></div>
+            &nbsp;
+            <div style="display:inline-block;margin-top:9px">
+                @Html.ActionLink("Download File", "DownloadFile", "Files", new { id = Model.FSM_File.FILE_ID }, new { @class = "STNButton", target = "_blank" })
+            </div>
+        </div>
+        <br clear="all" /> 
+    }
+    <br />
+<div class="fiftyPercColumn">
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(FileStrings.FileType_Label)</span>
+        <label class="inline">@ViewData["aFileType"]</label>
+    </div>
+    <div>
+        <span class="bold ui-label-a">@Html.Label(FileStrings.FileURL_Label)</span>
+        <label class="inline">@Model.FSM_File.FILE_URL</label>
+    </div> 
+    
+    <div>
+        <span class="bold ui-label-a">@Html.Label(FileStrings.Source_Label)</span>
+        <label class="inline">@( (Model.FSM_Source != null) ? Model.FSM_Source.SOURCE_NAME : "" )</label>
+    </div>
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(FileStrings.Agency_Label)</span>
+        <label class="inline">@ViewData["AgencyName"]</label>
+    </div>
+
+    <div>
+        <span class="bold ui-label-a">@Html.Label(FileStrings.DateTaken_Label)</span>
+        <label class="inline">@(((DateTime)Model.FSM_Source.SOURCE_DATE).ToShortDateString())</label>
+    </div>
+    
+    <div>
+        <span class="bold ui-label-a">@Html.Label(FileStrings.DateUploaded_Label)</span>
+        <label class="inline">@(Model.FSM_File.FILE_DATE != null ? ((DateTime)Model.FSM_File.FILE_DATE).ToShortDateString() : "")</label>
+    </div>
+          
+    <div>
+        <span class="bold ui-label-a">@Html.Label(FileStrings.FileDesc_Label)</span>
+        <textarea class="textAreaDetails inline" rows="4" cols="30" readonly="readonly">@Model.FSM_File.DESCRIPTION</textarea>
+    </div>
+    
+    @if (ViewData.ContainsKey("aHWM"))
+    {
+        <div>
+            <span class="bold ui-label-a">@Html.Label(FileStrings.FileHWM_Label)</span>
+            <label class="inline">@ViewData["aHWM"]</label>
+        </div>
+    }
+
+    @if (ViewData.ContainsKey("aSite"))
+    {
+        <div>
+            <span class="bold ui-label-a">@Html.Label(FileStrings.FileSite_Label)</span>
+            <label class="inline">@ViewData["aSite"]</label>
+        </div>
+    }
+</div>

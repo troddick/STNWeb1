@@ -1,0 +1,394 @@
+﻿@* Comments: 
+04.22.14 - TR - added Tape down information
+04.14.14 - TR - added validate
+02.14.13 - TR - Using InstrumentModel to create an instrument and instrument status object
+11.28.12 - TR - labels converted to html.Labels
+10.29.12 - TR - Created 
+
+*@
+
+@*
+/* Authors:
+ *      Tonia Roddick (troddick@usgs.gov)
+  * Copyright:
+ *      2012 USGS - WiM
+ * Purpose:
+ *      Create a Site's Instrument 
+ */
+ *@
+
+@using STNServices;
+@using STNWeb.Assets.Resources;
+@using STNWeb.Models;
+
+@model STNWeb.Models.InstrumentModel
+           
+@{
+    ViewBag.Title = "Deploy Sensor";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Assets/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+
+<div id="loading"><div id="loadingcontent"><p id="loadingspinner" style=""><img src="@Url.Content("~/Assets/Images/loading1.gif")"  /></p></div></div>
+<div id="dataTitle">
+    <div class="title">Deploy Sensor</div>
+
+</div>
+<br clear="all" />
+<hr class="headerUnderline" />
+
+@{ 
+    decimal eventId = Convert.ToDecimal(Session["EventId"]);
+}
+
+@using (Ajax.BeginForm("Create", "Instruments", null, new AjaxOptions() { HttpMethod = "POST" }, new { @id = "SensorCreateForm" }))
+{
+    <input type="hidden" name="Instr.SITE_ID" value='@ViewData["SiteID"]' />
+    <input type="hidden" name="DeplInstrStatus.STATUS_TYPE_ID" value='1' />
+    if (Session["TeamId"] != null)
+    {
+    <input type="hidden" name="DeplInstrStatus.COLLECTION_TEAM_ID" value='@Session["TeamId"]' />
+    }
+    else
+    {
+        <input type="hidden" name="DeplInstrStatus.COLLECTION_TEAM_ID" value='0' />
+    }
+    
+    <div class="fiftyPercColumn" style="width:55%">
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a" style="width:13em">@Html.Label(InstrumentsStrings.Event_Label)</div>
+                <div class="ui-block-b">
+                    <select id="eventDD" class="stnSelectInput ui-shadow-inset" name="Instr.EVENT_ID" data-native-menu="false" data-mini="true">
+					    <option value="0">Choose an Event</option>
+                        @foreach (EVENT anEv in ViewData["EventList"] as List<EVENT>)
+                        {
+                            <option @( (anEv.EVENT_ID == eventId) ? "selected" : "") value='@anEv.EVENT_ID'>@anEv.EVENT_NAME</option> 
+                        }
+                    </select>
+                    <br />	
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a" style="width:13em"><span class="required">@Html.Label(InstrumentsStrings.SensorType_Label)</span></div>
+                <div class="ui-block-b">
+                    <select id="SensorTypeDDL" class="required stnSelectInput ui-shadow-inset" id="sensType" name="Instr.SENSOR_TYPE_ID" data-native-menu="false" data-mini="true">
+					    <option value="">Choose an Instrument Type</option>
+                        @foreach (SENSOR_TYPE aSensType in ViewData["SensorTypes"] as List<SENSOR_TYPE>)
+                        {
+                            <option value='@aSensType.SENSOR_TYPE_ID'>@aSensType.SENSOR</option> 
+                        }
+                    </select><br />	
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a" style="width:13em"><span class="required">@Html.Label(InstrumentsStrings.SensorBrand_Label)</span></div>
+                <div class="ui-block-b">
+                    <select id="SensorBrandDDL" class="required stnSelectInput ui-shadow-inset" name="Instr.SENSOR_BRAND_ID" data-native-menu="false" data-mini="true">
+					    <option value="">Choose a Sensor Brand</option>
+                        @foreach (SENSOR_BRAND aSensBrand in ViewData["SensorBrands"] as List<SENSOR_BRAND>)
+                        {
+                            <option value='@aSensBrand.SENSOR_BRAND_ID'>@aSensBrand.BRAND_NAME</option> 
+                        }
+                    </select><br />	
+                </div>
+            </div>
+        </div>
+        
+        <div class="ui-grid-a">
+                <div data-role="fieldcontain">
+                    <div class="ui-block-a" style="width:13em"><span class="required">@Html.Label(InstrumentsStrings.SerialNo_Label)</span></div>
+                    <div class="ui-block-b">
+                        <input type="text" class="required stnTextInput ui-shadow-inset" name="Instr.SERIAL_NUMBER" data-mini="true" />
+                    </div>
+                </div>
+        </div>
+      
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a" style="width:13em">@Html.Label(InstrumentsStrings.HousingSerialNo_Label)</div>
+                <div class="ui-block-b"><input type="text" class="stnTextInput ui-shadow-inset" name="Instr.HOUSING_SERIAL_NUMBER" data-mini="true" /></div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a" style="width:13em">@Html.Label(InstrumentsStrings.HousingType_Label)</div>
+                <div class="ui-block-b">
+                    <select id="HousingTypeDDL" class="stnSelectInput ui-shadow-inset" name="Instr.HOUSING_TYPE_ID" data-native-menu="false" data-mini="true">
+					    <option value="">Choose an Housing Type</option>
+                        @foreach (HOUSING_TYPE aHT in ViewData["HousingTypes"] as List<HOUSING_TYPE>)
+                        {
+                            <option value='@aHT.HOUSING_TYPE_ID'>@aHT.TYPE_NAME</option> 
+                        }
+                    </select><br />	
+                </div>
+            </div>
+        </div>
+
+        <div style="display:none" id="vendedDiv">
+            <div class="ui-grid-a">
+                <div data-role="fieldcontain">
+                    <div class="ui-block-a" style="width:13em">@Html.Label(InstrumentsStrings.Vented_Label)</div>
+                    <div class="ui-block-b">
+                        <span>
+                            <input id="YesVent" type="radio" name="Instr.VENTED" value="Yes" />Yes
+                            <input id="NoVent" type="radio" checked="checked" name="Instr.VENTED" value="No" />No
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a" style="width:13em">@Html.Label(InstrumentsStrings.DeploymentType_Label)</div>
+                <div class="ui-block-b">
+                    <span id="DepTypeDDL">
+                        <select id="DepTypeSelect" class="stnSelectInput" name="Instr.DEPLOYMENT_TYPE_ID" data-native-menu="false" data-mini="true">
+					        <option value="0">Choose a Deployment Type</option>
+                        </select>
+                    </span>
+                    <br />	
+                    </div>
+                </div>
+            </div> @* how many files are approved for this event (have approval id) *@
+
+        
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a" style="width:13em">@Html.Label(InstrumentsStrings.LocationDesc_Label)</div>
+                <div class="ui-block-b"><textarea rows="4" cols="30" class="stnTextInput ui-shadow-inset" name="Instr.LOCATION_DESCRIPTION" data-mini="true"></textarea></div>
+            </div>
+        </div>       
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                 <div class="ui-block-a" style="width:13em">@Html.Label(InstrumentsStrings.Interval_Label)</div>
+                <div class="ui-block-b">
+                    <input type="text" class="stnTextInput ui-shadow-inset" onkeypress="return isNumberKey(event)" id="interval" name="Instr.INTERVAL" data-mini="true" />
+                    <span>
+                        <input type="radio" name="IntervalUnit" value="Minute" />Minutes
+                        <input type="radio" name="IntervalUnit" checked="checked" value="Second" />Seconds
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a" style="width:13em"><span class="required">@Html.Label(InstrumentsStrings.TimeStamp_Label)</span></div>
+                <div class="ui-block-b">
+                    <input type="text" class="required stnTextInput ui-shadow-inset" name="DeplInstrStatus.TIME_STAMP" data-mini="true" value='@DateTime.UtcNow'/>
+                </div>
+            </div>
+        </div>
+       
+        <div class="ui-grid-a">
+            <div data-role="fieldcontain">
+                <div class="ui-block-a" style="width:13em"><span class="required">Time Zone:</span></div> 
+                <div class="ui-block-b">
+                    <select id="timeZoneDD" class="stnSelectInput required" name="DeplInstrStatus.TIME_ZONE" data-native-menu="false" data-mini="true">
+					    @foreach (string tz in ViewData["TimeZones"] as List<string>)
+                        {
+                            <option @(tz == "UTC" ? "selected" : "") value='@tz'>@tz</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+                <div data-role="fieldcontain">
+                    <div class="ui-block-a" style="width:13em">@Html.Label(InstrumentsStrings.Notes_Label)</div>
+                    <div class="ui-block-b"><textarea rows="4" cols="30" class="stnTextInput ui-shadow-inset" name="DeplInstrStatus.NOTES" data-mini="true"></textarea></div>
+                </div>
+        </div>
+
+        <div class="ui-grid-a">
+                <div data-role="fieldcontain">
+                    <div class="ui-block-a" style="width:13em">@Html.Label(globalStrings.CollectTeam_Label)</div>
+                    <div class="ui-block-b"><label>@Session["TeamName"]</label></div>
+                </div>
+        </div>
+
+    </div>
+    
+    <div style="float:left;width:45%">  
+        <div class="subSection softHeader" style="width:90%;min-height:120px;overflow:visible">
+	        <div class="boxTitle">Tape Down Information</div>
+            <br />
+
+            <div class="ui-grid-a">
+                <div class="ui-block-a">Site Objective Point(s):</div>
+                <div class="ui-block-b">
+                     @if (ViewData.ContainsKey("SiteOPs"))
+                     {
+                         <select id="SiteOPsDD" class="stnSelectInput ui-shadow-inset" style="width:215px !important" name="OPMeas.OBJECTIVE_POINT_ID" data-native-menu="false" data-mini="true">
+                             <option value='0'></option>
+                             @foreach (OBJECTIVE_POINT anOP in ViewData["SiteOPs"] as List<OBJECTIVE_POINT>)
+                             {
+                                <option value='@anOP.OBJECTIVE_POINT_ID'>@anOP.NAME</option> 
+                             }
+                         </select>
+                     }
+                     else
+                     {
+                        <div>No Objective Points were added to this Site</div>
+                     }
+                
+                    <br />	
+                </div>
+            </div>
+            <div id="opMeasurement" style="display:none">
+                <table id="opTable" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th style="width:25%">OP</th><th style="width:20%">Type</th><th>From OP</th><th>Hanging Length</th><th>Water Surface</th><th>Ground Surface</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>        
+    </div>
+    
+    <br clear="all" />
+    <br />
+    
+    <div id="formSubmitDiv" class="formSection">
+        <div class="leftSideSubmit">
+            <div class="cancelDiv"><div class="lightButtonBorder"><input id="resetButton" type="reset" class="cancel" value="Cancel" onclick="cancelClick();" /></div></div>
+            <div class="submitDiv"><div class="darkButtonBorder"><input type="submit" class="submit" value="Deploy" /></div></div>
+
+            <asp:Button ID="SaveSiteButton" runat="server" Text="Save" />
+        </div>
+    
+    </div>
+}
+
+<style type="text/css">
+    #SensorCreateForm label.error {
+        width: auto;
+        display: inline;
+        color: Red;
+    } 
+</style>
+
+<script type="text/javascript">
+    //number formatter (any number and decimal place)
+    //number formatter (any number and decimal place)
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode != 46 && charCode > 31
+            && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+    function isNegNumberKey(evt) {
+        //this allows only numbers and negative sign
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode > 31 && (charCode < 45 || charCode > 57)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    $("#SiteOPsDD").change(function () {
+        var siteOPs = $("#SiteOPsDD").val();
+        var textOP = $("#SiteOPsDD option:selected").text();
+
+        if (siteOPs >= 1) {
+            //add a row to the table
+            $(opMeasurement).css("display", "inline-table");
+            $("#opTable tbody").empty();
+            $("#opTable tbody").append('<tr id="0">' +
+              '<td style="width:16%">' + textOP + '<input type="hidden" name="OPMeas.OBJECTIVE_POINT_ID" value="' + siteOPs + '" /></td>' +
+              '<td><div><input type="radio" name="OPMeas.TYPE" value="Foreshot" />Foreshot</div><div><input type="radio" name="OPMeas.TYPE" value="Elevation" />Elevation</div></td>' +
+              '<td><input type="text" style="width:80%" onkeypress="return isNegNumberKey(event)" class="stnTextInput ui-shadow-inset" name="OPMeas.FROM_RP" /></td>' +
+              '<td><input type="text" style="width:80%" onkeypress="return isNegNumberKey(event)" class="stnTextInput ui-shadow-inset" name="OPMeas.HANGING_LENGTH" /></td>' +
+              '<td><input type="text" style="width:80%" onkeypress="return isNegNumberKey(event)" class="stnTextInput ui-shadow-inset" name="OPMeas.WATER_SURFACE" /></td>' +
+              '<td><input type="text" style="width:80%" onkeypress="return isNegNumberKey(event)" class="stnTextInput ui-shadow-inset" name="OPMeas.GROUND_SURFACE" /></td>' +
+            '</tr>');
+            //$(".taping").mask("9?99.9999");
+        }
+        else {
+            $("#opTable tbody tr").remove();
+            $(opMeasurement).css("display", "none");
+        }
+    });
+
+
+    $().ready(function () {
+        //validate form on and submit
+        $("#SensorCreateForm").validate();
+        $("#SensorCreateForm").removeData("validator");
+        $("#SensorCreateForm").removeData("unobtrusiveValidation");
+
+        $("#SensorCreateForm").validate({
+            rules: {
+                'Instr.SENSOR_TYPE_ID': "required",
+                'Instr.SERIAL_NUMBER': "required",
+                'Instr.SENSOR_BRAND_ID': "required",
+                'DeplInstrStatus.TIME_STAMP': "required"
+            },
+            messages: {
+                'Instr.SENSOR_TYPE_ID': "Required",
+                'Instr.SERIAL_NUMBER': "Required",
+                'Instr.SENSOR_BRAND_ID': "Required",
+                'DeplInstrStatus.TIME_STAMP': "Required"
+            },
+            submitHandler: function (form) {
+                $("#loading").fadeIn();
+                form.submit();
+            }
+        });
+    });
+
+    $("#SensorTypeDDL").change(function () {
+        if ($("#SensorTypeDDL option:selected").val() == 1) {
+            $("#vendedDiv").css('display', 'inline');
+        }
+        else {
+            $("#vendedDiv").css('display', 'none');
+            $("#YesVent").prop("checked", false);
+            $("#NoVent").prop("checked", false);
+        }
+        $.post("../Instruments/GetDeptTypeList/", { id: $(this).val() }, function (data) {
+            populateDD($("#DepTypeSelect"), data);
+        });
+    });
+    
+    function populateDD(select, data) {
+        select.empty();
+        $.each(data, function (id, option) {
+            select.append($('<option/>', {
+                value: option.DEPLOYMENT_TYPE_ID,
+                text: option.METHOD
+            }));
+        });
+    }     
+
+    function cancelClick() {
+        $("#loading").fadeIn();
+        window.location.href = '@Url.Action("Details", "Sites", new { id = ViewData["SiteId"] })'
+    };
+
+    window.onload = function () {
+        var txtbox = document.getElementById("sensType");
+        txtbox.focus();
+    }
+</script>

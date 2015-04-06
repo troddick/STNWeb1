@@ -190,7 +190,7 @@ namespace STNWeb.Controllers
                 if (m1Username != "")
                 {
                     request = new RestRequest();
-                    request.Resource = "/Members/{userName}";
+                    request.Resource = "/Members?username={userName}";
                     request.RootElement = "MEMBER";
                     request.AddParameter("userName", m1Username, ParameterType.UrlSegment);
                     member1 = serviceCaller.Execute<MEMBER>(request);
@@ -200,7 +200,7 @@ namespace STNWeb.Controllers
                 if (m2Username != "")
                 {
                     request = new RestRequest();
-                    request.Resource = "/Members/{userName}";
+                    request.Resource = "/Members?username={userName}";
                     request.RootElement = "MEMBER";
                     request.AddParameter("userName", m2Username, ParameterType.UrlSegment);
                     member2 = serviceCaller.Execute<MEMBER>(request);

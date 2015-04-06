@@ -750,7 +750,7 @@ namespace STNWeb.Controllers
 
                 //get member logged in's role
                 request = new RestRequest();
-                request.Resource = "/Members/{userName}";
+                request.Resource = "/Members?username={userName}";
                 request.RootElement = "MEMBER";
                 request.AddParameter("userName", User.Identity.Name, ParameterType.UrlSegment);
                 MEMBER thisMember = serviceCaller.Execute<MEMBER>(request);
@@ -1547,9 +1547,9 @@ namespace STNWeb.Controllers
         {
             STNServiceCaller serviceCaller = STNServiceCaller.Instance;
             var request = new RestRequest();
-            request.Resource = "/Members/{memberName}";
+            request.Resource = "/Members?username={userName}";
             request.RootElement = "MEMBER";
-            request.AddParameter("memberName", name, ParameterType.UrlSegment);
+            request.AddParameter("userName", name, ParameterType.UrlSegment);
             MEMBER aMember = serviceCaller.Execute<MEMBER>(request);
 
             return aMember;

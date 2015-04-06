@@ -400,9 +400,9 @@ namespace STNWeb.Controllers
         {
             STNServiceCaller serviceCaller = STNServiceCaller.Instance;
             var request = new RestRequest();
-            request.Resource = "/Members/{memberName}";
+            request.Resource = "/Members?username={userName}";
             request.RootElement = "MEMBER";
-            request.AddParameter("memberName", name, ParameterType.UrlSegment);
+            request.AddParameter("userName", name, ParameterType.UrlSegment);
             MEMBER aMember = serviceCaller.Execute<MEMBER>(request);
 
             return aMember;

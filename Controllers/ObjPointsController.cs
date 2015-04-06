@@ -107,7 +107,7 @@ namespace STNWeb.Controllers
 
                 //get member logged in's role
                 request = new RestRequest();
-                request.Resource = "/Members/{userName}";
+                request.Resource = "/Members?username={userName}";
                 request.RootElement = "MEMBER";
                 request.AddParameter("userName", User.Identity.Name, ParameterType.UrlSegment);
                 MEMBER thisMember = serviceCaller.Execute<MEMBER>(request);

@@ -69,7 +69,7 @@ namespace STNWeb.Controllers
                 ViewData["EventList"] = getAllEvents();
 
                 request = new RestRequest();
-                request.Resource = "/Members/{userName}";
+                request.Resource = "/Members?username={userName}";
                 request.RootElement = "MEMBER";
                 request.AddParameter("userName", User.Identity.Name, ParameterType.UrlSegment);
                 MEMBER thisMember = serviceCaller.Execute<MEMBER>(request);
@@ -212,7 +212,7 @@ namespace STNWeb.Controllers
 
                 //get member logged in info
                 request = new RestRequest();
-                request.Resource = "/Members/{userName}";
+                request.Resource = "/Members?username={userName}";
                 request.RootElement = "MEMBER";
                 request.AddParameter("userName", User.Identity.Name, ParameterType.UrlSegment);
                 MEMBER thisMember = serviceCaller.Execute<MEMBER>(request);
@@ -552,7 +552,7 @@ namespace STNWeb.Controllers
 
                 //get member logged in info
                 request = new RestRequest();
-                request.Resource = "/Members/{userName}";
+                request.Resource = "/Members?username={userName}";
                 request.RootElement = "MEMBER";
                 request.AddParameter("userName", User.Identity.Name, ParameterType.UrlSegment);
                 MEMBER thisMember = serviceCaller.Execute<MEMBER>(request);

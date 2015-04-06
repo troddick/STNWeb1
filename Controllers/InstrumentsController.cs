@@ -176,7 +176,7 @@ namespace STNWeb.Controllers
                         //get the member logged in to store in the collectionTeam id field
                         //will be member id only for proposed sensors
                         request = new RestRequest();
-                        request.Resource = "/Members/{userName}";
+                        request.Resource = "/Members?username={userName}";
                         request.RootElement = "MEMBER";
                         request.AddParameter("userName", User.Identity.Name, ParameterType.UrlSegment);
                         proposedInsStat.COLLECTION_TEAM_ID = serviceCaller.Execute<MEMBER>(request).MEMBER_ID;
@@ -315,7 +315,7 @@ namespace STNWeb.Controllers
 
                 //get member logged in's role
                 var request = new RestRequest();
-                request.Resource = "/Members/{userName}";
+                request.Resource = "/Members?username={userName}";
                 request.RootElement = "MEMBER";
                 request.AddParameter("userName", User.Identity.Name, ParameterType.UrlSegment);
                 MEMBER thisMember = serviceCaller.Execute<MEMBER>(request);

@@ -156,7 +156,7 @@ namespace STNWeb.Controllers
                 STNServiceCaller serviceCaller = STNServiceCaller.Instance;
                 var request = new RestRequest();
 
-                request.Resource = "/Members/{userName}";
+                request.Resource = "/Members?username={userName}";
                 request.RootElement = "Member";
                 request.AddParameter("userName", User.Identity.Name, ParameterType.UrlSegment);
                 MEMBER aMem = serviceCaller.Execute<MEMBER>(request);
@@ -330,7 +330,7 @@ namespace STNWeb.Controllers
                 else
                 {
                     request = new RestRequest();
-                    request.Resource = "/Members/{userName}";
+                    request.Resource = "/Members?username={userName}";
                     request.RootElement = "MEMBER";
                     request.AddParameter("userName", fc["USERNAME"], ParameterType.UrlSegment);
                     MEMBER goTo = serviceCaller.Execute<MEMBER>(request);
@@ -495,9 +495,9 @@ namespace STNWeb.Controllers
                 string memberExists = string.Empty;
                 STNServiceCaller serviceCaller = STNServiceCaller.Instance;
                 var request = new RestRequest();
-                request.Resource = "/Members/{memberName}";
+                request.Resource = "/Members?username={userName}";
                 request.RootElement = "MEMBER";
-                request.AddParameter("memberName", userName, ParameterType.UrlSegment);
+                request.AddParameter("userName", userName, ParameterType.UrlSegment);
                 MEMBER aMember = serviceCaller.Execute<MEMBER>(request);
                 if (aMember != null)
                 { memberExists = aMember.FNAME + " " + aMember.LNAME; }
@@ -515,7 +515,7 @@ namespace STNWeb.Controllers
         {
             STNServiceCaller serviceCaller = STNServiceCaller.Instance;
             var request = new RestRequest();
-            request.Resource = "/Members/{userName}";
+            request.Resource = "/Members?username={userName}";
             request.RootElement = "Member";
             request.AddParameter("userName", User.Identity.Name, ParameterType.UrlSegment);
             MEMBER thisMember = serviceCaller.Execute<MEMBER>(request);

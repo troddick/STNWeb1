@@ -216,7 +216,7 @@ namespace STNWeb.Providers
 
                 STNServiceCaller serviceCaller = STNServiceCaller.Instance;
                 var request = new RestRequest();
-                request.Resource = "/Members/{userName}";
+                request.Resource = "/Members?username={userName}";
                 request.RootElement = "Member";
                 request.AddParameter("userName", username, ParameterType.UrlSegment);
                 MEMBER thisMember = serviceCaller.Execute<MEMBER>(request);

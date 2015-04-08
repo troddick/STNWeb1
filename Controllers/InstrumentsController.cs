@@ -760,52 +760,55 @@ namespace STNWeb.Controllers
                 request.AddParameter("application/xml", serializer.Serialize<INSTRUMENT_STATUS>(thisInstrStatus), ParameterType.RequestBody);
                 INSTRUMENT_STATUS updatedInstStat = serviceCaller.Execute<INSTRUMENT_STATUS>(request);
 
-                if (thisOPMeasures.OBJECTIVE_POINT_ID < 1)
+                if (thisOPMeasures != null)
                 {
-                    //No obj Pt Id or it's 0 means delete or edit existing
-                    //get it 
-                    OP_MEASUREMENTS thisOne = getOPMeasures(updatedInstStat.INSTRUMENT_STATUS_ID);
-                    
-                    //see if checkbox was clicked to remove this Tape Down
-                    var remove = Convert.ToString(Request.Form["RemoveThis"]);
-                    if (thisOne != null)
+                    if (thisOPMeasures.OBJECTIVE_POINT_ID < 1)
                     {
-                        if (remove == "1")
-                        {
-                            //remove it
-                            request = new RestRequest(Method.POST);
-                            request.Resource = "/OPMeasurements/{entityId}";
-                            request.AddParameter("entityId", thisOne.OP_MEASUREMENTS_ID, ParameterType.UrlSegment);
-                            request.AddHeader("X-HTTP-Method-Override", "DELETE");
-                            request.AddHeader("Content-Type", "application/xml");
-                            serviceCaller.Execute<OP_MEASUREMENTS>(request);
-                        }
-                        else
-                        {
-                            //no OBJPT_ID and remove isn't checked - just edited the existing one
-                            //put the objective point id back in
-                            thisOPMeasures.OBJECTIVE_POINT_ID = thisOne.OBJECTIVE_POINT_ID;
+                        //No obj Pt Id or it's 0 means delete or edit existing
+                        //get it 
+                        OP_MEASUREMENTS thisOne = getOPMeasures(updatedInstStat.INSTRUMENT_STATUS_ID);
 
-                            request = new RestRequest(Method.POST);
-                            request.Resource = "/OPMeasurements/{entityId}";
-                            request.RequestFormat = DataFormat.Xml;
-                            request.AddParameter("entityId", thisOPMeasures.OP_MEASUREMENTS_ID, ParameterType.UrlSegment);
-                            request.AddHeader("X-HTTP-Method-Override", "PUT");
-                            request.AddHeader("Content-Type", "application/xml");
-                            //use extended serializer
-                            serializer = new STNWebSerializer();
-                            request.AddParameter("application/xml", serializer.Serialize<OP_MEASUREMENTS>(thisOPMeasures), ParameterType.RequestBody);
-                            serviceCaller.Execute<OP_MEASUREMENTS>(request);
+                        //see if checkbox was clicked to remove this Tape Down
+                        var remove = Convert.ToString(Request.Form["RemoveThis"]);
+                        if (thisOne != null)
+                        {
+                            if (remove == "1")
+                            {
+                                //remove it
+                                request = new RestRequest(Method.POST);
+                                request.Resource = "/OPMeasurements/{entityId}";
+                                request.AddParameter("entityId", thisOne.OP_MEASUREMENTS_ID, ParameterType.UrlSegment);
+                                request.AddHeader("X-HTTP-Method-Override", "DELETE");
+                                request.AddHeader("Content-Type", "application/xml");
+                                serviceCaller.Execute<OP_MEASUREMENTS>(request);
+                            }
+                            else
+                            {
+                                //no OBJPT_ID and remove isn't checked - just edited the existing one
+                                //put the objective point id back in
+                                thisOPMeasures.OBJECTIVE_POINT_ID = thisOne.OBJECTIVE_POINT_ID;
+
+                                request = new RestRequest(Method.POST);
+                                request.Resource = "/OPMeasurements/{entityId}";
+                                request.RequestFormat = DataFormat.Xml;
+                                request.AddParameter("entityId", thisOPMeasures.OP_MEASUREMENTS_ID, ParameterType.UrlSegment);
+                                request.AddHeader("X-HTTP-Method-Override", "PUT");
+                                request.AddHeader("Content-Type", "application/xml");
+                                //use extended serializer
+                                serializer = new STNWebSerializer();
+                                request.AddParameter("application/xml", serializer.Serialize<OP_MEASUREMENTS>(thisOPMeasures), ParameterType.RequestBody);
+                                serviceCaller.Execute<OP_MEASUREMENTS>(request);
+                            }
                         }
                     }
+                    else
+                    {
+                        //thisOPMeasures != null and/or objPtId has a value - they are posting a new one
+                        PostOPMeasurement(updatedInstStat.INSTRUMENT_STATUS_ID, thisOPMeasures);
+                    }
                 }
-                else
-                {
-                    //thisOPMeasures != null and/or objPtId has a value - they are posting a new one
-                    PostOPMeasurement(updatedInstStat.INSTRUMENT_STATUS_ID, thisOPMeasures);
-                }
-              
-                ViewData["teamName"] = getTeam(thisInstrStatus.COLLECTION_TEAM_ID).DESCRIPTION;
+                if (thisInstrStatus.COLLECTION_TEAM_ID != null)
+                    ViewData["teamName"] = getTeam(thisInstrStatus.COLLECTION_TEAM_ID).DESCRIPTION;
 
                 //get viewData props for details page
                 //get event if one
@@ -1095,50 +1098,53 @@ namespace STNWeb.Controllers
                 request.AddParameter("application/xml", serializer.Serialize<INSTRUMENT_STATUS>(thisInStrStat), ParameterType.RequestBody);
                 INSTRUMENT_STATUS successIS = serviceCaller.Execute<INSTRUMENT_STATUS>(request);
 
-                if (thisOPMeasures.OBJECTIVE_POINT_ID < 1)
+                if (thisOPMeasures != null)
                 {
-                    //No obj Pt Id or it's 0 means delete or edit existing, or did nothing with none present
-                    //get it 
-                    OP_MEASUREMENTS thisOne = getOPMeasures(successIS.INSTRUMENT_STATUS_ID);
-
-                    //see if checkbox was clicked to remove this Tape Down
-                    var remove = Convert.ToString(Request.Form["RemoveThis"]);
-                    if (remove == "1")
+                    if (thisOPMeasures.OBJECTIVE_POINT_ID < 1)
                     {
-                        //remove it
-                        request = new RestRequest(Method.POST);
-                        request.Resource = "/OPMeasurements/{entityId}";
-                        request.AddParameter("entityId", thisOne.OP_MEASUREMENTS_ID, ParameterType.UrlSegment);
-                        request.AddHeader("X-HTTP-Method-Override", "DELETE");
-                        request.AddHeader("Content-Type", "application/xml");
-                        serviceCaller.Execute<OP_MEASUREMENTS>(request);
+                        //No obj Pt Id or it's 0 means delete or edit existing, or did nothing with none present
+                        //get it 
+                        OP_MEASUREMENTS thisOne = getOPMeasures(successIS.INSTRUMENT_STATUS_ID);
+
+                        //see if checkbox was clicked to remove this Tape Down
+                        var remove = Convert.ToString(Request.Form["RemoveThis"]);
+                        if (remove == "1")
+                        {
+                            //remove it
+                            request = new RestRequest(Method.POST);
+                            request.Resource = "/OPMeasurements/{entityId}";
+                            request.AddParameter("entityId", thisOne.OP_MEASUREMENTS_ID, ParameterType.UrlSegment);
+                            request.AddHeader("X-HTTP-Method-Override", "DELETE");
+                            request.AddHeader("Content-Type", "application/xml");
+                            serviceCaller.Execute<OP_MEASUREMENTS>(request);
+                        }
+                        else
+                        {
+                            if (thisOne != null)
+                            {
+                                //then they're was one originally. could get here with 0 id, meaning they didn't add one or edit, and there wasn't one originally
+                                //no OBJPT_ID and remove isn't checked - just edited the existing one
+                                //put the objective point id back in
+                                thisOPMeasures.OBJECTIVE_POINT_ID = thisOne.OBJECTIVE_POINT_ID;
+
+                                request = new RestRequest(Method.POST);
+                                request.Resource = "/OPMeasurements/{entityId}";
+                                request.RequestFormat = DataFormat.Xml;
+                                request.AddParameter("entityId", thisOPMeasures.OP_MEASUREMENTS_ID, ParameterType.UrlSegment);
+                                request.AddHeader("X-HTTP-Method-Override", "PUT");
+                                request.AddHeader("Content-Type", "application/xml");
+                                //use extended serializer
+                                serializer = new STNWebSerializer();
+                                request.AddParameter("application/xml", serializer.Serialize<OP_MEASUREMENTS>(thisOPMeasures), ParameterType.RequestBody);
+                                serviceCaller.Execute<OP_MEASUREMENTS>(request);
+                            }
+                        }
                     }
                     else
                     {
-                        if (thisOne != null)
-                        {
-                            //then they're was one originally. could get here with 0 id, meaning they didn't add one or edit, and there wasn't one originally
-                            //no OBJPT_ID and remove isn't checked - just edited the existing one
-                            //put the objective point id back in
-                            thisOPMeasures.OBJECTIVE_POINT_ID = thisOne.OBJECTIVE_POINT_ID;
-
-                            request = new RestRequest(Method.POST);
-                            request.Resource = "/OPMeasurements/{entityId}";
-                            request.RequestFormat = DataFormat.Xml;
-                            request.AddParameter("entityId", thisOPMeasures.OP_MEASUREMENTS_ID, ParameterType.UrlSegment);
-                            request.AddHeader("X-HTTP-Method-Override", "PUT");
-                            request.AddHeader("Content-Type", "application/xml");
-                            //use extended serializer
-                            serializer = new STNWebSerializer();
-                            request.AddParameter("application/xml", serializer.Serialize<OP_MEASUREMENTS>(thisOPMeasures), ParameterType.RequestBody);
-                            serviceCaller.Execute<OP_MEASUREMENTS>(request);
-                        }
+                        //thisOPMeasures != null and/or objPtId has a value - they are posting a new one
+                        PostOPMeasurement(successIS.INSTRUMENT_STATUS_ID, thisOPMeasures);
                     }
-                }
-                else
-                {
-                    //thisOPMeasures != null and/or objPtId has a value - they are posting a new one
-                    PostOPMeasurement(successIS.INSTRUMENT_STATUS_ID, thisOPMeasures);
                 }
 
                 //populate for details page 
@@ -1154,6 +1160,7 @@ namespace STNWeb.Controllers
                     inModel.LostInstrStatus = successIS;
                     ViewData["StatType"] = "Lost";
                 }
+
                 //get tape down info if any
                 OP_MEASUREMENTS opMeasures = getOPMeasures(anIM.RetrInstrStatus.INSTRUMENT_STATUS_ID);
 
@@ -1162,7 +1169,8 @@ namespace STNWeb.Controllers
                     ViewData["StatusOPmeasurements"] = BuildOPMeasModel(opMeasures);
                 }
 
-                ViewData["teamName"] = getTeam(successIS.COLLECTION_TEAM_ID).DESCRIPTION;
+                if (successIS.COLLECTION_TEAM_ID != null)
+                   ViewData["teamName"] = getTeam(successIS.COLLECTION_TEAM_ID).DESCRIPTION;
 
                 //get condition
                 request = new RestRequest();

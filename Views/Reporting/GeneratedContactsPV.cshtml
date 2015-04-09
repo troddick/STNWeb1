@@ -187,27 +187,27 @@
                 <tr>  <td style="border-bottom: 1px solid #EEEEEE">@(rm.submitter.OfficeName)</td></tr>
                 <tr style="height:29px">  <td>@(rm.submitter.OfficeAddress1)<br />@(rm.submitter.OfficeAddress2)</td></tr>
                 <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE"></td></tr>
-                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.DeplContact.FNAME) @(rm.DeplContact.LNAME)</td></tr>
-                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.DeplContact.PHONE)</td></tr>
-                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.DeplContact.ALT_PHONE)</td></tr>
-                <tr style="background-color:#F8F8F8">  <td>@(rm.DeplContact.EMAIL)</td></tr>
+                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.DeplContact != null ? rm.DeplContact.FNAME + " " + rm.DeplContact.LNAME : "")</td></tr>
+                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.DeplContact != null ? rm.DeplContact.PHONE : "")</td></tr>
+                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.DeplContact != null ? rm.DeplContact.ALT_PHONE : "")</td></tr>
+                <tr style="background-color:#F8F8F8">  <td>@(rm.DeplContact != null ? rm.DeplContact.EMAIL : "")</td></tr>
                 <tr>  <td style="border-bottom: 1px solid #EEEEEE"></td></tr>
-                <tr>  <td style="border-bottom: 1px solid #EEEEEE">@(rm.GenContact != null ? rm.GenContact.FNAME : "") @(rm.GenContact != null ? rm.GenContact.LNAME : "")</td></tr>
+                <tr>  <td style="border-bottom: 1px solid #EEEEEE">@(rm.GenContact != null ? rm.GenContact.FNAME + " " + rm.GenContact.LNAME : "")</td></tr>
                 <tr>  <td style="border-bottom: 1px solid #EEEEEE">@(rm.GenContact != null ? rm.GenContact.PHONE : "")</td></tr>
                 <tr>  <td style="border-bottom: 1px solid #EEEEEE">@(rm.GenContact != null ? rm.GenContact.ALT_PHONE : "")</td></tr>
                 <tr>  <td>@(rm.GenContact != null ? rm.GenContact.EMAIL : "")</td></tr>
                 <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE"></td></tr>
-                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.InlandContact != null ? rm.InlandContact.FNAME : "") @(rm.InlandContact != null ? rm.InlandContact.LNAME : "")</td></tr>
+                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.InlandContact != null ? rm.InlandContact.FNAME + " " + rm.InlandContact.LNAME: "")</td></tr>
                 <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.InlandContact != null ? rm.InlandContact.PHONE : "")</td></tr>
                 <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.InlandContact != null ? rm.InlandContact.ALT_PHONE : "")</td></tr>
                 <tr style="background-color:#F8F8F8">  <td>@(rm.InlandContact != null ? rm.InlandContact.EMAIL : "")</td></tr>
                 <tr>  <td style="border-bottom: 1px solid #EEEEEE"></td></tr>
-                <tr>  <td style="border-bottom: 1px solid #EEEEEE">@(rm.CoastContact != null ? rm.CoastContact.FNAME : "") @(rm.CoastContact != null ? rm.CoastContact.LNAME : "")</td></tr>
+                <tr>  <td style="border-bottom: 1px solid #EEEEEE">@(rm.CoastContact != null ? rm.CoastContact.FNAME + " " + rm.CoastContact.LNAME: "")</td></tr>
                 <tr>  <td style="border-bottom: 1px solid #EEEEEE">@(rm.CoastContact != null ? rm.CoastContact.PHONE : "")</td></tr>
                 <tr>  <td style="border-bottom: 1px solid #EEEEEE">@(rm.CoastContact != null ? rm.CoastContact.ALT_PHONE : "")</td></tr>
                 <tr>  <td>@(rm.CoastContact != null ? rm.CoastContact.EMAIL : "")</td></tr>
                 <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE"></td></tr>
-                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.WaterContact != null ? rm.WaterContact.FNAME : "") @(rm.WaterContact != null ? rm.WaterContact.LNAME : "")</td></tr>
+                <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.WaterContact != null ? rm.WaterContact.FNAME + " " + rm.WaterContact.LNAME: "")</td></tr>
                 <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.WaterContact != null ? rm.WaterContact.PHONE : "")</td></tr>
                 <tr style="background-color:#F8F8F8">  <td style="border-bottom: 1px solid #EEEEEE">@(rm.WaterContact != null ? rm.WaterContact.ALT_PHONE : "")</td></tr>
                 <tr style="background-color:#F8F8F8">  <td>@(rm.WaterContact != null ? rm.WaterContact.EMAIL : "")</td></tr>

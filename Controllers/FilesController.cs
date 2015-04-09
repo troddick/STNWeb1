@@ -137,6 +137,8 @@ namespace STNWeb.Controllers
                     if (AllOtherfiles.Count >= 1)
                     { ViewData["AllOtherFiles"] = AllOtherfiles; }
                 }
+                //store Site Id
+                ViewData["SiteId"] = siteId;
 
                 return PartialView("FilesInfoboxes/SiteFileInfoBox4Ev");
             }
